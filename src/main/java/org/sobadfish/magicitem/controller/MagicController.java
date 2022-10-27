@@ -6,6 +6,7 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
+import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.inventory.InventoryTransactionEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
@@ -146,20 +147,7 @@ public class MagicController implements Listener {
         }
     }
 
-//    /**TODO 触发事件*/
-//    @EventHandler
-//    public void onDropEvent(InventoryMoveItemEvent event){
-//        Player player = event.getPlayer();
-//        Item item = event.getItem();
-//        if(item.hasCompoundTag() && item.getNamedTag().contains(CustomTagData.TAG)){
-//            if(tagController.lock.contains(player.getName())){
-//                event.setCancelled();
-//                return;
-//            }
-//            tagController.useItem(this,item, CommandCollect.Trigger.DROP,player);
-//        }
-//
-//    }
+
     @EventHandler
     public void onPlayerInteractEvent(PlayerInteractEvent event){
         Player player = event.getPlayer();
@@ -180,7 +168,13 @@ public class MagicController implements Listener {
                     trigger = CommandCollect.Trigger.RIGHT_CLICK;
                 }
                 if(trigger != null){
-                    tagController.useItem(this,player.getInventory().getHeldItemIndex(), item, trigger, player);
+                    tagController.onUseItemInventory(this,player.getInventory().getHeldItemIndex(), item, trigger, player);
+                }
+                for(Map.Entry<Integer,Item> entry: ((EntityHuman) player).getOffhandInventory().slots.entrySet()){
+                    Item item2 = entry.getValue();
+                    if(item2.hasCompoundTag() && item2.getNamedTag().contains(CustomTagData.TAG)){
+                        tagController.onUseItemOffhand(this,entry.getKey(),item2, trigger,player);
+                    }
                 }
             }
         }
@@ -190,6 +184,16 @@ public class MagicController implements Listener {
     @EventHandler
     public void onDamage(EntityDamageEvent event){
         Entity entity = event.getEntity();
+        if(event instanceof EntityDamageByEntityEvent){
+            Entity entity1 = ((EntityDamageByEntityEvent) event).getDamager();
+            onUseEntity(entity1);
+            return;
+        }
+        onUseEntity(entity);
+
+    }
+
+    private void onUseEntity(Entity entity){
         //TODO 盔甲都可以触发
         LinkedHashMap<Integer,Item> items = new LinkedHashMap<>();
         if(entity instanceof EntityHuman){
@@ -201,17 +205,20 @@ public class MagicController implements Listener {
                 index++;
             }
             items.put(((EntityHuman) entity).getInventory().getHeldItemIndex(),((EntityHuman) entity).getInventory().getItemInHand());
-
-
             for(Map.Entry<Integer,Item> entry: items.entrySet()){
                 Item item = entry.getValue();
                 if(item.hasCompoundTag() && item.getNamedTag().contains(CustomTagData.TAG)){
-                    tagController.useItem(this,entry.getKey(),item, CommandCollect.Trigger.DAMAGE,entity);
+                    tagController.onUseItemInventory(this,entry.getKey(),item, CommandCollect.Trigger.DAMAGE,entity);
                 }
             }
-//
-        }
+            for(Map.Entry<Integer,Item> entry: ((EntityHuman) entity).getOffhandInventory().slots.entrySet()){
+                Item item = entry.getValue();
+                if(item.hasCompoundTag() && item.getNamedTag().contains(CustomTagData.TAG)){
+                    tagController.onUseItemOffhand(this,entry.getKey(),item, CommandCollect.Trigger.DAMAGE,entity);
+                }
+            }
 
+        }
 
     }
 

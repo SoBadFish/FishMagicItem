@@ -60,21 +60,14 @@ public class TagController {
      * 创建一个自定义物品
      * */
     public CustomTagItem createDefaultItem(String name,String item){
-        CustomTagItem customTagItem = createCustomItem(name,Item.fromString(item));
-
-
-        return customTagItem;
+        return createCustomItem(name,Item.fromString(item));
     }
 
     /**
      * 通过手持物品创建一个自定义物品
      * */
     public CustomTagItem createDefaultItemInHand(String name, Item item){
-        CustomTagItem customTagItem = createCustomItem(name,item);
-
-
-        return customTagItem;
-
+        return createCustomItem(name,item);
     }
 
     public CustomTagItem createCustomItem(String name,Item item){
@@ -100,62 +93,61 @@ public class TagController {
         return null;
     }
 
-    public void useOffhandItem(MagicController magicController,int index,Item item, CommandCollect.Trigger trigger, Entity player){
+
+    private boolean useItem(MagicController magicController,Item item, CommandCollect.Trigger trigger, Entity player){
         //LOCK锁一下
+        boolean onUse = false;
         lock.add(player.getName());
         CustomTagItem[] customTagItem = getCustomTagData().getCustomItemsByItem(item);
         if(customTagItem.length > 0){
             CustomTagItem c0 = customTagItem[0];
-            boolean onUse;
             onUse = getCustomTagData().useItem(magicController,c0, trigger,item,player);
             if(onUse){
                 for(int i = 1;i < customTagItem.length;i++){
                     getCustomTagData().useItem(magicController,customTagItem[i],trigger,item,player);
                 }
             }
-            item = getCustomTagData().resetTagItem(c0,item,this);
-            if(c0.canBeUse && onUse){
-                Item c1 = item.clone();
-                c1.setCount(1);
-                if(player instanceof EntityHuman){
-                    ((EntityHuman) player).getOffhandInventory().removeItem(c1);
-                }
-            }else{
-                if(player instanceof EntityHuman){
-                    ((EntityHuman) player).getOffhandInventory().setItem(index,item);
-                }
-            }
+            getCustomTagData().resetTagItem(c0,item,this);
+            onUse = c0.canBeUse && onUse;
         }
         lock.remove(player.getName());
+        return onUse;
     }
 
-    public void useItem(MagicController magicController,int index,Item item, CommandCollect.Trigger trigger, Entity player){
-        //LOCK锁一下
-        lock.add(player.getName());
-        CustomTagItem[] customTagItem = getCustomTagData().getCustomItemsByItem(item);
-        if(customTagItem.length > 0){
-            CustomTagItem c0 = customTagItem[0];
-            boolean onUse;
-            onUse = getCustomTagData().useItem(magicController,c0, trigger,item,player);
-            if(onUse){
-                for(int i = 1;i < customTagItem.length;i++){
-                    getCustomTagData().useItem(magicController,customTagItem[i],trigger,item,player);
-                }
+    /**
+     * 主手
+     * */
+    public void onUseItemInventory(MagicController magicController,int index,Item item, CommandCollect.Trigger trigger, Entity player){
+        boolean onUse = useItem(magicController, item, trigger, player) ;
+        if(onUse){
+            Item c1 = item.clone();
+            c1.setCount(1);
+            if(player instanceof EntityHuman){
+                ((EntityHuman) player).getInventory().removeItem(c1);
             }
-            item = getCustomTagData().resetTagItem(c0,item,this);
-            if(c0.canBeUse && onUse){
-                Item c1 = item.clone();
-                c1.setCount(1);
-                if(player instanceof EntityHuman){
-                    ((EntityHuman) player).getInventory().removeItem(c1);
-                }
-            }else{
-                if(player instanceof EntityHuman){
-                    ((EntityHuman) player).getInventory().setItem(index,item);
-                }
+        }else{
+            if(player instanceof EntityHuman){
+                ((EntityHuman) player).getInventory().setItem(index,item);
             }
         }
-        lock.remove(player.getName());
+    }
+
+    /**
+     * 副手
+     * */
+    public void onUseItemOffhand(MagicController magicController,int index,Item item, CommandCollect.Trigger trigger, Entity player){
+        boolean onUse = useItem(magicController, item, trigger, player) ;
+        if(onUse){
+            Item c1 = item.clone();
+            c1.setCount(1);
+            if(player instanceof EntityHuman){
+                ((EntityHuman) player).getOffhandInventory().removeItem(c1);
+            }
+        }else{
+            if(player instanceof EntityHuman){
+                ((EntityHuman) player).getOffhandInventory().setItem(index,item);
+            }
+        }
     }
 
     /**

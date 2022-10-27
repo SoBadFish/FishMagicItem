@@ -2,7 +2,6 @@ package org.sobadfish.magicitem.files.datas;
 
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
-import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.ListTag;
@@ -69,6 +68,13 @@ public class CustomTagData extends BaseDataWriterGetter<CustomTagItem> {
                     }
                     break;
                 case SUCCESS:
+                    //TODO 使用失败
+                    if(player instanceof Player) {
+                        MagicController.sendMessageToObject(
+                                magicController.languageController.echoToPlayer("display-success")
+                                        .replace("{%e-msg}", magicController.languageController.echoToPlayer("e-msg-success"))
+                                        .replace("{%name}",customTagItem.name), (Player) player);
+                    }
                     //TODO 使用完成
                     ListTag<StringTag> tagListTag = item.getNamedTag().getList(TAG,StringTag.class);
                     if (tagListTag.size() > 1) {
@@ -77,9 +83,16 @@ public class CustomTagData extends BaseDataWriterGetter<CustomTagItem> {
                             return true;
                         }
                     }
+
                     break;
                 case COOL:
                     //TODO 冷却..
+                    if(player instanceof Player) {
+                        MagicController.sendMessageToObject(
+                                magicController.languageController.echoToPlayer("display-cool")
+                                        .replace("{%e-msg}", magicController.languageController.echoToPlayer("e-msg-cool"))
+                                        .replace("{%name}",customTagItem.name), (Player) player);
+                    }
                     break;
                 default:break;
             }
