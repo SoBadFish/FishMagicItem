@@ -46,18 +46,19 @@ public class MagicCommand extends Command {
 
                             }
                         }
+                        Item i = Item.fromString(strings[2]);
+                        if(i.getId() > 0){
+                            magicController.tagController.createDefaultItemInHand(name,i);
+                        }else{
+                            MagicController.sendMessageToObject("&c未知物品",commandSender);
+                            return true;
+                        }
+                        MagicController.sendMessageToObject("&a创建成功",commandSender);
+
                     }else{
-                        magicController.tagController.getTagData().asItem()
+//                        magicController.tagController.getTagData().asItem()
                     }
 
-                    Item i = Item.fromString(strings[2]);
-                    if(i.getId() > 0){
-                        magicController.tagController.createDefaultItemInHand(name,i);
-                    }else{
-                        MagicController.sendMessageToObject("&c未知物品",commandSender);
-                        return true;
-                    }
-                    MagicController.sendMessageToObject("&a创建成功",commandSender);
 
                     break;
                 case "c":
