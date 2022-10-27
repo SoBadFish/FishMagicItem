@@ -1,0 +1,18 @@
+# 插件的前缀标题，提示都会在这里展示
+plugin-title: "&7[ &6FISH-MAGIC &7]"
+
+########################
+#
+# MESSAGE
+#
+########################
+#
+# 使用物品的提示 error 表示，你脸太黑
+#
+e-msg-success: "&a成功使用"
+e-msg-cool: "&b冷却中"
+e-msg-error: "&b未成功触发"
+
+display-error: "{%title}&c 使用&r {%name} &c失败, 原因:&r {%e-msg}"
+display-success: "{%title}&e 使用&r {%name} &a成功"
+

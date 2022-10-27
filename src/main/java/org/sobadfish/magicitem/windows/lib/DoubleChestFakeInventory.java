@@ -9,7 +9,7 @@ import cn.nukkit.math.BlockVector3;
 import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.BlockEntityDataPacket;
-import org.sobadfish.warbridge.WarBridgeMain;
+import org.sobadfish.magicitem.MagicItemMainClass;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -38,7 +38,7 @@ public class DoubleChestFakeInventory extends ChestFakeInventory{
         List<BlockVector3> blocks = onOpenBlock(who);
         blockPositions.put(who, blocks);
 
-        Server.getInstance().getScheduler().scheduleDelayedTask(WarBridgeMain.warBridgeMain,() -> onFakeOpen(who, blocks), 3);
+        Server.getInstance().getScheduler().scheduleDelayedTask(MagicItemMainClass.mainClass,() -> onFakeOpen(who, blocks), 3);
     }
 
     @Override

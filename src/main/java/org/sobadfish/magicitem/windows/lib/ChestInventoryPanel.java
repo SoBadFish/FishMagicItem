@@ -68,6 +68,7 @@ public class ChestInventoryPanel extends DoubleChestFakeInventory implements Inv
     @Override
     public void onSlotChange(int index, Item before, boolean send) {
         super.onSlotChange(index, before, send);
+        //TODO 合成配方
     }
 
 

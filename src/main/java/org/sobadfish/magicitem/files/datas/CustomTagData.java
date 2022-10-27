@@ -1,6 +1,8 @@
 package org.sobadfish.magicitem.files.datas;
 
 import cn.nukkit.Player;
+import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.item.Item;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.ListTag;
@@ -52,19 +54,34 @@ public class CustomTagData extends BaseDataWriterGetter<CustomTagItem> {
     }
 
     //TODO 移除一个指令集
-    public boolean useItem(MagicController magicController,CustomTagItem customTagItem, CommandCollect.Trigger trigger, Item item, Player player){
+    public boolean useItem(MagicController magicController,CustomTagItem customTagItem, CommandCollect.Trigger trigger, Item item, Entity player){
         if(item.hasCompoundTag() && item.getNamedTag().contains(TAG)) {
-            ListTag<StringTag> tagListTag = item.getNamedTag().getList(TAG,StringTag.class);
-            if (tagListTag.size() > 1) {
-                if (customTagItem.onUse(magicController, trigger, player)) {
-                    if(customTagItem.canBeUse){
-                        tagListTag.remove(new StringTag(customTagItem.name));
-                        return true;
+            //TODO 获取范围内玩家
+            CommandCollect.TriggerType type = customTagItem.onUse(magicController, trigger, player);
+            switch (type){
+                case ERROR:
+                    //TODO 使用失败
+                    if(player instanceof Player) {
+                        MagicController.sendMessageToObject(
+                                magicController.languageController.echoToPlayer("display-error")
+                                        .replace("{%e-msg}", magicController.languageController.echoToPlayer("e-msg-error"))
+                                        .replace("{%name}",customTagItem.name), (Player) player);
                     }
-                }
-
-            } else {
-                return customTagItem.onUse(magicController, trigger, player);
+                    break;
+                case SUCCESS:
+                    //TODO 使用完成
+                    ListTag<StringTag> tagListTag = item.getNamedTag().getList(TAG,StringTag.class);
+                    if (tagListTag.size() > 1) {
+                        if (customTagItem.canBeUse) {
+                            tagListTag.remove(new StringTag(customTagItem.name));
+                            return true;
+                        }
+                    }
+                    break;
+                case COOL:
+                    //TODO 冷却..
+                    break;
+                default:break;
             }
         }
         return false;

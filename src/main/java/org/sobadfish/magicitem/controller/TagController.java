@@ -1,6 +1,7 @@
 package org.sobadfish.magicitem.controller;
 
-import cn.nukkit.Player;
+import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.item.Item;
 import org.sobadfish.magicitem.files.BaseDataWriterGetter;
 import org.sobadfish.magicitem.files.datas.CustomTagData;
@@ -54,7 +55,29 @@ public class TagController {
         }
     }
 
-    public void createCustomItem(String name,Item item){
+
+    /**
+     * 创建一个自定义物品
+     * */
+    public CustomTagItem createDefaultItem(String name,String item){
+        CustomTagItem customTagItem = createCustomItem(name,Item.fromString(item));
+
+
+        return customTagItem;
+    }
+
+    /**
+     * 通过手持物品创建一个自定义物品
+     * */
+    public CustomTagItem createDefaultItemInHand(String name, Item item){
+        CustomTagItem customTagItem = createCustomItem(name,item);
+
+
+        return customTagItem;
+
+    }
+
+    public CustomTagItem createCustomItem(String name,Item item){
         //TODO 手持物品创建
         CustomTagItem customTagItem = CustomTagItem.asNameItem(name);
         if(customTagData.hasItem(name)){
@@ -66,6 +89,7 @@ public class TagController {
         }
         save();
         customTagData.createTagItem(customTagItem,item,this);
+        return customTagItem;
     }
 
     public Item getItemByName(String name){
@@ -76,7 +100,7 @@ public class TagController {
         return null;
     }
 
-    public void useItem(MagicController magicController,Item item, CommandCollect.Trigger trigger, Player player){
+    public void useOffhandItem(MagicController magicController,int index,Item item, CommandCollect.Trigger trigger, Entity player){
         //LOCK锁一下
         lock.add(player.getName());
         CustomTagItem[] customTagItem = getCustomTagData().getCustomItemsByItem(item);
@@ -89,15 +113,58 @@ public class TagController {
                     getCustomTagData().useItem(magicController,customTagItem[i],trigger,item,player);
                 }
             }
-            getCustomTagData().resetTagItem(c0,item,this);
+            item = getCustomTagData().resetTagItem(c0,item,this);
             if(c0.canBeUse && onUse){
                 Item c1 = item.clone();
                 c1.setCount(1);
-                player.getInventory().removeItem(c1);
+                if(player instanceof EntityHuman){
+                    ((EntityHuman) player).getOffhandInventory().removeItem(c1);
+                }
             }else{
-                player.getInventory().setItemInHand(item);
+                if(player instanceof EntityHuman){
+                    ((EntityHuman) player).getOffhandInventory().setItem(index,item);
+                }
             }
         }
         lock.remove(player.getName());
+    }
+
+    public void useItem(MagicController magicController,int index,Item item, CommandCollect.Trigger trigger, Entity player){
+        //LOCK锁一下
+        lock.add(player.getName());
+        CustomTagItem[] customTagItem = getCustomTagData().getCustomItemsByItem(item);
+        if(customTagItem.length > 0){
+            CustomTagItem c0 = customTagItem[0];
+            boolean onUse;
+            onUse = getCustomTagData().useItem(magicController,c0, trigger,item,player);
+            if(onUse){
+                for(int i = 1;i < customTagItem.length;i++){
+                    getCustomTagData().useItem(magicController,customTagItem[i],trigger,item,player);
+                }
+            }
+            item = getCustomTagData().resetTagItem(c0,item,this);
+            if(c0.canBeUse && onUse){
+                Item c1 = item.clone();
+                c1.setCount(1);
+                if(player instanceof EntityHuman){
+                    ((EntityHuman) player).getInventory().removeItem(c1);
+                }
+            }else{
+                if(player instanceof EntityHuman){
+                    ((EntityHuman) player).getInventory().setItem(index,item);
+                }
+            }
+        }
+        lock.remove(player.getName());
+    }
+
+    /**
+     * 更新物品标签
+     * */
+    public Item notifyChange(CustomTagItem tagData,Item item){
+        item.setLore(tagData.lore);
+        item.setCustomName(tagData.nameTag != null? tagData.nameTag : tagData.name);
+        getTagData().addItem(tagData.name, item);
+        return item;
     }
 }

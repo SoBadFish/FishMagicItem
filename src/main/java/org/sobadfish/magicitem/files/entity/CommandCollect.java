@@ -1,12 +1,13 @@
 package org.sobadfish.magicitem.files.entity;
 
-import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityCreature;
 import org.sobadfish.magicitem.MagicItemMainClass;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 
 /**
  * 指令集
@@ -51,12 +52,21 @@ public class CommandCollect {
      * 触发响应
      * @param trigger 触发条件
      * @param player 触发的玩家
-     * @param target 响应实体
-     *
-     * @return 触发类型
      * */
-    public void activateCommand(Trigger trigger, Player player, Entity... target){
+    public TriggerType activateCommand(Trigger trigger, Entity player){
         if(trigger == this.trigger){
+            //TODO 获取范围
+            ArrayList<Entity> entities = new ArrayList<>();
+            if(size > 0) {
+                for (Entity entity : player.getLevel().getEntities()) {
+                    if (entity instanceof EntityCreature) {
+                        if (entity.distance(player) <= size){
+                            entities.add(entity);
+                        }
+                    }
+                }
+            }
+
             //最低5位
             boolean key = false;
             if(this.round >= 1){
@@ -77,16 +87,20 @@ public class CommandCollect {
                    for(CommandEx cmd: command){
                        cmd.freeEntity(player);
                    }
-                   if(target.length > 0) {
+                   if(entities.size() > 0) {
                        for (CommandEx commandEx : responseCommand) {
-                           for (Entity entity : target) {
+                           for (Entity entity : entities) {
                                commandEx.freeEntity(entity);
                            }
                        }
                    }
                });
-            }
+               return TriggerType.SUCCESS;
+            }else{
+               return TriggerType.ERROR;
+           }
         }
+        return TriggerType.UNKNOWN;
     }
 
     public enum TriggerType{
@@ -101,7 +115,11 @@ public class CommandCollect {
         /**
          * 冷却中
          * */
-        COOL
+        COOL,
+        /**
+         * 不符合触发条件
+         * */
+        UNKNOWN
     }
 
     private int random(double max){
@@ -121,10 +139,7 @@ public class CommandCollect {
      * 触发方式
      * */
     public enum Trigger{
-        /**
-         * 丢弃触发
-         * */
-        DROP,
+
         /**
          * 右键触发
          * */
@@ -140,6 +155,10 @@ public class CommandCollect {
         /**
          * 手持触发
          * */
-        HAND
+        HAND,
+        /**
+         * 收到伤害触发
+         * */
+        DAMAGE
     }
 }

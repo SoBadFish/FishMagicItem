@@ -1,8 +1,10 @@
 package org.sobadfish.magicitem.files.entity;
 
-import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityHuman;
+import cn.nukkit.item.Item;
 import org.sobadfish.magicitem.controller.MagicController;
+import org.sobadfish.magicitem.controller.TagController;
 
 import java.util.Objects;
 
@@ -54,18 +56,30 @@ public class CustomTagItem {
         return customTagItem;
     }
 
-    public boolean onUse(MagicController magicController, CommandCollect.Trigger trigger, Player player, Entity... entities){
+    public CommandCollect.TriggerType onUse(MagicController magicController, CommandCollect.Trigger trigger, Entity player){
         //是否在冷却
         if(magicController.coolTime.containsKey(name)){
             if(System.currentTimeMillis() - magicController.coolTime.get(name) < coolTime * 1000L){
-                return false;
+                return CommandCollect.TriggerType.COOL;
             }
         }
         magicController.coolTime.put(name,System.currentTimeMillis());
+        boolean success = false;
         for(CommandCollect collect: commandCollects){
-            collect.activateCommand(trigger,player,entities);
+            if(collect.activateCommand(trigger,player) == CommandCollect.TriggerType.SUCCESS){
+                success = true;
+            }
         }
-        return true;
+        if(success){
+            return CommandCollect.TriggerType.SUCCESS;
+        }else{
+            return CommandCollect.TriggerType.ERROR;
+        }
+
+    }
+
+    public Item asItem(TagController controller){
+        return controller.getTagData().asItem(item);
     }
 
 
@@ -89,4 +103,7 @@ public class CustomTagItem {
     public int hashCode() {
         return Objects.hash(name);
     }
+
+
+
 }

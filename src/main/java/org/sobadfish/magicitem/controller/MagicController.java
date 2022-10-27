@@ -2,11 +2,13 @@ package org.sobadfish.magicitem.controller;
 
 import cn.nukkit.Player;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
+import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.inventory.InventoryTransactionEvent;
-import cn.nukkit.event.player.PlayerDropItemEvent;
+import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.PlayerInventory;
 import cn.nukkit.inventory.transaction.InventoryTransaction;
@@ -47,6 +49,11 @@ public class MagicController implements Listener {
      * */
     public CommandController commandCollect;
 
+    /**
+     * 语言文件管理
+     * */
+    public LanguageController languageController;
+
     private final Plugin plugin;
 
     public Map<String,Long> coolTime = new LinkedHashMap<>();
@@ -59,6 +66,10 @@ public class MagicController implements Listener {
         this.recipeController = RecipeController.initRecipe();
         MagicController.sendLogger("&a加载物品中...");
         this.tagController = TagController.initTag();
+        MagicController.sendLogger("&a加载语言中...");
+        plugin.saveDefaultConfig();
+        plugin.reloadConfig();
+        this.languageController = new LanguageController(this,plugin.getConfig());
     }
 
     public Plugin getPlugin() {
@@ -135,19 +146,74 @@ public class MagicController implements Listener {
         }
     }
 
-    /**TODO 触发事件*/
+//    /**TODO 触发事件*/
+//    @EventHandler
+//    public void onDropEvent(InventoryMoveItemEvent event){
+//        Player player = event.getPlayer();
+//        Item item = event.getItem();
+//        if(item.hasCompoundTag() && item.getNamedTag().contains(CustomTagData.TAG)){
+//            if(tagController.lock.contains(player.getName())){
+//                event.setCancelled();
+//                return;
+//            }
+//            tagController.useItem(this,item, CommandCollect.Trigger.DROP,player);
+//        }
+//
+//    }
     @EventHandler
-    public void onDropEvent(PlayerDropItemEvent event){
+    public void onPlayerInteractEvent(PlayerInteractEvent event){
         Player player = event.getPlayer();
-        Item item = event.getItem();
-        if(tagController.lock.contains(player.getName())){
-            event.setCancelled();
-            return;
-        }
-        if(item.hasCompoundTag() && item.getNamedTag().contains(CustomTagData.TAG)){
-            tagController.useItem(this,item, CommandCollect.Trigger.DROP,player);
+        Item item = player.getInventory().getItemInHand();
+        if(item != null) {
+            if (item.hasCompoundTag() && item.getNamedTag().contains(CustomTagData.TAG)) {
+                if (tagController.lock.contains(player.getName())) {
+                    event.setCancelled();
+                    return;
+                }
+                CommandCollect.Trigger trigger = null;
+                if(event.getAction() == PlayerInteractEvent.Action.LEFT_CLICK_AIR ||
+                        event.getAction() == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK){
+                    trigger = CommandCollect.Trigger.LEFT_CLICK;
+                }
+                if(event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_AIR ||
+                        event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK){
+                    trigger = CommandCollect.Trigger.RIGHT_CLICK;
+                }
+                if(trigger != null){
+                    tagController.useItem(this,player.getInventory().getHeldItemIndex(), item, trigger, player);
+                }
+            }
         }
 
     }
+    /**TODO 触发事件*/
+    @EventHandler
+    public void onDamage(EntityDamageEvent event){
+        Entity entity = event.getEntity();
+        //TODO 盔甲都可以触发
+        LinkedHashMap<Integer,Item> items = new LinkedHashMap<>();
+        if(entity instanceof EntityHuman){
+            int index = 0;
+            for(Item armor: ((EntityHuman) entity).getInventory().getArmorContents()){
+                if(armor.getId() != 0){
+                    items.put(((EntityHuman) entity).getInventory().getSize() + index,armor);
+                }
+                index++;
+            }
+            items.put(((EntityHuman) entity).getInventory().getHeldItemIndex(),((EntityHuman) entity).getInventory().getItemInHand());
+
+
+            for(Map.Entry<Integer,Item> entry: items.entrySet()){
+                Item item = entry.getValue();
+                if(item.hasCompoundTag() && item.getNamedTag().contains(CustomTagData.TAG)){
+                    tagController.useItem(this,entry.getKey(),item, CommandCollect.Trigger.DAMAGE,entity);
+                }
+            }
+//
+        }
+
+
+    }
+
 
 }
