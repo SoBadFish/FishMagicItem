@@ -32,8 +32,8 @@ public class TagController {
     static TagController initTag(){
         TagController controller = new TagController();
         MagicController.sendLogger("载入数据中...");
-        controller.tagData = (TagData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/items/tag.json"),"tag.json", TagItem.class, TagData.class);
-        controller.customTagData = (CustomTagData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/items/custom_item.json"),"custom_item.json", CustomTagItem.class, CustomTagData.class);
+        controller.tagData = (TagData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/items/tag.json"),"tag.json","items/tag.json", TagItem.class, TagData.class);
+        controller.customTagData = (CustomTagData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/items/custom_item.json"),"custom_item.json","items/custom_item.json", CustomTagItem.class, CustomTagData.class);
         MagicController.sendLogger("载入完成");
         return controller;
     }

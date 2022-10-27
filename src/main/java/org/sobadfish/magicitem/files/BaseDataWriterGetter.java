@@ -27,12 +27,17 @@ public class BaseDataWriterGetter<T>{
         this.file = file;
     }
 
-    public static <T> BaseDataWriterGetter<?> asFile(File file, String fileName, Class<T> tClass, Class<? extends BaseDataWriterGetter<?>> baseClass){
+    public static <T> BaseDataWriterGetter<?> asFile(File file, String fileName,String outputFile, Class<T> tClass, Class<? extends BaseDataWriterGetter<?>> baseClass){
         Gson gson = new Gson();
         InputStreamReader reader = null;
         try {
             if(!file.exists()){
-                MagicController.saveResource(fileName,false);
+                if(outputFile != null){
+                    MagicController.saveResource(fileName,outputFile,false);
+                }else{
+                    MagicController.saveResource(fileName,false);
+                }
+
             }
             reader = new InputStreamReader(new FileInputStream(file));
             Object[] data = (Object[]) gson.fromJson(reader, tClass);
@@ -59,6 +64,10 @@ public class BaseDataWriterGetter<T>{
             }
         }
         return null;
+    }
+
+    public static <T> BaseDataWriterGetter<?> asFile(File file, String fileName, Class<T> tClass, Class<? extends BaseDataWriterGetter<?>> baseClass){
+        return asFile(file, fileName,null, tClass, baseClass);
     }
 
     public void save(){

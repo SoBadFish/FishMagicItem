@@ -23,8 +23,8 @@ public class CommandController {
 
     static CommandController initCommand(){
         CommandController controller = new CommandController();
-        controller.commandData = (CommandData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/command/cmd.json"),"cmd.json", CommandCollect.class,CommandData.class);
-        controller.commandExData = (CommandExData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/command/cmdex.json"),"cmdex.json", CommandEx.class,CommandExData.class);
+        controller.commandData = (CommandData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/command/cmd.json"),"cmd.json","command/cmd.json", CommandCollect.class,CommandData.class);
+        controller.commandExData = (CommandExData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/command/cmdex.json"),"cmdex.json","command/cmdex.json", CommandEx.class,CommandExData.class);
         return controller;
     }
 

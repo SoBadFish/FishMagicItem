@@ -62,10 +62,22 @@ public class MagicController implements Listener {
     public MagicController(Plugin plugin){
         this.plugin = plugin;
         MagicController.sendLogger("&a加载指令集中...");
+        File d = new File(getDataFolder()+"/command");
+        if(!d.exists()){
+            if(!d.mkdirs()){
+                sendLogger("创建command文件夹失败");
+            }
+        }
         commandCollect = CommandController.initCommand();
         MagicController.sendLogger("&a加载配方中...");
         this.recipeController = RecipeController.initRecipe();
         MagicController.sendLogger("&a加载物品中...");
+        d = new File(getDataFolder()+"/items");
+        if(!d.exists()){
+            if(!d.mkdirs()){
+                sendLogger("创建items文件夹失败");
+            }
+        }
         this.tagController = TagController.initTag();
         MagicController.sendLogger("&a加载语言中...");
         plugin.saveDefaultConfig();
@@ -91,6 +103,10 @@ public class MagicController implements Listener {
 
     public static void saveResource(String filename, boolean replace){
         MagicItemMainClass.mainClass.saveResource(filename, replace);
+    }
+
+    public static void saveResource(String filename,String outputFile, boolean replace){
+        MagicItemMainClass.mainClass.saveResource(filename,outputFile, replace);
     }
 
     public void save(){
