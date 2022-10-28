@@ -77,7 +77,7 @@ public class CommandEx {
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return super.hashCode();
     }
 
 

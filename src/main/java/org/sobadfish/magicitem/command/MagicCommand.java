@@ -25,7 +25,7 @@ public class MagicCommand extends Command {
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
-        MagicController.sendMessageToObject("&e当前仅为测试版，不代表最终品质 版本: v1.0.0",commandSender);
+        MagicController.sendMessageToObject("&e当前仅为测试版，不代表最终品质 版本: v1.0.1",commandSender);
         if(strings.length > 0){
             switch (strings[0]){
                 case "help":
@@ -48,6 +48,8 @@ public class MagicCommand extends Command {
                                                 ,"&r初始自定义物品"),
                                                 TextFormat.colorize('&'
                                                         ,"&r&e在配置文件修改lore显示")};
+                                        MagicController.sendMessageToObject("&a创建成功", commandSender);
+                                        return true;
                                     } else {
                                         MagicController.sendMessageToObject("&c不要手持空气", commandSender);
                                         return true;

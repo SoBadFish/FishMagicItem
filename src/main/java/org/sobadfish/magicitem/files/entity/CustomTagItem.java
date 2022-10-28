@@ -49,7 +49,7 @@ public class CustomTagItem {
     /**
      * 执行的指令集
      * */
-    public CommandCollect[] commandCollects = new CommandCollect[0];
+    public String[] commandCollects = new String[0];
 
 
     public CustomTagItem(){}
@@ -73,10 +73,15 @@ public class CustomTagItem {
         }
         magicController.coolTime.put(name,System.currentTimeMillis());
         boolean success = false;
-        for(CommandCollect collect: commandCollects){
-            if(collect.activateCommand(trigger,player) == CommandCollect.TriggerType.SUCCESS){
-                success = true;
+        for(String collect: commandCollects){
+            CommandCollect commandCollect = magicController.commandCollect.getCommandData().getDataByName(collect);
+            if(commandCollect != null){
+
+                if(commandCollect.activateCommand(magicController.commandCollect,trigger,player) == CommandCollect.TriggerType.SUCCESS){
+                    success = true;
+                }
             }
+
         }
         if(success){
             return CommandCollect.TriggerType.SUCCESS;
@@ -95,7 +100,7 @@ public class CustomTagItem {
     }
 
 
-    public CommandCollect[] getCommandCollects() {
+    public String[] getCommandCollects() {
         return commandCollects;
     }
 

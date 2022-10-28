@@ -1,12 +1,10 @@
 package org.sobadfish.magicitem.files.datas;
 
 import org.sobadfish.magicitem.files.BaseDataWriterGetter;
-import org.sobadfish.magicitem.files.entity.CommandCollect;
 import org.sobadfish.magicitem.files.entity.CommandEx;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 指令集功能数据文件
@@ -27,5 +25,12 @@ public class CommandExData extends BaseDataWriterGetter<CommandEx> {
         boolean b = dataList.add(collect);
         save();
         return b;
+    }
+
+    public CommandEx getDataByName(String name){
+        if(dataList.contains(CommandEx.asName(name))){
+            return dataList.get(dataList.indexOf(CommandEx.asName(name)));
+        }
+        return null;
     }
 }

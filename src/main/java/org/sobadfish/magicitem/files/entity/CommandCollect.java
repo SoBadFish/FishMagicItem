@@ -4,10 +4,12 @@ import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
 import org.sobadfish.magicitem.MagicItemMainClass;
+import org.sobadfish.magicitem.controller.CommandController;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * 指令集
@@ -34,7 +36,7 @@ public class CommandCollect {
     /**
      * 触发的指令
      * */
-    public CommandEx[] command = new CommandEx[0];
+    public String[] command = new String[0];
 
     /**
      * 范围
@@ -45,7 +47,7 @@ public class CommandCollect {
     /**
      * 响应的指令
      * */
-    public CommandEx[] responseCommand = new CommandEx[0];
+    public String[] responseCommand = new String[0];
 
     public CommandCollect(){}
 
@@ -61,9 +63,8 @@ public class CommandCollect {
     /**
      * 触发响应
      * @param trigger 触发条件
-     * @param player 触发的玩家
-     * */
-    public TriggerType activateCommand(Trigger trigger, Entity player){
+     * @param player 触发的玩家  */
+    public TriggerType activateCommand(CommandController collect, Trigger trigger, Entity player){
         if(trigger == this.trigger){
             //TODO 获取范围
             ArrayList<Entity> entities = new ArrayList<>();
@@ -94,13 +95,19 @@ public class CommandCollect {
                //放在线程后台执行
                Server.getInstance().getScheduler().scheduleTask(MagicItemMainClass.mainClass, () -> {
                    //TODO 成功执行
-                   for(CommandEx cmd: command){
-                       cmd.freeEntity(player);
+                   for(String cmd: command){
+                       CommandEx cx = collect.getCommandExData().getDataByName(cmd);
+                       if(cx != null){
+                           cx.freeEntity(player);
+                       }
                    }
                    if(entities.size() > 0) {
-                       for (CommandEx commandEx : responseCommand) {
-                           for (Entity entity : entities) {
-                               commandEx.freeEntity(entity);
+                       for (String commandEx : responseCommand) {
+                           CommandEx cx = collect.getCommandExData().getDataByName(commandEx);
+                           if(cx != null) {
+                               for (Entity entity : entities) {
+                                   cx.freeEntity(entity);
+                               }
                            }
                        }
                    }
@@ -185,8 +192,18 @@ public class CommandCollect {
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return super.hashCode();
     }
 
-
+    @Override
+    public String toString() {
+        return "CommandCollect{" +
+                "name='" + name + '\'' +
+                ", trigger=" + trigger +
+                ", round=" + round +
+                ", command=" + Arrays.toString(command) +
+                ", size=" + size +
+                ", responseCommand=" + Arrays.toString(responseCommand) +
+                '}';
+    }
 }

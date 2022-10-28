@@ -18,7 +18,6 @@ import cn.nukkit.item.Item;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.TextFormat;
 import org.sobadfish.magicitem.MagicItemMainClass;
-import org.sobadfish.magicitem.command.MagicCommand;
 import org.sobadfish.magicitem.files.datas.CustomTagData;
 import org.sobadfish.magicitem.files.entity.CommandCollect;
 import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
@@ -62,6 +61,8 @@ public class MagicController implements Listener {
 
     public MagicController(Plugin plugin){
         this.plugin = plugin;
+        plugin.saveDefaultConfig();
+        plugin.reloadConfig();
 
         MagicController.sendLogger("&a加载指令集中...");
         File d = new File(getDataFolder()+"/command");
@@ -81,6 +82,7 @@ public class MagicController implements Listener {
             }
         }
         this.tagController = TagController.initTag();
+        this.languageController = new LanguageController(this,plugin.getConfig());
 
 
     }
@@ -173,32 +175,36 @@ public class MagicController implements Listener {
     public void onPlayerInteractEvent(PlayerInteractEvent event){
         Player player = event.getPlayer();
         Item item = player.getInventory().getItemInHand();
-        if(item != null) {
-            if (item.hasCompoundTag() && item.getNamedTag().contains(CustomTagData.TAG)) {
-                if (tagController.lock.contains(player.getName())) {
-                    event.setCancelled();
-                    return;
+
+            if (tagController.lock.contains(player.getName())) {
+                event.setCancelled();
+                return;
+            }
+            CommandCollect.Trigger trigger = null;
+            if(event.getAction() == PlayerInteractEvent.Action.LEFT_CLICK_AIR ||
+                    event.getAction() == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK){
+                trigger = CommandCollect.Trigger.LEFT_CLICK;
+            }
+            if(event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_AIR ||
+                    event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK){
+                trigger = CommandCollect.Trigger.RIGHT_CLICK;
+            }
+
+            if(trigger != null){
+                if (item.hasCompoundTag() && item.getNamedTag().contains(CustomTagData.TAG)) {
+                    tagController.onUseItemInventory(this, player.getInventory().getHeldItemIndex(), item, trigger, player);
                 }
-                CommandCollect.Trigger trigger = null;
-                if(event.getAction() == PlayerInteractEvent.Action.LEFT_CLICK_AIR ||
-                        event.getAction() == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK){
-                    trigger = CommandCollect.Trigger.LEFT_CLICK;
-                }
-                if(event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_AIR ||
-                        event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK){
-                    trigger = CommandCollect.Trigger.RIGHT_CLICK;
-                }
-                if(trigger != null){
-                    tagController.onUseItemInventory(this,player.getInventory().getHeldItemIndex(), item, trigger, player);
-                }
-                for(Map.Entry<Integer,Item> entry: ((EntityHuman) player).getOffhandInventory().slots.entrySet()){
+                for(Map.Entry<Integer,Item> entry: player.getOffhandInventory().getContents().entrySet()){
                     Item item2 = entry.getValue();
                     if(item2.hasCompoundTag() && item2.getNamedTag().contains(CustomTagData.TAG)){
                         tagController.onUseItemOffhand(this,entry.getKey(),item2, trigger,player);
                     }
                 }
             }
-        }
+
+
+
+
 
     }
     /**TODO 触发事件*/

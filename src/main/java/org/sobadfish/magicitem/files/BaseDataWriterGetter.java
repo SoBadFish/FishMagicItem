@@ -8,8 +8,9 @@ import org.sobadfish.magicitem.controller.MagicController;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 /**
@@ -27,8 +28,8 @@ public class BaseDataWriterGetter<T>{
         this.file = file;
     }
 
-    public static <T> BaseDataWriterGetter<?> asFile(File file, String fileName, String outputFile, Type type, Class<? extends BaseDataWriterGetter<?>> baseClass){
-        Gson gson = new Gson();
+    public static <T> BaseDataWriterGetter<?> asFile(File file, String fileName, String outputFile, Class<T[]> tClass, Class<? extends BaseDataWriterGetter<?>> baseClass){
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
         InputStreamReader reader = null;
         try {
             if(!file.exists()){
@@ -39,11 +40,11 @@ public class BaseDataWriterGetter<T>{
                 }
 
             }
-            reader = new InputStreamReader(new FileInputStream(file));
-            ArrayList<T> data = gson.fromJson(reader, type);
+            reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
+            T[] data =  gson.fromJson(reader, tClass);
             Constructor<?> constructor = baseClass.getConstructor(ArrayList.class,File.class);
             if(data != null){
-                return (BaseDataWriterGetter<?>) constructor.newInstance(data,file);
+                return (BaseDataWriterGetter<?>) constructor.newInstance(new ArrayList<>(Arrays.asList(data)),file);
             }else{
                 return (BaseDataWriterGetter<?>) constructor.newInstance(new ArrayList<>(),file);
             }
@@ -66,8 +67,8 @@ public class BaseDataWriterGetter<T>{
         return null;
     }
 
-    public static <T> BaseDataWriterGetter<?> asFile(File file, String fileName,Type type, Class<? extends BaseDataWriterGetter<?>> baseClass){
-        return asFile(file, fileName,null,type, baseClass);
+    public static <T> BaseDataWriterGetter<?> asFile(File file, String fileName,Class<T[]> tClass, Class<? extends BaseDataWriterGetter<?>> baseClass){
+        return asFile(file, fileName,null,tClass, baseClass);
     }
 
     public void save(){
@@ -82,7 +83,7 @@ public class BaseDataWriterGetter<T>{
             }
         }
         try {
-            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file));
+            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
             String json = gson.toJson(dataList);
             writer.write(json,0,json.length());
             writer.close();
