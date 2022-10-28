@@ -23,6 +23,8 @@ public class CommandExData extends BaseDataWriterGetter<CommandEx> {
         if(dataList.contains(collect)){
             return false;
         }
-        return dataList.add(collect);
+        boolean b = dataList.add(collect);
+        save();
+        return b;
     }
 }

@@ -126,6 +126,7 @@ public class MagicCommand extends Command {
                         return false;
                     }
                     break;
+
                 default:
                     MagicController.sendMessageToObject("/fmi help 查看帮助",commandSender);
             }

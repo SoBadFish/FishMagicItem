@@ -117,6 +117,10 @@ public class MagicController implements Listener {
         if(tagController != null){
             tagController.save();
         }
+        if(commandCollect != null){
+            commandCollect.save();
+        }
+
     }
 
     public static void sendLogger(String msg){

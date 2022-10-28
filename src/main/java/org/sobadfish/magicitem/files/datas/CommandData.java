@@ -22,7 +22,9 @@ public class CommandData extends BaseDataWriterGetter<CommandCollect> {
         if(dataList.contains(collect)){
             return false;
         }
-        return dataList.add(collect);
+        boolean b = dataList.add(collect);
+        save();
+        return b;
     }
 
 }

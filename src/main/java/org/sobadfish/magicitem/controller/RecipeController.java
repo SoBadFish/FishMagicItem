@@ -21,7 +21,7 @@ public class RecipeController {
 
     static RecipeController initRecipe(){
         RecipeController controller = new RecipeController();
-        controller.recipeData = (RecipeData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/recipe.json"),"recipe.json", Recipe.class,RecipeData.class);
+        controller.recipeData = (RecipeData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/recipe.json"),"recipe.json",RecipeData.class);
         return controller;
     }
 

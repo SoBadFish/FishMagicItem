@@ -2,6 +2,7 @@ package org.sobadfish.magicitem.files;
 
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.sobadfish.magicitem.controller.MagicController;
 
 import java.io.*;
@@ -27,7 +28,7 @@ public class BaseDataWriterGetter<T>{
         this.file = file;
     }
 
-    public static <T> BaseDataWriterGetter<?> asFile(File file, String fileName,String outputFile, Class<T> tClass, Class<? extends BaseDataWriterGetter<?>> baseClass){
+    public static <T> BaseDataWriterGetter<?> asFile(File file, String fileName,String outputFile, Class<? extends BaseDataWriterGetter<?>> baseClass){
         Gson gson = new Gson();
         InputStreamReader reader = null;
         try {
@@ -40,10 +41,10 @@ public class BaseDataWriterGetter<T>{
 
             }
             reader = new InputStreamReader(new FileInputStream(file));
-            Object[] data = (Object[]) gson.fromJson(reader, tClass);
+            List<T> data = gson.fromJson(reader, new TypeToken<List<T>>() {}.getType());
             Constructor<?> constructor = baseClass.getConstructor(List.class,File.class);
             if(data != null){
-                return (BaseDataWriterGetter<?>) constructor.newInstance(new ArrayList<>(Arrays.asList(data)),file);
+                return (BaseDataWriterGetter<?>) constructor.newInstance(data,file);
             }else{
                 return (BaseDataWriterGetter<?>) constructor.newInstance(new ArrayList<>(),file);
             }
@@ -66,8 +67,8 @@ public class BaseDataWriterGetter<T>{
         return null;
     }
 
-    public static <T> BaseDataWriterGetter<?> asFile(File file, String fileName, Class<T> tClass, Class<? extends BaseDataWriterGetter<?>> baseClass){
-        return asFile(file, fileName,null, tClass, baseClass);
+    public static <T> BaseDataWriterGetter<?> asFile(File file, String fileName, Class<? extends BaseDataWriterGetter<?>> baseClass){
+        return asFile(file, fileName,null, baseClass);
     }
 
     public void save(){

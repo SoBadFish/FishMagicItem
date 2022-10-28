@@ -22,12 +22,12 @@ public class CommandEx {
     /**
      * 指令
      * */
-    public String[] commands;
+    public String[] commands = new String[0];
 
     /**
      * 药水
      * */
-    public String[] effects;
+    public String[] effects = new String[0];
 
 
 
