@@ -1,6 +1,7 @@
 package org.sobadfish.magicitem.files.datas;
 
 import org.sobadfish.magicitem.files.BaseDataWriterGetter;
+import org.sobadfish.magicitem.files.entity.CommandCollect;
 import org.sobadfish.magicitem.files.entity.CommandEx;
 
 import java.io.File;
@@ -15,5 +16,13 @@ public class CommandExData extends BaseDataWriterGetter<CommandEx> {
 
     public CommandExData(List<CommandEx> dataList, File file) {
         super(dataList, file);
+    }
+
+    public boolean addCommandExData(String name){
+        CommandEx collect = CommandEx.asName(name);
+        if(dataList.contains(collect)){
+            return false;
+        }
+        return dataList.add(collect);
     }
 }

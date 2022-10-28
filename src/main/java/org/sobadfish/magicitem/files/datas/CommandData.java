@@ -17,4 +17,12 @@ public class CommandData extends BaseDataWriterGetter<CommandCollect> {
         super(dataList, file);
     }
 
+    public boolean addCommandData(String name){
+        CommandCollect collect = CommandCollect.asName(name);
+        if(dataList.contains(collect)){
+            return false;
+        }
+        return dataList.add(collect);
+    }
+
 }

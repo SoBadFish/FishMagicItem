@@ -80,7 +80,6 @@ public class TagController {
             customTagData.dataList.add(customTagItem);
             getTagData().addItem(customTagItem.name,item);
         }
-        save();
         customTagData.createTagItem(customTagItem,item,this);
         return customTagItem;
     }
@@ -153,10 +152,11 @@ public class TagController {
     /**
      * 更新物品标签
      * */
-    public Item notifyChange(CustomTagItem tagData,Item item){
+    public Item notifyChangeItem(CustomTagItem tagData,Item item){
         item.setLore(tagData.lore);
         item.setCustomName(tagData.nameTag != null? tagData.nameTag : tagData.name);
         getTagData().addItem(tagData.name, item);
         return item;
     }
+
 }

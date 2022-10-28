@@ -54,6 +54,12 @@ public class CommandEx {
         }
     }
 
+    public static CommandEx asName(String name){
+        CommandEx collect = new CommandEx();
+        collect.name = name;
+        return collect;
+    }
+
 
     @Override
     public String toString() {

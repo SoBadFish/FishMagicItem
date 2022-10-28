@@ -78,6 +78,10 @@ public class CustomTagItem {
 
     }
 
+    /**
+     * @deprecated 最好不要用这个功能
+     * */
+    @Deprecated
     public Item asItem(TagController controller){
         return controller.getTagData().asItem(item);
     }

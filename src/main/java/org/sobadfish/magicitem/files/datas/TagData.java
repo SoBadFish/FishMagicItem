@@ -39,7 +39,9 @@ public class TagData extends BaseDataWriterGetter<TagItem> {
         }else {
             item = Item.fromString(tag);
         }
-        cacheItem.put(tag,item);
+        if(item.getId() > 0){
+            cacheItem.put(tag,item);
+        }
         return item;
     }
 

@@ -18,6 +18,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.TextFormat;
 import org.sobadfish.magicitem.MagicItemMainClass;
+import org.sobadfish.magicitem.command.MagicCommand;
 import org.sobadfish.magicitem.files.datas.CustomTagData;
 import org.sobadfish.magicitem.files.entity.CommandCollect;
 import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
@@ -80,6 +81,7 @@ public class MagicController implements Listener {
             }
         }
         this.tagController = TagController.initTag();
+        plugin.getServer().getCommandMap().register("fmagic",new MagicCommand("fmi"));
 
     }
 

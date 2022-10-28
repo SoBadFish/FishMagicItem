@@ -106,6 +106,7 @@ public class CustomTagData extends BaseDataWriterGetter<CustomTagItem> {
             tagItem = dataList.get(dataList.indexOf(tagItem));
             String item = tagItem.item;
             Item item1 = tagController.getTagData().asItem(item);
+
             //检验是否存在标签，如果没有标签，则证明这个物品不在tag中存储
             //没有被tag存储的物品不是好物品
             return createTagItem(tagItem,item1,tagController);
@@ -113,10 +114,10 @@ public class CustomTagData extends BaseDataWriterGetter<CustomTagItem> {
         return null;
     }
 
+
     //重置物品
-    public Item resetTagItem(CustomTagItem customTagItem,Item item,TagController tagController){
+    public void resetTagItem(CustomTagItem customTagItem,Item item,TagController tagController){
         tagController.getTagData().addItem(customTagItem.name, item);
-        return item;
     }
 
     public Item createTagItem(CustomTagItem customTagItem,Item item,TagController tagController){
