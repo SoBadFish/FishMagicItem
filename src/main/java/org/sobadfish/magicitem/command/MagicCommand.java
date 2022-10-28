@@ -1,6 +1,7 @@
 package org.sobadfish.magicitem.command;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
@@ -38,7 +39,6 @@ public class MagicCommand extends Command {
                     if(strings.length > 3) {
                         String name = strings[2];
                         if ("add".equalsIgnoreCase(strings[1])) {
-
                             if ("hand".equalsIgnoreCase(strings[3])) {
                                 if (commandSender instanceof Player) {
                                     Item it = ((Player) commandSender).getInventory().getItemInHand();
@@ -78,19 +78,24 @@ public class MagicCommand extends Command {
                             }
 
                         }else{
-                            if (commandSender instanceof Player) {
-                                Item item = magicController.tagController.getCustomTagData().getItemByName(name, magicController.tagController);
-                                if (item == null) {
-                                    item = magicController.tagController.getTagData().asItem(name);
-                                }
-                                if (item.getId() > 0) {
-                                    ((Player) commandSender).getInventory().addItem(item);
-                                    MagicController.sendMessageToObject("&c给予成功", commandSender);
-                                }
-                            }else{
-                                MagicController.sendMessageToObject("&c控制台无法执行此指令", commandSender);
+                            Item item = magicController.tagController.getCustomTagData().getItemByName(name, magicController.tagController);
+                            if (item == null) {
+                                item = magicController.tagController.getTagData().asItem(name);
                             }
+                            if (item.getId() > 0) {
+                                String playerName = strings[3];
+                                Player player = Server.getInstance().getPlayer(playerName);
+                                if(player != null){
+                                    player.getInventory().addItem(item);
+                                    MagicController.sendMessageToObject("&a给予成功", commandSender);
+                                }else{
+                                    MagicController.sendMessageToObject("&c玩家不在线", commandSender);
+                                }
 
+
+                            }else{
+                                MagicController.sendMessageToObject("&c未知物品",commandSender);
+                            }
                         }
 
                     } else{

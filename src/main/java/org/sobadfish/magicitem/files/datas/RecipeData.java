@@ -4,7 +4,7 @@ import org.sobadfish.magicitem.files.BaseDataWriterGetter;
 import org.sobadfish.magicitem.files.entity.Recipe;
 
 import java.io.File;
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * 配方数据
@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class RecipeData extends BaseDataWriterGetter<Recipe> {
 
-    public RecipeData(List<Recipe> dataList, File file) {
+    public RecipeData(ArrayList<Recipe> dataList, File file) {
         super(dataList, file);
     }
 }

@@ -30,6 +30,15 @@ public class CommandEx {
     public String[] effects = new String[0];
 
 
+    public CommandEx(){}
+
+    public CommandEx(String name){
+        this.name = name;
+    }
+
+    public static CommandEx asName(String name){
+        return new CommandEx(name);
+    }
 
 
     public void freeEntity(Entity entity){
@@ -54,10 +63,21 @@ public class CommandEx {
         }
     }
 
-    public static CommandEx asName(String name){
-        CommandEx collect = new CommandEx();
-        collect.name = name;
-        return collect;
+
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof CommandEx){
+            CommandEx that = (CommandEx) o;
+            return name.equals(that.name);
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 
 

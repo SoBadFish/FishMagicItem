@@ -7,7 +7,6 @@ import org.sobadfish.magicitem.controller.MagicController;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 /**
  * tag物品
@@ -27,10 +26,14 @@ public class TagItem {
      * */
     public String itemStr = null;
 
+    public TagItem(){}
+
+    public TagItem(String name){
+        this.name = name;
+    }
+
     public static TagItem asNameTag(String name){
-        TagItem tagItem = new TagItem();
-        tagItem.name = name;
-        return tagItem;
+        return new TagItem(name);
     }
 
 
@@ -47,21 +50,21 @@ public class TagItem {
         return Item.get(0);
     }
 
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+        if(o instanceof TagItem){
+            TagItem that = (TagItem) o;
+            return name.equalsIgnoreCase(that.name);
         }
-        if (!(o instanceof TagItem)) {
-            return false;
-        }
-        TagItem tagItem = (TagItem) o;
-        return name.equals(tagItem.name);
+
+        return false;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
+
 }

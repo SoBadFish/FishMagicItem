@@ -5,6 +5,7 @@ import org.sobadfish.magicitem.files.entity.CommandCollect;
 import org.sobadfish.magicitem.files.entity.CommandEx;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,7 +15,7 @@ import java.util.List;
  */
 public class CommandExData extends BaseDataWriterGetter<CommandEx> {
 
-    public CommandExData(List<CommandEx> dataList, File file) {
+    public CommandExData(ArrayList<CommandEx> dataList, File file) {
         super(dataList, file);
     }
 

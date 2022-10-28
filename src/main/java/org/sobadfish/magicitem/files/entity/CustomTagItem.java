@@ -1,12 +1,11 @@
 package org.sobadfish.magicitem.files.entity;
 
 import cn.nukkit.entity.Entity;
-import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.item.Item;
 import org.sobadfish.magicitem.controller.MagicController;
 import org.sobadfish.magicitem.controller.TagController;
 
-import java.util.Objects;
+import java.util.Arrays;
 
 /**
  * 自定义物品
@@ -28,6 +27,10 @@ public class CustomTagItem {
      * 自定义显示的Lore
      * */
     public String[] lore = new String[0];
+    /**
+     * 自定义
+     * */
+    public String[] enchant = new String[0];
 
     /**
      * 物品外观
@@ -49,12 +52,17 @@ public class CustomTagItem {
     public CommandCollect[] commandCollects = new CommandCollect[0];
 
 
+    public CustomTagItem(){}
+
+    public CustomTagItem(String name){
+        this.name = name;
+    }
 
     public static CustomTagItem asNameItem(String name){
-        CustomTagItem customTagItem = new CustomTagItem();
-        customTagItem.name = name;
-        return customTagItem;
+        return new CustomTagItem(name);
     }
+
+
 
     public CommandCollect.TriggerType onUse(MagicController magicController, CommandCollect.Trigger trigger, Entity player){
         //是否在冷却
@@ -93,20 +101,33 @@ public class CustomTagItem {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+        if(o instanceof CustomTagItem){
+            return ((CustomTagItem) o).name.equalsIgnoreCase(name);
         }
-        if (!(o instanceof CustomTagItem)) {
-            return false;
-        }
-        CustomTagItem that = (CustomTagItem) o;
-        return name.equals(that.name);
+        return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name);
+        return name.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "CustomTagItem{" +
+                "name='" + name + '\'' +
+                ", nameTag='" + nameTag + '\'' +
+                ", lore=" + Arrays.toString(lore) +
+                ", enchant=" + Arrays.toString(enchant) +
+                ", item='" + item + '\'' +
+                ", coolTime=" + coolTime +
+                ", canBeUse=" + canBeUse +
+                ", commandCollects=" + Arrays.toString(commandCollects) +
+                '}';
+    }
+
+
+
 
 
 

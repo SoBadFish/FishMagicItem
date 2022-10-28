@@ -4,7 +4,7 @@ import org.sobadfish.magicitem.files.BaseDataWriterGetter;
 import org.sobadfish.magicitem.files.entity.CommandCollect;
 
 import java.io.File;
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * 指令集数据文件
@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class CommandData extends BaseDataWriterGetter<CommandCollect> {
 
-    public CommandData(List<CommandCollect> dataList, File file) {
+    public CommandData(ArrayList<CommandCollect> dataList, File file) {
         super(dataList, file);
     }
 

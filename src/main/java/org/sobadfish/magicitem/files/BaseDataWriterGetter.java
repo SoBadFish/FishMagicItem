@@ -2,15 +2,14 @@ package org.sobadfish.magicitem.files;
 
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.GsonBuilder;
 import org.sobadfish.magicitem.controller.MagicController;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 
 /**
@@ -19,16 +18,16 @@ import java.util.List;
  */
 public class BaseDataWriterGetter<T>{
 
-    public List<T> dataList;
+    public ArrayList<T> dataList;
 
     public File file;
 
-    public BaseDataWriterGetter(List<T> dataList, File file){
+    public BaseDataWriterGetter(ArrayList<T> dataList, File file){
         this.dataList = dataList;
         this.file = file;
     }
 
-    public static <T> BaseDataWriterGetter<?> asFile(File file, String fileName,String outputFile, Class<? extends BaseDataWriterGetter<?>> baseClass){
+    public static <T> BaseDataWriterGetter<?> asFile(File file, String fileName, String outputFile, Type type, Class<? extends BaseDataWriterGetter<?>> baseClass){
         Gson gson = new Gson();
         InputStreamReader reader = null;
         try {
@@ -41,8 +40,8 @@ public class BaseDataWriterGetter<T>{
 
             }
             reader = new InputStreamReader(new FileInputStream(file));
-            List<T> data = gson.fromJson(reader, new TypeToken<List<T>>() {}.getType());
-            Constructor<?> constructor = baseClass.getConstructor(List.class,File.class);
+            ArrayList<T> data = gson.fromJson(reader, type);
+            Constructor<?> constructor = baseClass.getConstructor(ArrayList.class,File.class);
             if(data != null){
                 return (BaseDataWriterGetter<?>) constructor.newInstance(data,file);
             }else{
@@ -67,12 +66,12 @@ public class BaseDataWriterGetter<T>{
         return null;
     }
 
-    public static <T> BaseDataWriterGetter<?> asFile(File file, String fileName, Class<? extends BaseDataWriterGetter<?>> baseClass){
-        return asFile(file, fileName,null, baseClass);
+    public static <T> BaseDataWriterGetter<?> asFile(File file, String fileName,Type type, Class<? extends BaseDataWriterGetter<?>> baseClass){
+        return asFile(file, fileName,null,type, baseClass);
     }
 
     public void save(){
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
         if(!file.exists()){
             try {
                 if(!file.createNewFile()){

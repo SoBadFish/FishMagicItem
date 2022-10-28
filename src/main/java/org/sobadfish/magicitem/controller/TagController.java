@@ -3,6 +3,7 @@ package org.sobadfish.magicitem.controller;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityHuman;
 import cn.nukkit.item.Item;
+import com.google.gson.reflect.TypeToken;
 import org.sobadfish.magicitem.files.BaseDataWriterGetter;
 import org.sobadfish.magicitem.files.datas.CustomTagData;
 import org.sobadfish.magicitem.files.datas.TagData;
@@ -11,6 +12,7 @@ import org.sobadfish.magicitem.files.entity.CustomTagItem;
 import org.sobadfish.magicitem.files.entity.TagItem;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -32,8 +34,8 @@ public class TagController {
     static TagController initTag(){
         TagController controller = new TagController();
         MagicController.sendLogger("载入数据中...");
-        controller.tagData = (TagData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/items/tag.json"),"tag.json","items/tag.json", TagData.class);
-        controller.customTagData = (CustomTagData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/items/custom_item.json"),"custom_item.json","items/custom_item.json",  CustomTagData.class);
+        controller.tagData = (TagData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/items/tag.json"),"tag.json","items/tag.json",new TypeToken<ArrayList<TagItem>>(){}.getType(), TagData.class);
+        controller.customTagData = (CustomTagData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/items/custom_item.json"),"custom_item.json","items/custom_item.json",new TypeToken<ArrayList<CustomTagItem>>(){}.getType(),  CustomTagData.class);
         MagicController.sendLogger("载入完成");
         return controller;
     }

@@ -3,6 +3,7 @@ package org.sobadfish.magicitem.files.datas;
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.item.Item;
+import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.nbt.tag.StringTag;
@@ -25,7 +26,7 @@ public class CustomTagData extends BaseDataWriterGetter<CustomTagItem> {
 
     public static final String TAG = "CTag";
 
-    public CustomTagData(List<CustomTagItem> dataList, File file) {
+    public CustomTagData(ArrayList<CustomTagItem> dataList, File file) {
         super(dataList, file);
     }
 
@@ -106,7 +107,6 @@ public class CustomTagData extends BaseDataWriterGetter<CustomTagItem> {
             tagItem = dataList.get(dataList.indexOf(tagItem));
             String item = tagItem.item;
             Item item1 = tagController.getTagData().asItem(item);
-
             //检验是否存在标签，如果没有标签，则证明这个物品不在tag中存储
             //没有被tag存储的物品不是好物品
             return createTagItem(tagItem,item1,tagController);
@@ -114,21 +114,38 @@ public class CustomTagData extends BaseDataWriterGetter<CustomTagItem> {
         return null;
     }
 
+    public Item resetItem(CustomTagItem customTagItem,Item item){
+        if(customTagItem.nameTag == null){
+            item.setCustomName(customTagItem.name);
+        }else{
+            item.setCustomName(customTagItem.nameTag);
+        }
+        //设置Lore
+        item.setLore(customTagItem.lore);
+
+        CompoundTag tag = item.getNamedTag();
+        tag.remove("ench");
+        item.setNamedTag(tag);
+        for(String ench: customTagItem.enchant){
+            String[] e = ench.split(":");
+            Enchantment eh = Enchantment.getEnchantment(e[0]);
+            if(e.length > 1){
+                eh.setLevel(Integer.parseInt(e[0]));
+            }
+            item.addEnchantment(eh);
+        }
+        return item;
+    }
 
     //重置物品
     public void resetTagItem(CustomTagItem customTagItem,Item item,TagController tagController){
+        item = resetItem(customTagItem, item);
         tagController.getTagData().addItem(customTagItem.name, item);
     }
 
     public Item createTagItem(CustomTagItem customTagItem,Item item,TagController tagController){
         if(!item.hasCompoundTag() || !item.getNamedTag().contains(TAG)){
-            if(customTagItem.nameTag == null){
-                item.setCustomName(customTagItem.name);
-            }else{
-                item.setCustomName(customTagItem.nameTag);
-            }
-            //设置Lore
-            item.setLore(customTagItem.lore);
+            item = resetItem(customTagItem, item);
             CompoundTag tag = item.getNamedTag();
             if(tag == null){
                 tag = new CompoundTag();
@@ -144,14 +161,16 @@ public class CustomTagData extends BaseDataWriterGetter<CustomTagItem> {
             tagController.getTagData().addItem(customTagItem.name,item);
         }else if(item.getNamedTag().contains(TAG)){
             //允许2合一
+            item = resetItem(customTagItem, item);
             CompoundTag tag = item.getNamedTag();
+
             ListTag<StringTag> tagListTag = tag.getList(TAG,StringTag.class);
             for(StringTag tag1: tagListTag.getAll()){
                 if(tag1.getName().equalsIgnoreCase(customTagItem.name)){
                     return item;
                 }
             }
-            tagListTag.add(new StringTag(customTagItem.name));
+            tagListTag.add(new StringTag(customTagItem.name,customTagItem.name));
             item.setNamedTag(tag);
             tagController.getTagData().addItem(customTagItem.name, item);
         }

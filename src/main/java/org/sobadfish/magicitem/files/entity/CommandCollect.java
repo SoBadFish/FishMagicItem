@@ -3,7 +3,6 @@ package org.sobadfish.magicitem.files.entity;
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityCreature;
-import org.checkerframework.checker.units.qual.C;
 import org.sobadfish.magicitem.MagicItemMainClass;
 
 import java.math.BigDecimal;
@@ -47,6 +46,16 @@ public class CommandCollect {
      * 响应的指令
      * */
     public CommandEx[] responseCommand = new CommandEx[0];
+
+    public CommandCollect(){}
+
+    public CommandCollect(String name){
+        this.name = name;
+    }
+
+    public static CommandCollect asName(String name){
+        return new CommandCollect(name);
+    }
 
 
     /**
@@ -136,11 +145,6 @@ public class CommandCollect {
         return i;
     }
 
-    public static CommandCollect asName(String name){
-        CommandCollect collect = new CommandCollect();
-        collect.name = name;
-        return collect;
-    }
 
     /**
      * 触发方式
@@ -168,4 +172,21 @@ public class CommandCollect {
          * */
         DAMAGE
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof CommandCollect){
+            CommandCollect that = (CommandCollect) o;
+            return name.equals(that.name);
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+
 }
