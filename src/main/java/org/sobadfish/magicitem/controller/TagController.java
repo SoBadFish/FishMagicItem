@@ -81,6 +81,7 @@ public class TagController {
             getTagData().addItem(customTagItem.name,item);
         }
         customTagData.createTagItem(customTagItem,item,this);
+        save();
         return customTagItem;
     }
 

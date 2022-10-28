@@ -81,7 +81,7 @@ public class MagicController implements Listener {
             }
         }
         this.tagController = TagController.initTag();
-        plugin.getServer().getCommandMap().register("fmagic",new MagicCommand("fmi"));
+
 
     }
 

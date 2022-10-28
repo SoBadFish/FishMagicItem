@@ -122,15 +122,6 @@ public class CustomTagData extends BaseDataWriterGetter<CustomTagItem> {
 
     public Item createTagItem(CustomTagItem customTagItem,Item item,TagController tagController){
         if(!item.hasCompoundTag() || !item.getNamedTag().contains(TAG)){
-            CompoundTag tag = item.getNamedTag();
-            if(tag == null){
-                tag = new CompoundTag();
-            }
-            ListTag<StringTag> tagListTag = new ListTag<>(TAG);
-            tagListTag.add(new StringTag(customTagItem.name));
-            tag.putList(tagListTag);
-//            tag.putList(TAG,new ListTag<StringTag>(new StringTag(customTagItem.name)));
-            item.setNamedTag(tag);
             if(customTagItem.nameTag == null){
                 item.setCustomName(customTagItem.name);
             }else{
@@ -138,6 +129,15 @@ public class CustomTagData extends BaseDataWriterGetter<CustomTagItem> {
             }
             //设置Lore
             item.setLore(customTagItem.lore);
+            CompoundTag tag = item.getNamedTag();
+            if(tag == null){
+                tag = new CompoundTag();
+            }
+            ListTag<StringTag> tagListTag = new ListTag<>(TAG);
+            tagListTag.add(new StringTag(customTagItem.name,customTagItem.name));
+            tag.putList(tagListTag);
+//            tag.putList(TAG,new ListTag<StringTag>(new StringTag(customTagItem.name)));
+            item.setNamedTag(tag);
             //索引到Tag名下
             customTagItem.item = customTagItem.name;
             //TODO 存到Tag中
@@ -155,7 +155,7 @@ public class CustomTagData extends BaseDataWriterGetter<CustomTagItem> {
             item.setNamedTag(tag);
             tagController.getTagData().addItem(customTagItem.name, item);
         }
-        save();
+
         return item;
     }
 }

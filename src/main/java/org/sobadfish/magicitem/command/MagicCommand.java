@@ -55,7 +55,7 @@ public class MagicCommand extends Command {
 
                                 }
                             }
-                            Item i = Item.fromString(strings[2]);
+                            Item i = Item.fromString(strings[3]);
                             if (i.getId() > 0) {
                                 magicController.tagController.createDefaultItemInHand(name, i);
                             } else {

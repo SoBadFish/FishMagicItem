@@ -1,6 +1,7 @@
 package org.sobadfish.magicitem;
 
 import cn.nukkit.plugin.PluginBase;
+import org.sobadfish.magicitem.command.MagicCommand;
 import org.sobadfish.magicitem.controller.MagicController;
 
 /**
@@ -18,6 +19,7 @@ public class MagicItemMainClass extends PluginBase {
         MagicController.sendLogger("正在加载鱼魔法物品!");
         magicController = new MagicController(this);
         this.getServer().getPluginManager().registerEvents(magicController,this);
+        this.getServer().getCommandMap().register("fmagic",new MagicCommand("fmi"));
         MagicController.sendLogger("&e鱼魔法物品加载完成!");
 
 
