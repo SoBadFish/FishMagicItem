@@ -4,7 +4,6 @@ import cn.nukkit.Player;
 import org.sobadfish.magicitem.windows.button.ButtonCraft;
 import org.sobadfish.magicitem.windows.button.ButtonWall1;
 import org.sobadfish.magicitem.windows.button.ButtonWall2;
-import org.sobadfish.magicitem.windows.button.ButtonWall3;
 import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
 import org.sobadfish.magicitem.windows.lib.ChestInventoryPanel;
 
@@ -36,41 +35,22 @@ public class ChestPanelController {
         };
         panel.outPutItem = new ArrayList<Integer>(){
             {
-                add(15);add(16);add(17);
-                add(24);add(25);add(26);
-                add(33);add(34);add(35);
+                add(14);add(15);add(16);
+                add(23);add(24);add(25);
+                add(32);add(33);add(34);
             }
         };
-        int craft = 0;
-        int chest = 0;
-        for(int index = 0;index < panel.getInventory().getSize() - 9;index++){
-            if(panel.outPutItem.contains(index)){
-                chest++;
-                continue;
-            }
-            if(chest > 3){
-                chest = 0;
-                craft = 0;
-            }
-            if(craft <= 4 ){
-                if(!panel.canPlaceItem.contains(index)) {
-                    playPanelItemInstanceMap.put(index, new ButtonWall1());
-                }
-                craft++;
-            }else{
-                if(panel.canPlaceItem.contains(index)){
-                    chest = 0;
-                    continue;
-                }
-                if(chest == 0){
-                    playPanelItemInstanceMap.put(index, new ButtonWall3());
-                    chest++;
-                }else{
-                    playPanelItemInstanceMap.put(index, new ButtonWall2());
-                    chest++;
-                }
-            }
-        }
+        panel.isCraft = false;
+       for(int index = 0;index < panel.getInventory().getSize();index++){
+           if(panel.outPutItem.contains(index) || panel.canPlaceItem.contains(index)){
+               continue;
+           }
+           if(index < panel.getInventory().getSize() - 9) {
+               playPanelItemInstanceMap.put(index, new ButtonWall1());
+           }else{
+               playPanelItemInstanceMap.put(index, new ButtonWall2());
+           }
+       }
         //TODO 绘制主页面
         return playPanelItemInstanceMap;
     }

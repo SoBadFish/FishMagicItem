@@ -1,7 +1,6 @@
 package org.sobadfish.magicitem.windows.button;
 
 import cn.nukkit.Player;
-import cn.nukkit.block.BlockCraftingTable;
 import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.item.Item;
 import org.sobadfish.magicitem.windows.WindowFrom;
@@ -20,7 +19,7 @@ public class ButtonWall1 extends BasePlayPanelItemInstance {
 
     @Override
     public Item getItem() {
-        return new BlockCraftingTable().toItem();
+        return Item.get(95);
     }
 
     @Override

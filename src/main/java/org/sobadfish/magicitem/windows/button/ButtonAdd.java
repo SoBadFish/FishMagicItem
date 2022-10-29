@@ -11,15 +11,15 @@ import org.sobadfish.magicitem.windows.lib.ChestInventoryPanel;
  * @author Sobadfish
  * @date 2022/10/29
  */
-public class ButtonWall3 extends BasePlayPanelItemInstance {
+public class ButtonAdd extends BasePlayPanelItemInstance {
     @Override
     public int getCount() {
-        return 1;
+        return 0;
     }
 
     @Override
     public Item getItem() {
-        return Item.get(160);
+        return null;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class ButtonWall3 extends BasePlayPanelItemInstance {
 
     @Override
     public Item getPanelItem(Player info, int index) {
-        return defaultButtonTagItem(getItem(),index);
+        return null;
     }
 
     @Override

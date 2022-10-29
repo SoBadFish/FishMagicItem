@@ -76,7 +76,6 @@ public class CustomTagItem {
         for(String collect: commandCollects){
             CommandCollect commandCollect = magicController.commandCollect.getCommandData().getDataByName(collect);
             if(commandCollect != null){
-
                 if(commandCollect.activateCommand(magicController.commandCollect,trigger,player) == CommandCollect.TriggerType.SUCCESS){
                     success = true;
                 }
