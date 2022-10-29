@@ -7,8 +7,10 @@ import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
 import cn.nukkit.utils.TextFormat;
 import org.sobadfish.magicitem.MagicItemMainClass;
+import org.sobadfish.magicitem.controller.ChestPanelController;
 import org.sobadfish.magicitem.controller.MagicController;
 import org.sobadfish.magicitem.files.entity.CustomTagItem;
+import org.sobadfish.magicitem.windows.DisPlayerPanel;
 
 /**
  * @author Sobadfish
@@ -133,7 +135,24 @@ public class MagicCommand extends Command {
                         return false;
                     }
                     break;
+                case "cr":
+                    if(commandSender instanceof Player){
+                        DisPlayerPanel disPlayerPanel = new DisPlayerPanel((Player) commandSender,"合成台");
+                        disPlayerPanel.displayPlayer(ChestPanelController.createMenu(disPlayerPanel.panel, (Player) commandSender));
+                    }else{
+                        MagicController.sendMessageToObject("&c控制台无法执行此指令", commandSender);
+                    }
 
+                    break;
+                case "ca":
+                    if(commandSender instanceof Player){
+                        DisPlayerPanel disPlayerPanel = new DisPlayerPanel((Player) commandSender,"创建配方");
+                        disPlayerPanel.displayPlayer(ChestPanelController.createRecipeLib(disPlayerPanel.panel, (Player) commandSender));
+                    }else{
+                        MagicController.sendMessageToObject("&c控制台无法执行此指令", commandSender);
+                    }
+
+                    break;
                 default:
                     MagicController.sendMessageToObject("/fmi help 查看帮助",commandSender);
             }

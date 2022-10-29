@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,9 +58,42 @@ public class TagData extends BaseDataWriterGetter<TagItem> {
                 MagicController.sendLogger("保存物品出现问题: "+e.getMessage());
             }
         }
+        if(item != null) {
+            return item.getId() + ":" + item.getDamage() + ":" + item.getCount();
+        }
         return null;
     }
 
+    public String getItemName(Item item){
+        for(TagItem s1: dataList){
+            if(s1 != null){
+                String str = itemToStr(item);
+                if(str != null){
+                    if(str.equalsIgnoreCase(s1.itemStr)){
+                        return s1.name;
+                    }
+                }
+            }else{
+                dataList.remove(s1);
+            }
+
+
+        }
+        return null;
+    }
+
+    public TagItem getTagItemByName(String name){
+        for(TagItem s1: dataList){
+            if(s1 != null) {
+                if (s1.name.equalsIgnoreCase(name)) {
+                    return s1;
+                }
+            }else{
+                dataList.remove(s1);
+            }
+        }
+        return null;
+    }
 
 
     /**
@@ -81,5 +113,18 @@ public class TagData extends BaseDataWriterGetter<TagItem> {
         //清除该物品的缓存
         cacheItem.remove(name);
 
+    }
+
+    public String createItem(Item item){
+        int size = 1;
+        String nc = getItemName(item);
+        if(nc == null){
+            do {
+                nc = item.hasCustomName()?item.getCustomName()+"-"+size:item.getName()+"-"+size;
+                size++;
+            }while (hasItem(nc));
+            addItem(nc,item);
+        }
+        return nc;
     }
 }

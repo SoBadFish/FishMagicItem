@@ -19,12 +19,16 @@ public class DisPlayerPanel implements InventoryHolder {
 
     private AbstractFakeInventory inventory;
 
+    public ChestInventoryPanel panel;
+
     //TODO 手机 6 * 9
     //Win10 9 * 6
+    public DisPlayerPanel(Player player,String name){
+        panel = new ChestInventoryPanel(player,this,name);
+    }
 
 
-    public void displayPlayer(Player player, Map<Integer, BasePlayPanelItemInstance> itemMap, String name){
-        ChestInventoryPanel panel = new ChestInventoryPanel(player,this,name);
+    public void displayPlayer(Map<Integer, BasePlayPanelItemInstance> itemMap){
         panel.setPanel(itemMap);
         panel.id = ++Entity.entityCount;
         inventory = panel;

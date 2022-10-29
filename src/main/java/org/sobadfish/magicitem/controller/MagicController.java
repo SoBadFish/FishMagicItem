@@ -21,6 +21,7 @@ import org.sobadfish.magicitem.MagicItemMainClass;
 import org.sobadfish.magicitem.files.datas.CustomTagData;
 import org.sobadfish.magicitem.files.entity.CommandCollect;
 import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
+import org.sobadfish.magicitem.windows.lib.AbstractFakeInventory;
 import org.sobadfish.magicitem.windows.lib.ChestInventoryPanel;
 
 import java.io.File;
@@ -61,6 +62,7 @@ public class MagicController implements Listener {
 
     public MagicController(Plugin plugin){
         this.plugin = plugin;
+        checkServer();
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
 
@@ -247,6 +249,30 @@ public class MagicController implements Listener {
 
         }
 
+    }
+
+    private void checkServer(){
+        boolean ver = false;
+        //双核心兼容
+        try {
+            Class<?> c = Class.forName("cn.nukkit.Nukkit");
+            c.getField("NUKKIT_PM1E");
+            ver = true;
+
+        } catch (ClassNotFoundException | NoSuchFieldException ignore) { }
+        try {
+            Class<?> c = Class.forName("cn.nukkit.Nukkit");
+            c.getField("NUKKIT").get(c).toString().equalsIgnoreCase("Nukkit PetteriM1 Edition");
+            ver = true;
+        } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException ignore) {
+        }
+
+        AbstractFakeInventory.IS_PM1E = ver;
+        if(ver){
+            sendLogger("&e当前核心为 Nukkit PM1E");
+        }else{
+            sendLogger("&e当前核心为 Nukkit");
+        }
     }
 
 

@@ -18,13 +18,13 @@ public class TagItem {
     /**
      * 调用到的名字
      * */
-    public String name = null;
+    public String name = "";
 
     /**
      * 索引的标签内容
      * （可直接还原为物品）
      * */
-    public String itemStr = null;
+    public String itemStr = "";
 
     public TagItem(){}
 
@@ -52,7 +52,7 @@ public class TagItem {
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return super.hashCode();
     }
 
 
