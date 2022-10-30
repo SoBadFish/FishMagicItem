@@ -46,22 +46,26 @@ public class RecipeController {
         StringBuilder str = new StringBuilder();
         LinkedHashMap<Character,Item> charItem = new LinkedHashMap<>();
         char a = 'A';
-        for(Map.Entry<Integer,Item> itemEntry: input.entrySet()){
-            if(itemEntry.getValue().getId() == 0){
-                str.append(" ");
-            }else{
-                if(charItem.containsKey(a)) {
-                    for (Map.Entry<Character, Item> cE : charItem.entrySet()) {
-                        if (cE.getValue().equals(itemEntry.getValue(), true, true)) {
-                            str.append(cE.getKey());
-                            break;
-                        }
-
+        int c = 0;
+        for(int i = 0;i < 9;i++){
+            if(input.containsKey(i)){
+                c++;
+                boolean has = false;
+                for (Map.Entry<Character, Item> cE : charItem.entrySet()) {
+                    if (cE.getValue().equals(input.get(i), true, true)) {
+                        str.append(cE.getKey());
+                        has = true;
+                        break;
                     }
-                    a++;
-                }else{
+                }
+                if(!has){
                     str.append(a);
-                    charItem.put(a,itemEntry.getValue());
+                    charItem.put(a,input.get(i));
+                    a++;
+                }
+            }else{
+                if(c != input.size()){
+                    str.append(" ");
                 }
             }
         }

@@ -39,45 +39,63 @@ public class Recipe {
         if(recipeIndex.length > 0){
             StringBuilder str = new StringBuilder();
             for(String ss: recipeIndex){
-                str.append(ss.split("(?<=\\G.{3})")[0]);
+                String sp = ss.split("(?<=\\G.{3})")[0];
+                if(sp.length() < 3){
+                    sp = (sp + "   ").substring(0,3);
+                }
+                str.append(sp);
             }
-            str = new StringBuilder(str.toString().trim().split("(?<=\\G.{9})")[0]);
+            str = new StringBuilder(str.toString().split("(?<=\\G.{9})")[0]);
             int size = 0;
+            int rsize = 0;
+
             //TODO 根据配方来
             int saveIndex = -1;
-            for(char c: str.toString().toCharArray()){
-                if(!inputItem.containsKey(c)){
-                    continue;
+            for(char c: str.toString().toCharArray()) {
+
+                if (c != ' ') {
+                    if (!inputItem.containsKey(c)) {
+                        continue;
+                    }
+                } else {
+                    if (saveIndex == -1) {
+                        continue;
+                    }
                 }
-                for(Map.Entry<Integer,Item> itemEntry: integerStringMap.entrySet()){
-                    if(c == ' '){
-                        if(saveIndex == itemEntry.getKey() - 1){
-                            if(itemEntry.getValue().getId() == 0) {
+                if (saveIndex == -1) {
+                    for (Map.Entry<Integer, Item> itemEntry : integerStringMap.entrySet()) {
+                        TagItem tagItem = controller.getTagData().getTagItemByName(inputItem.get(c));
+                        if (tagItem != null) {
+                            if (itemEntry.getValue().equals(controller.getTagData().asItem(tagItem.name), true, true)) {
                                 saveIndex = itemEntry.getKey();
+                                saveIndex++;
                                 size++;
+                                rsize++;
+                                break;
                             }
                         }
-                    }else{
+                    }
+                } else {
+                    if (c == ' ') {
+                        if (!integerStringMap.containsKey(saveIndex)) {
+                            size++;
+                        }
+                    } else {
                         TagItem tagItem = controller.getTagData().getTagItemByName(inputItem.get(c));
-                        if(tagItem != null){
-                            //忽视数量
-                            if(itemEntry.getValue().equals(controller.getTagData().asItem(tagItem.name),true,true)){
-                                if(saveIndex == -1){
-                                    saveIndex = itemEntry.getKey();
+                        if (tagItem != null) {
+                            if (integerStringMap.containsKey(saveIndex)) {
+                                if (integerStringMap.get(saveIndex).equals(controller.getTagData().asItem(tagItem.name), true, true)) {
                                     size++;
-                                }else if(saveIndex == itemEntry.getKey() - 1){
-                                    saveIndex = itemEntry.getKey();
-                                    size++;
+                                    rsize++;
+
                                 }
                             }
                         }
-
                     }
-
+                    saveIndex++;
                 }
             }
-
-            if(size == str.length()){
+            if(size == str.length() && rsize == integerStringMap.size()){
                 for(int i = 0;i < outputItem.length;i++){
                     if(i >= 9){
                         break;

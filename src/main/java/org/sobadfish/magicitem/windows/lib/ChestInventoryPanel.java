@@ -75,6 +75,10 @@ public class ChestInventoryPanel extends DoubleChestFakeInventory implements Inv
     }
 
     public Map<Integer,Item> getOutItem(){
+        return getIntegerItemMap(outPutItem);
+    }
+
+    private Map<Integer, Item> getIntegerItemMap(List<Integer> outPutItem) {
         Map<Integer, Item> itemMap = new LinkedHashMap<>();
         for (int i = 0; i < outPutItem.size(); i++) {
             Item it = this.getItem(outPutItem.get(i));
@@ -86,14 +90,7 @@ public class ChestInventoryPanel extends DoubleChestFakeInventory implements Inv
     }
 
     public Map<Integer,Item> getInItem(){
-        Map<Integer, Item> itemMap = new LinkedHashMap<>();
-        for (int i = 0; i < canPlaceItem.size(); i++) {
-            Item it = this.getItem(canPlaceItem.get(i));
-            if(it.getId() != 0){
-                itemMap.put(i, this.getItem(canPlaceItem.get(i)));
-            }
-        }
-        return itemMap;
+        return getIntegerItemMap(canPlaceItem);
     }
 
     public void backPlayer(){
@@ -117,47 +114,74 @@ public class ChestInventoryPanel extends DoubleChestFakeInventory implements Inv
     @Override
     public void onSlotChange(int index, Item before, boolean send) {
         super.onSlotChange(index, before, send);
-        if(!isCraft) {
-            //TODO 合成配方
-            if (isInit) {
-                if (canPlaceItem.size() > 0) {
-                    Map<Integer, Item> itemMap = getInItem();
-                    Item[] out = MagicItemMainClass.mainClass.getMagicController().recipeController.craftItem
-                            (itemMap, MagicItemMainClass.mainClass.getMagicController());
-                    if (out.length > 0 && out[0] != null) {
+        MagicItemMainClass.mainClass.getServer().getScheduler().scheduleTask(MagicItemMainClass.mainClass
+                ,new PanelRunnable(this,index,before));
 
-                        if (outPutItem.contains(index) && before != null && before.getId() != 0) {
-                            for (Integer integer : canPlaceItem) {
-                                Item ii = this.getItem(integer);
-                                if (ii.getId() > 0) {
-                                    if (ii.getCount() > 1) {
-                                        ii.setCount(ii.getCount() - 1);
-                                    } else {
-                                        ii = Item.get(0);
+
+    }
+
+    public static class PanelRunnable implements Runnable{
+
+        private ChestInventoryPanel panel;
+        private int index;
+        private Item before;
+        PanelRunnable(ChestInventoryPanel panel, int index, Item before){
+            this.panel = panel;
+            this.index = index;
+            this.before = before;
+        }
+        @Override
+        public void run() {
+            if(!panel.isCraft) {
+                //TODO 合成配方
+                if (panel.isInit) {
+                    if (panel.canPlaceItem.size() > 0) {
+                        Map<Integer, Item> itemMap = panel.getInItem();
+                        Item[] out = MagicItemMainClass.mainClass.getMagicController().recipeController.craftItem
+                                (itemMap, MagicItemMainClass.mainClass.getMagicController());
+                        if (out.length > 0 && out[0] != null) {
+                            if (panel.outPutItem.contains(index) && before != null && before.getId() != 0) {
+                                if(panel.getItem(index).getId()==  0){
+                                    for (Integer integer : panel.canPlaceItem) {
+                                        Item ii = panel.getItem(integer);
+                                        if (ii.getId() > 0) {
+                                            if (ii.getCount() > 1) {
+                                                ii.setCount(ii.getCount() - 1);
+                                            } else {
+                                                ii = Item.get(0);
+                                            }
+                                            panel.slots.put(integer, ii);
+                                            out = MagicItemMainClass.mainClass.getMagicController().recipeController.craftItem
+                                                    (panel.getInItem(), MagicItemMainClass.mainClass.getMagicController());
+                                            if (out.length > 0 && out[0] != null) {
+                                                for (int oi = 0; oi < panel.outPutItem.size(); oi++) {
+                                                    if (out.length > oi) {
+                                                        panel.slots.put(panel.outPutItem.get(oi), out[oi]);
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
-                                    this.setItem(integer, ii);
+                                    panel.sendContents(panel.getViewers());
+                                }
+                            } else {
+                                for (int oi = 0; oi < panel.outPutItem.size(); oi++) {
+                                    if(out.length > oi){
+                                        panel.slots.put(panel.outPutItem.get(oi), out[oi]);
+                                    }
                                 }
                             }
-
                         } else {
-                            for (int oi = 0; oi < outPutItem.size(); oi++) {
-                                if(out.length > oi){
-                                    this.slots.put(outPutItem.get(oi), out[oi]);
-                                }
+                            for (Integer i : panel.outPutItem) {
+                                panel.slots.put(i, Item.get(0));
                             }
-                        }
-                    } else {
-                        for (Integer i : outPutItem) {
-                            this.slots.put(i, Item.get(0));
-                        }
 
+                        }
                     }
+                    panel.sendContents(panel.player);
                 }
-                //
-                this.sendContents(player);
             }
         }
-
     }
 
 
