@@ -30,6 +30,8 @@ public class ChestInventoryPanel extends DoubleChestFakeInventory implements Inv
 
     public int clickSolt;
 
+    public boolean cacheOutPut = false;
+
     public boolean isInit = false;
 
     private Map<Integer, BasePlayPanelItemInstance> panel = new LinkedHashMap<>();
@@ -136,32 +138,52 @@ public class ChestInventoryPanel extends DoubleChestFakeInventory implements Inv
                 //TODO 合成配方
                 if (panel.isInit) {
                     if (panel.canPlaceItem.size() > 0) {
+                        if(panel.getInItem().size() == 0){
+                            panel.cacheOutPut = false;
+                        }
+                        Map<Integer, Item> outItemMap = panel.getOutItem();
+
+                        if(outItemMap.size() == 0) {
+                            Item[] out = MagicItemMainClass.mainClass.getMagicController().recipeController.craftItem
+                                    (panel.getInItem(), MagicItemMainClass.mainClass.getMagicController());
+                            if (out.length == 0 || out.length > 1 && out[0] == null) {
+                                resetOut(out);
+                                panel.cacheOutPut = false;
+                                return;
+                            }
+                        }
+                        if(outItemMap.size() > 0){
+                            if(panel.canPlaceItem.contains(index)){
+                                Item[] out = MagicItemMainClass.mainClass.getMagicController().recipeController.craftItem
+                                        (panel.getInItem(), MagicItemMainClass.mainClass.getMagicController());
+                                resetOut(out);
+                            }
+                            if(panel.outPutItem.contains(index)){
+                                if(!panel.cacheOutPut){
+                                    putInput();
+                                    panel.cacheOutPut = true;
+
+                                }
+
+                            }
+                            panel.sendContents(panel.getViewers());
+                            return;
+                        }else{
+                            panel.cacheOutPut = false;
+                        }
+
                         Map<Integer, Item> itemMap = panel.getInItem();
                         Item[] out = MagicItemMainClass.mainClass.getMagicController().recipeController.craftItem
                                 (itemMap, MagicItemMainClass.mainClass.getMagicController());
                         if (out.length > 0 && out[0] != null) {
                             if (panel.outPutItem.contains(index) && before != null && before.getId() != 0) {
                                 if(panel.getItem(index).getId()==  0){
-                                    for (Integer integer : panel.canPlaceItem) {
-                                        Item ii = panel.getItem(integer);
-                                        if (ii.getId() > 0) {
-                                            if (ii.getCount() > 1) {
-                                                ii.setCount(ii.getCount() - 1);
-                                            } else {
-                                                ii = Item.get(0);
-                                            }
-                                            panel.slots.put(integer, ii);
-                                            out = MagicItemMainClass.mainClass.getMagicController().recipeController.craftItem
-                                                    (panel.getInItem(), MagicItemMainClass.mainClass.getMagicController());
-                                            if (out.length > 0 && out[0] != null) {
-                                                for (int oi = 0; oi < panel.outPutItem.size(); oi++) {
-                                                    if (out.length > oi) {
-                                                        panel.slots.put(panel.outPutItem.get(oi), out[oi]);
-                                                    }
-                                                }
-                                            }
-                                        }
+                                    if(out.length == 1){
+                                        putInput();
                                     }
+                                    out = MagicItemMainClass.mainClass.getMagicController().recipeController.craftItem
+                                            (panel.getInItem(), MagicItemMainClass.mainClass.getMagicController());
+                                    resetOut(out);
                                     panel.sendContents(panel.getViewers());
                                 }
                             } else {
@@ -181,6 +203,35 @@ public class ChestInventoryPanel extends DoubleChestFakeInventory implements Inv
                     panel.sendContents(panel.player);
                 }
             }
+        }
+
+        private void putInput() {
+            for (Integer integer : panel.canPlaceItem) {
+                Item ii = panel.getItem(integer);
+                if (ii != null && ii.getId() > 0) {
+                    if (ii.getCount() > 1) {
+                        ii.setCount(ii.getCount() - 1);
+                        panel.slots.put(integer, ii);
+                    } else {
+                        panel.slots.remove(integer);
+                    }
+
+
+
+                }
+            }
+            panel.sendContents(panel.player);
+        }
+
+        private void resetOut(Item[] out) {
+            for (int oi = 0; oi < panel.outPutItem.size(); oi++) {
+                if (out.length > oi) {
+                    panel.slots.put(panel.outPutItem.get(oi), out[oi]);
+                }else{
+                    panel.slots.put(panel.outPutItem.get(oi),Item.get(0));
+                }
+            }
+            panel.sendContents(panel.player);
         }
     }
 

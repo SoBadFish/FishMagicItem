@@ -33,10 +33,12 @@ public class RecipeController {
     }
 
     public Item[] craftItem(Map<Integer, Item> input,MagicController controller){
-        for(Recipe recipe: recipeData.dataList){
-            Item[] is = recipe.math(input,controller.tagController);
-            if(is.length > 0 && is[0] != null){
-                return is;
+        if(input.size() > 0) {
+            for (Recipe recipe : recipeData.dataList) {
+                Item[] is = recipe.math(input, controller.tagController);
+                if (is.length > 0 && is[0] != null) {
+                    return is;
+                }
             }
         }
         return new Item[0];

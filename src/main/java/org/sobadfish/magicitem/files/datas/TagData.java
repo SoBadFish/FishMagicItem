@@ -112,6 +112,7 @@ public class TagData extends BaseDataWriterGetter<TagItem> {
         }
         //清除该物品的缓存
         cacheItem.remove(name);
+        save();
 
     }
 

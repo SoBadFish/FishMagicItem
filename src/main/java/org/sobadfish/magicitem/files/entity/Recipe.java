@@ -48,52 +48,27 @@ public class Recipe {
             str = new StringBuilder(str.toString().split("(?<=\\G.{9})")[0]);
             int size = 0;
             int rsize = 0;
-
             //TODO 根据配方来
-            int saveIndex = -1;
+            int saveIndex = 0;
             for(char c: str.toString().toCharArray()) {
-
-                if (c != ' ') {
-                    if (!inputItem.containsKey(c)) {
-                        continue;
+                if (c == ' ') {
+                    if (!integerStringMap.containsKey(saveIndex)) {
+                        size++;
                     }
                 } else {
-                    if (saveIndex == -1) {
-                        continue;
-                    }
-                }
-                if (saveIndex == -1) {
-                    for (Map.Entry<Integer, Item> itemEntry : integerStringMap.entrySet()) {
-                        TagItem tagItem = controller.getTagData().getTagItemByName(inputItem.get(c));
-                        if (tagItem != null) {
-                            if (itemEntry.getValue().equals(controller.getTagData().asItem(tagItem.name), true, true)) {
-                                saveIndex = itemEntry.getKey();
-                                saveIndex++;
+                    TagItem tagItem = controller.getTagData().getTagItemByName(inputItem.get(c));
+                    if (tagItem != null) {
+                        if (integerStringMap.containsKey(saveIndex)) {
+                            if (integerStringMap.get(saveIndex).equals(controller.getTagData().asItem(tagItem.name), true, true)) {
                                 size++;
                                 rsize++;
-                                break;
-                            }
-                        }
-                    }
-                } else {
-                    if (c == ' ') {
-                        if (!integerStringMap.containsKey(saveIndex)) {
-                            size++;
-                        }
-                    } else {
-                        TagItem tagItem = controller.getTagData().getTagItemByName(inputItem.get(c));
-                        if (tagItem != null) {
-                            if (integerStringMap.containsKey(saveIndex)) {
-                                if (integerStringMap.get(saveIndex).equals(controller.getTagData().asItem(tagItem.name), true, true)) {
-                                    size++;
-                                    rsize++;
 
-                                }
                             }
                         }
                     }
-                    saveIndex++;
                 }
+                saveIndex++;
+
             }
             if(size == str.length() && rsize == integerStringMap.size()){
                 for(int i = 0;i < outputItem.length;i++){
