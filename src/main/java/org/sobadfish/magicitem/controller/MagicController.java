@@ -74,8 +74,7 @@ public class MagicController implements Listener {
             }
         }
         commandCollect = CommandController.initCommand();
-        MagicController.sendLogger("&a加载配方中...");
-        this.recipeController = RecipeController.initRecipe();
+
         MagicController.sendLogger("&a加载物品中...");
         d = new File(getDataFolder()+"/items");
         if(!d.exists()){
@@ -85,7 +84,8 @@ public class MagicController implements Listener {
         }
         this.tagController = TagController.initTag();
         this.languageController = new LanguageController(this,plugin.getConfig());
-
+        MagicController.sendLogger("&a加载配方中...");
+        this.recipeController = RecipeController.initRecipe(tagController);
 
     }
 

@@ -6,6 +6,8 @@ import org.sobadfish.magicitem.files.datas.RecipeData;
 import org.sobadfish.magicitem.files.entity.Recipe;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -19,22 +21,25 @@ public class RecipeController {
     private RecipeData recipeData;
 
 
-    private RecipeController(){}
+    private RecipeController(){
 
+    }
 
-    static RecipeController initRecipe(){
+    static RecipeController initRecipe(TagController tagController){
         RecipeController controller = new RecipeController();
         controller.recipeData = (RecipeData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/recipe.json"),"recipe.json",Recipe[].class,RecipeData.class);
+        controller.recipeData.setTagController(tagController);
         return controller;
     }
 
-    public RecipeData getRecipeData() {
+    private RecipeData getRecipeData() {
         return recipeData;
     }
 
     public Item[] craftItem(Map<Integer, Item> input,MagicController controller){
         if(input.size() > 0) {
-            for (Recipe recipe : recipeData.dataList) {
+            Item i = new ArrayList<>(input.values()).get(0);
+            for (Recipe recipe : recipeData.getRecipeByInput(i)) {
                 Item[] is = recipe.math(input, controller.tagController);
                 if (is.length > 0 && is[0] != null) {
                     return is;
