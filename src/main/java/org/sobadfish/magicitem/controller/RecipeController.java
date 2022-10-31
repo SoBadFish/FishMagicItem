@@ -1,9 +1,12 @@
 package org.sobadfish.magicitem.controller;
 
+import cn.nukkit.Server;
+import cn.nukkit.inventory.CraftingManager;
 import cn.nukkit.item.Item;
 import org.sobadfish.magicitem.files.BaseDataWriterGetter;
 import org.sobadfish.magicitem.files.datas.RecipeData;
 import org.sobadfish.magicitem.files.entity.Recipe;
+import org.sobadfish.magicitem.windows.lib.AbstractFakeInventory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,10 +28,11 @@ public class RecipeController {
 
     }
 
-    static RecipeController initRecipe(TagController tagController){
+    static RecipeController initRecipe(MagicController magicController){
         RecipeController controller = new RecipeController();
         controller.recipeData = (RecipeData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/recipe.json"),"recipe.json",Recipe[].class,RecipeData.class);
-        controller.recipeData.setTagController(tagController);
+        controller.recipeData.setTagController(magicController.tagController);
+        controller.recipeData.init(magicController.languageController);
         return controller;
     }
 
@@ -38,7 +42,17 @@ public class RecipeController {
 
     public Item[] craftItem(Map<Integer, Item> input,MagicController controller){
         if(input.size() > 0) {
-            Item i = new ArrayList<>(input.values()).get(0);
+
+            Item i = null;
+            for(Item it : input.values()){
+                if(it.getId() != 0){
+                    i = it;
+                }
+            }
+            if(i == null){
+                return new Item[0];
+            }
+
             for (Recipe recipe : recipeData.getRecipeByInput(i)) {
                 Item[] is = recipe.math(input, controller.tagController);
                 if (is.length > 0 && is[0] != null) {
@@ -46,6 +60,9 @@ public class RecipeController {
                 }
             }
         }
+
+
+
         return new Item[0];
     }
 

@@ -20,6 +20,10 @@ public class LanguageController {
         this.config = config;
     }
 
+    public Config getConfig() {
+        return config;
+    }
+
     public MagicController getMagicController() {
         return magicController;
     }

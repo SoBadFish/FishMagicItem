@@ -67,6 +67,7 @@ public class ChestInventoryPanel extends DoubleChestFakeInventory implements Inv
         setPanel(panel);
     }
 
+
     public Player getPlayer(){
         return player;
     }

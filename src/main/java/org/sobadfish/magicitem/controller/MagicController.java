@@ -85,7 +85,7 @@ public class MagicController implements Listener {
         this.tagController = TagController.initTag();
         this.languageController = new LanguageController(this,plugin.getConfig());
         MagicController.sendLogger("&a加载配方中...");
-        this.recipeController = RecipeController.initRecipe(tagController);
+        this.recipeController = RecipeController.initRecipe(this);
 
     }
 

@@ -37,7 +37,10 @@ public class TagData extends BaseDataWriterGetter<TagItem> {
         if(dataList.contains(TagItem.asNameTag(tag))){
             item = dataList.get(dataList.indexOf(TagItem.asNameTag(tag))).asItem();
         }else {
-            item = Item.fromString(tag);
+            String[] t2 = tag.split(":");
+
+            item = Item.get(Integer.parseInt(t2[0]),Integer.parseInt(t2[1]),Integer.parseInt(t2[2]));
+
         }
         if(item.getId() > 0){
             cacheItem.put(tag,item);

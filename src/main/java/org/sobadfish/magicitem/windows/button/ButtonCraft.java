@@ -35,6 +35,7 @@ public class ButtonCraft extends BasePlayPanelItemInstance {
         MagicItemMainClass.mainClass.getMagicController()
                 .recipeController.addCraft(input,out, MagicItemMainClass.mainClass.getMagicController().tagController);
         player.level.addSound(player,Sound.RANDOM_ORB);
+        inventory.update();
         MagicController.sendMessageToObject("&a添加完成",player);
     }
 

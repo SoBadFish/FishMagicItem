@@ -27,10 +27,14 @@ public class MagicCommand extends Command {
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
+
         MagicController.sendMessageToObject("&e当前仅为测试版，不代表最终品质 版本: v1.0.1",commandSender);
         if(strings.length > 0){
             switch (strings[0]){
                 case "help":
+                    if(!commandSender.isOp()){
+                        return false;
+                    }
                     MagicController.sendMessageToObject("/fmi i add [name] [itemid:damage/hand] 添加自定义物品",commandSender);
                     MagicController.sendMessageToObject("/fmi i give [name] [playerName] 给予玩家自定义物品",commandSender);
                     MagicController.sendMessageToObject("/fmi i save [name]  保存手持物品",commandSender);
@@ -38,6 +42,9 @@ public class MagicCommand extends Command {
                     MagicController.sendMessageToObject("/fmi cx [name]  添加指令功能",commandSender);
                     break;
                 case "i":
+                    if(!commandSender.isOp()){
+                        return false;
+                    }
                     if(strings.length > 2) {
                         String name = strings[2];
                         if ("add".equalsIgnoreCase(strings[1])) {
@@ -73,6 +80,7 @@ public class MagicCommand extends Command {
                             }
                         }
                         if("save".equalsIgnoreCase(strings[1])){
+
                             if (commandSender instanceof Player) {
                                 if (magicController.tagController.getTagData().hasItem(name)) {
                                     MagicController.sendMessageToObject("&r" + name + " &c已存在", commandSender);
@@ -117,6 +125,9 @@ public class MagicCommand extends Command {
 
                     break;
                 case "c":
+                    if(!commandSender.isOp()){
+                        return false;
+                    }
                     if(strings.length > 1){
                         String name = strings[1];
                         if(magicController.commandCollect.getCommandData().addCommandData(name)){
@@ -131,6 +142,9 @@ public class MagicCommand extends Command {
 
                     break;
                 case "cx":
+                    if(!commandSender.isOp()){
+                        return false;
+                    }
                     if(strings.length > 1){
                         String name = strings[1];
                         if(magicController.commandCollect.getCommandExData().addCommandExData(name)){
@@ -153,6 +167,9 @@ public class MagicCommand extends Command {
 
                     break;
                 case "ca":
+                    if(!commandSender.isOp()){
+                        return false;
+                    }
                     if(commandSender instanceof Player){
                         DisPlayerPanel disPlayerPanel = new DisPlayerPanel((Player) commandSender,"创建配方");
                         disPlayerPanel.displayPlayer(ChestPanelController.createRecipeLib(disPlayerPanel.panel, (Player) commandSender));

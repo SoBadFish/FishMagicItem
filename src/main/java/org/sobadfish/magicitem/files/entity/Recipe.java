@@ -65,6 +65,17 @@ public class Recipe {
 
                             }
                         }
+                    }else{
+                        if (integerStringMap.containsKey(saveIndex)) {
+                            String[] t2 = inputItem.get(c).split(":");
+
+                            Item item = Item.get(Integer.parseInt(t2[0]),Integer.parseInt(t2[1]),Integer.parseInt(t2[2]));
+                            if (integerStringMap.get(saveIndex).equals(item, true, true)) {
+                                size++;
+                                rsize++;
+
+                            }
+                        }
                     }
                 }
                 saveIndex++;
@@ -119,5 +130,15 @@ public class Recipe {
         result = 31 * result + Arrays.hashCode(outputItem);
         result = 31 * result + Arrays.hashCode(recipeIndex);
         return result;
+    }
+
+
+    @Override
+    public String toString() {
+        return "Recipe{" +
+                "inputItem=" + inputItem +
+                ", outputItem=" + Arrays.toString(outputItem) +
+                ", recipeIndex=" + Arrays.toString(recipeIndex) +
+                '}';
     }
 }
