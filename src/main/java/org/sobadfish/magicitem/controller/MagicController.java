@@ -150,7 +150,7 @@ public class MagicController implements Listener {
                             if(item != null){
                                 ((ChestInventoryPanel) inventory).clickSolt = index;
                                 item.onClick((ChestInventoryPanel) inventory,player);
-                                ((ChestInventoryPanel) inventory).update();
+//                                ((ChestInventoryPanel) inventory).update();
                             }
                         }
 

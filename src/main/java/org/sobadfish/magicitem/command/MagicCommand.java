@@ -38,37 +38,41 @@ public class MagicCommand extends Command {
                     MagicController.sendMessageToObject("/fmi cx [name]  添加指令功能",commandSender);
                     break;
                 case "i":
-                    if(strings.length > 3) {
+                    if(strings.length > 2) {
                         String name = strings[2];
                         if ("add".equalsIgnoreCase(strings[1])) {
-                            if ("hand".equalsIgnoreCase(strings[3])) {
-                                if (commandSender instanceof Player) {
-                                    Item it = ((Player) commandSender).getInventory().getItemInHand();
-                                    if (it.getId() > 0) {
-                                        CustomTagItem customTagItem = magicController.tagController.createDefaultItemInHand(name, it);
-                                        customTagItem.lore = new String[]{TextFormat.colorize('&'
-                                                ,"&r初始自定义物品"),
-                                                TextFormat.colorize('&'
-                                                        ,"&r&e在配置文件修改lore显示")};
-                                        MagicController.sendMessageToObject("&a创建成功", commandSender);
-                                        return true;
-                                    } else {
-                                        MagicController.sendMessageToObject("&c不要手持空气", commandSender);
-                                        return true;
+                            if(strings.length > 3) {
+                                if ("hand".equalsIgnoreCase(strings[3])) {
+                                    if (commandSender instanceof Player) {
+                                        Item it = ((Player) commandSender).getInventory().getItemInHand();
+                                        if (it.getId() > 0) {
+                                            CustomTagItem customTagItem = magicController.tagController.createDefaultItemInHand(name, it);
+                                            customTagItem.lore = new String[]{TextFormat.colorize('&'
+                                                    , "&r初始自定义物品"),
+                                                    TextFormat.colorize('&'
+                                                            , "&r&e在配置文件修改lore显示")};
+                                            MagicController.sendMessageToObject("&a创建成功", commandSender);
+                                            return true;
+                                        } else {
+                                            MagicController.sendMessageToObject("&c不要手持空气", commandSender);
+                                            return true;
+                                        }
+
                                     }
-
                                 }
+                                Item i = Item.fromString(strings[3]);
+                                if (i.getId() > 0) {
+                                    magicController.tagController.createDefaultItemInHand(name, i);
+                                } else {
+                                    MagicController.sendMessageToObject("&c未知物品", commandSender);
+                                    return true;
+                                }
+                                MagicController.sendMessageToObject("&a创建成功", commandSender);
+                            }else{
+                                MagicController.sendMessageToObject("/fmi help 查看帮助",commandSender);
                             }
-                            Item i = Item.fromString(strings[3]);
-                            if (i.getId() > 0) {
-                                magicController.tagController.createDefaultItemInHand(name, i);
-                            } else {
-                                MagicController.sendMessageToObject("&c未知物品", commandSender);
-                                return true;
-                            }
-                            MagicController.sendMessageToObject("&a创建成功", commandSender);
-
-                        } else if("save".equalsIgnoreCase(strings[1])){
+                        }
+                        if("save".equalsIgnoreCase(strings[1])){
                             if (commandSender instanceof Player) {
                                 if (magicController.tagController.getTagData().hasItem(name)) {
                                     MagicController.sendMessageToObject("&r" + name + " &c已存在", commandSender);
@@ -76,6 +80,7 @@ public class MagicCommand extends Command {
                                 }
                                 magicController.tagController.getTagData().addItem(name,((Player) commandSender).getInventory().getItemInHand());
                                 MagicController.sendMessageToObject("&a添加成功!", commandSender);
+                                return true;
 
                             }else{
                                 MagicController.sendMessageToObject("&c控制台无法执行此指令", commandSender);
@@ -87,15 +92,18 @@ public class MagicCommand extends Command {
                                 item = magicController.tagController.getTagData().asItem(name);
                             }
                             if (item.getId() > 0) {
-                                String playerName = strings[3];
-                                Player player = Server.getInstance().getPlayer(playerName);
-                                if(player != null){
-                                    player.getInventory().addItem(item);
-                                    MagicController.sendMessageToObject("&a给予成功", commandSender);
+                                if(strings.length > 3) {
+                                    String playerName = strings[3];
+                                    Player player = Server.getInstance().getPlayer(playerName);
+                                    if (player != null) {
+                                        player.getInventory().addItem(item);
+                                        MagicController.sendMessageToObject("&a给予成功", commandSender);
+                                    } else {
+                                        MagicController.sendMessageToObject("&c玩家不在线", commandSender);
+                                    }
                                 }else{
-                                    MagicController.sendMessageToObject("&c玩家不在线", commandSender);
+                                    MagicController.sendMessageToObject("/fmi help 查看帮助",commandSender);
                                 }
-
 
                             }else{
                                 MagicController.sendMessageToObject("&c未知物品",commandSender);
