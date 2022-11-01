@@ -38,7 +38,6 @@ public class TagData extends BaseDataWriterGetter<TagItem> {
             item = dataList.get(dataList.indexOf(TagItem.asNameTag(tag))).asItem();
         }else {
             String[] t2 = tag.split(":");
-
             item = Item.get(Integer.parseInt(t2[0]),Integer.parseInt(t2[1]),Integer.parseInt(t2[2]));
 
         }
@@ -55,10 +54,12 @@ public class TagData extends BaseDataWriterGetter<TagItem> {
 
     public String itemToStr(Item item){
         if(item != null && item.getId() != 0){
-            try {
-                return new String(NBTIO.write(NBTIO.putItemHelper(item)), StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                MagicController.sendLogger("保存物品出现问题: "+e.getMessage());
+            if(item.hasCompoundTag()) {
+                try {
+                    return new String(NBTIO.write(NBTIO.putItemHelper(item)), StandardCharsets.UTF_8);
+                } catch (IOException e) {
+                    MagicController.sendLogger("保存物品出现问题: " + e.getMessage());
+                }
             }
         }
         if(item != null) {
@@ -123,11 +124,15 @@ public class TagData extends BaseDataWriterGetter<TagItem> {
         int size = 1;
         String nc = getItemName(item);
         if(nc == null){
-            do {
-                nc = item.hasCustomName()?item.getCustomName()+"-"+size:item.getName()+"-"+size;
-                size++;
-            }while (hasItem(nc));
-            addItem(nc,item);
+            if(item.hasCompoundTag()) {
+                do {
+                    nc = item.hasCustomName() ? item.getCustomName() + "-" + size : item.getName() + "-" + size;
+                    size++;
+                } while (hasItem(nc));
+                addItem(nc, item);
+            }else{
+                return item.getId() + ":" + item.getDamage() + ":" + item.getCount();
+            }
         }
         return nc;
     }

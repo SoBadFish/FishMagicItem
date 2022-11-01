@@ -2,7 +2,6 @@ package org.sobadfish.magicitem.files.datas;
 
 import cn.nukkit.Server;
 import cn.nukkit.inventory.CraftingManager;
-import cn.nukkit.inventory.CraftingRecipe;
 import cn.nukkit.inventory.ShapedRecipe;
 import cn.nukkit.item.Item;
 import org.sobadfish.magicitem.controller.LanguageController;
@@ -10,10 +9,12 @@ import org.sobadfish.magicitem.controller.MagicController;
 import org.sobadfish.magicitem.controller.TagController;
 import org.sobadfish.magicitem.files.BaseDataWriterGetter;
 import org.sobadfish.magicitem.files.entity.Recipe;
-import org.sobadfish.magicitem.windows.lib.AbstractFakeInventory;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 配方数据
@@ -22,7 +23,7 @@ import java.util.*;
  */
 public class RecipeData extends BaseDataWriterGetter<Recipe> {
 
-    private LinkedHashMap<Integer, List<Recipe>> loadRecipeMap = new LinkedHashMap<>();
+    private final LinkedHashMap<Integer, List<Recipe>> loadRecipeMap = new LinkedHashMap<>();
 
     private TagController tagController;
 
@@ -50,7 +51,7 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
                 Recipe recipe1 = new Recipe();
                 recipe1.recipeIndex = ((ShapedRecipe) recipe).getShape();
                 recipe1.inputItem = asChar(((ShapedRecipe) recipe).getIngredientsAggregate());
-                recipe1.outputItem = asString(((ShapedRecipe) recipe).getResult());
+                recipe1.outputItem = asString(recipe.getResult());
                 recipes.add(recipe1);
 
 
