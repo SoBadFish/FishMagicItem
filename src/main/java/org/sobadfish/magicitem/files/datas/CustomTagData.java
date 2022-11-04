@@ -128,10 +128,6 @@ public class CustomTagData extends BaseDataWriterGetter<CustomTagItem> {
             tag.putList(tagListTag);
 //            tag.putList(TAG,new ListTag<StringTag>(new StringTag(customTagItem.name)));
             item.setNamedTag(tag);
-            //索引到Tag名下
-            customTagItem.item = customTagItem.name;
-            //TODO 存到Tag中
-            tagController.getTagData().addItem(customTagItem.name,item);
         }
         return item;
 
@@ -166,8 +162,7 @@ public class CustomTagData extends BaseDataWriterGetter<CustomTagItem> {
 
     //重置物品
     public void resetTagItem(CustomTagItem customTagItem,Item item,TagController tagController){
-        item = resetItem(customTagItem, item);
-        tagController.getTagData().addItem(customTagItem.name, item);
+        resetItem(customTagItem, item);
     }
 
     public void createTagItem(CustomTagItem customTagItem,Item item,TagController tagController){

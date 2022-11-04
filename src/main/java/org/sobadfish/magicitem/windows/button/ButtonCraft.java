@@ -10,6 +10,7 @@ import org.sobadfish.magicitem.controller.MagicController;
 import org.sobadfish.magicitem.windows.WindowFrom;
 import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
 import org.sobadfish.magicitem.windows.lib.ChestInventoryPanel;
+import org.sobadfish.magicitem.windows.panel.CraftItemPanel;
 
 import java.util.Map;
 
@@ -30,13 +31,16 @@ public class ButtonCraft extends BasePlayPanelItemInstance {
 
     @Override
     public void onClick(ChestInventoryPanel inventory, Player player) {
-        Map<Integer,Item> input = inventory.getInItem();
-        Item[] out = inventory.getOutItem().values().toArray(new Item[0]);
-        MagicItemMainClass.mainClass.getMagicController()
-                .recipeController.addCraft(input,out, MagicItemMainClass.mainClass.getMagicController().tagController);
-        player.level.addSound(player,Sound.RANDOM_ORB);
-        inventory.update();
-        MagicController.sendMessageToObject("&a添加完成",player);
+        if(inventory instanceof CraftItemPanel){
+            Map<Integer,Item> input = ((CraftItemPanel) inventory).getInItem();
+            Item[] out = ((CraftItemPanel) inventory).getOutItem().values().toArray(new Item[0]);
+            MagicItemMainClass.mainClass.getMagicController()
+                    .recipeController.addCraft(input,out, MagicItemMainClass.mainClass.getMagicController().tagController);
+            player.level.addSound(player,Sound.RANDOM_ORB);
+            inventory.update();
+            MagicController.sendMessageToObject("&a添加完成",player);
+        }
+
     }
 
     @Override

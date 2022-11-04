@@ -27,6 +27,13 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
 
     private TagController tagController;
 
+    /**
+     * 产物的配方表
+     * */
+    public LinkedHashMap<Integer,List<Recipe>> outPutRecipe = new LinkedHashMap<>();
+
+
+
     public RecipeData(ArrayList<Recipe> dataList, File file) {
         super(dataList, file);
 
@@ -37,6 +44,7 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
         if(languageController.getConfig().getBoolean("import-craft",true)) {
             initDefault();
         }
+        loadOutPutRecipe();
         MagicController.sendLogger("&a加载完成 成功载入: "+loadRecipeMap.size()+" 个关联配方");
 
     }
@@ -53,8 +61,6 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
                 recipe1.inputItem = asChar(((ShapedRecipe) recipe).getIngredientsAggregate());
                 recipe1.outputItem = asString(recipe.getResult());
                 recipes.add(recipe1);
-
-
             }
         }
 
@@ -74,6 +80,13 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
 
     public void setTagController(TagController tagController) {
         this.tagController = tagController;
+    }
+
+    public void loadOutPutRecipe(){
+        //TODO 肯定是根据现有的加载
+//        for(List<Recipe> recipes: loadRecipeMap.values()){
+//
+//        }
     }
 
     private void loadRecipe(ArrayList<Recipe> dataList){

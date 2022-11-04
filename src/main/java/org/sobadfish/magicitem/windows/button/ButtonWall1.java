@@ -3,6 +3,7 @@ package org.sobadfish.magicitem.windows.button;
 import cn.nukkit.Player;
 import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.item.Item;
+import cn.nukkit.utils.TextFormat;
 import org.sobadfish.magicitem.windows.WindowFrom;
 import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
 import org.sobadfish.magicitem.windows.lib.ChestInventoryPanel;
@@ -34,7 +35,9 @@ public class ButtonWall1 extends BasePlayPanelItemInstance {
 
     @Override
     public Item getPanelItem(Player info, int index) {
-        return defaultButtonTagItem(getItem(),index);
+        Item item = defaultButtonTagItem(getItem(),index);
+        item.setCustomName(TextFormat.colorize('&',"&r&e将物品放入合成界面中合成物品"));
+        return item;
     }
 
     @Override

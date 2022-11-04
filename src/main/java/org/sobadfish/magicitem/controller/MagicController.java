@@ -10,6 +10,7 @@ import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.inventory.InventoryTransactionEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
+import cn.nukkit.event.player.PlayerServerSettingsRequestEvent;
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.PlayerInventory;
 import cn.nukkit.inventory.transaction.InventoryTransaction;
@@ -249,6 +250,11 @@ public class MagicController implements Listener {
 
         }
 
+    }
+
+    @EventHandler
+    public void onServerSetting(PlayerServerSettingsRequestEvent event){
+        System.out.println(event);
     }
 
     private void checkServer(){

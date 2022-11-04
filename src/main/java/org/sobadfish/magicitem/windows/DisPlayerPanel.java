@@ -8,6 +8,8 @@ import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
 import org.sobadfish.magicitem.windows.lib.AbstractFakeInventory;
 import org.sobadfish.magicitem.windows.lib.ChestInventoryPanel;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 /**
@@ -21,10 +23,21 @@ public class DisPlayerPanel implements InventoryHolder {
 
     public ChestInventoryPanel panel;
 
-    //TODO 手机 6 * 9
-    //Win10 9 * 6
-    public DisPlayerPanel(Player player,String name){
-        panel = new ChestInventoryPanel(player,this,name);
+    private DisPlayerPanel(){
+    }
+
+
+
+    public static DisPlayerPanel getDisPlayPanel(Player player,String name,Class<? extends ChestInventoryPanel> tClass){
+        try {
+            DisPlayerPanel panel = new DisPlayerPanel();
+            Constructor<?> tConstructor = tClass.getConstructor(Player.class,InventoryHolder.class,String.class);
+            panel.panel = (ChestInventoryPanel) tConstructor.newInstance(player,panel,name);
+            return panel;
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 

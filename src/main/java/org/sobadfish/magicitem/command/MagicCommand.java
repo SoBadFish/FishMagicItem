@@ -11,6 +11,7 @@ import org.sobadfish.magicitem.controller.ChestPanelController;
 import org.sobadfish.magicitem.controller.MagicController;
 import org.sobadfish.magicitem.files.entity.CustomTagItem;
 import org.sobadfish.magicitem.windows.DisPlayerPanel;
+import org.sobadfish.magicitem.windows.panel.CraftItemPanel;
 
 /**
  * @author Sobadfish
@@ -159,8 +160,11 @@ public class MagicCommand extends Command {
                     break;
                 case "cr":
                     if(commandSender instanceof Player){
-                        DisPlayerPanel disPlayerPanel = new DisPlayerPanel((Player) commandSender,"合成台");
-                        disPlayerPanel.displayPlayer(ChestPanelController.createMenu(disPlayerPanel.panel, (Player) commandSender));
+                        DisPlayerPanel panel = DisPlayerPanel.getDisPlayPanel((Player) commandSender,"合成台",CraftItemPanel.class);
+                        if(panel == null){
+                            return false;
+                        }
+                        panel.displayPlayer(ChestPanelController.createMenu((CraftItemPanel) panel.panel,(Player) commandSender));
                     }else{
                         MagicController.sendMessageToObject("&c控制台无法执行此指令", commandSender);
                     }
@@ -171,8 +175,10 @@ public class MagicCommand extends Command {
                         return false;
                     }
                     if(commandSender instanceof Player){
-                        DisPlayerPanel disPlayerPanel = new DisPlayerPanel((Player) commandSender,"创建配方");
-                        disPlayerPanel.displayPlayer(ChestPanelController.createRecipeLib(disPlayerPanel.panel, (Player) commandSender));
+                        DisPlayerPanel panel = DisPlayerPanel.getDisPlayPanel((Player) commandSender,"创建配方",CraftItemPanel.class);
+                        if(panel != null) {
+                            panel.displayPlayer(ChestPanelController.createRecipeLib((CraftItemPanel) panel.panel, (Player) commandSender));
+                        }
                     }else{
                         MagicController.sendMessageToObject("&c控制台无法执行此指令", commandSender);
                     }
