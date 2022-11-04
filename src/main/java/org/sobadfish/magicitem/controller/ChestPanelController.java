@@ -1,6 +1,7 @@
 package org.sobadfish.magicitem.controller;
 
 import cn.nukkit.Player;
+import org.sobadfish.magicitem.files.entity.Recipe;
 import org.sobadfish.magicitem.windows.button.ButtonCraft;
 import org.sobadfish.magicitem.windows.button.ButtonWall1;
 import org.sobadfish.magicitem.windows.button.ButtonWall2;
@@ -10,6 +11,7 @@ import org.sobadfish.magicitem.windows.panel.CraftItemPanel;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,6 +23,9 @@ import java.util.Map;
 public class ChestPanelController {
 
 
+    public LinkedHashMap<Player,PlayerRecipePage> recipePage = new LinkedHashMap<>();
+
+    public LinkedHashMap<Player,PlayerItemPage> itemPage = new LinkedHashMap<>();
 
     /**
      * 主页面
@@ -99,7 +104,7 @@ public class ChestPanelController {
     /**
      * 配方库界面
      * */
-    public static Map<Integer, BasePlayPanelItemInstance> recipeLib(ChestInventoryPanel panel,Player player,BasePlayPanelItemInstance itemInstance){
+    public static Map<Integer, BasePlayPanelItemInstance> recipeLib(ChestInventoryPanel panel, Player player, List<Recipe> recipeList){
         //TODO 绘制配方展示界面
         return null;
     }
@@ -117,5 +122,19 @@ public class ChestPanelController {
             playPanelItemInstanceMap.put(9 * 5 + 4, new ButtonCraft());
         }
         return playPanelItemInstanceMap;
+    }
+
+    public static class PlayerRecipePage{
+        public int page;
+        public int maxPage;
+
+        public List<Recipe> recipes;
+    }
+
+    public static class PlayerItemPage{
+        public int page;
+        public int maxPage;
+
+        public List<BasePlayPanelItemInstance> items;
     }
 }

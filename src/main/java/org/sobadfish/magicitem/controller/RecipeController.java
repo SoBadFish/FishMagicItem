@@ -1,17 +1,14 @@
 package org.sobadfish.magicitem.controller;
 
-import cn.nukkit.Server;
-import cn.nukkit.inventory.CraftingManager;
 import cn.nukkit.item.Item;
 import org.sobadfish.magicitem.files.BaseDataWriterGetter;
 import org.sobadfish.magicitem.files.datas.RecipeData;
 import org.sobadfish.magicitem.files.entity.Recipe;
-import org.sobadfish.magicitem.windows.lib.AbstractFakeInventory;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,6 +61,14 @@ public class RecipeController {
 
 
         return new Item[0];
+    }
+
+    public List<Recipe> getRecipesByItem(Item item){
+        if(recipeData.outPutRecipe.containsKey(item.getId())){
+            return recipeData.outPutRecipe.get(item.getId());
+        }
+        return new ArrayList<>();
+
     }
 
     public void addCraft(Map<Integer,Item> input,Item[] output,TagController controller){

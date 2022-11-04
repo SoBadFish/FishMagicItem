@@ -102,6 +102,15 @@ public class Recipe {
         return new Item[0];
     }
 
+    public boolean hasOutItem(Item item,TagController controller){
+        for(String s: outputItem){
+            if(controller.getTagData().asItem(s).equals(item,true,true)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

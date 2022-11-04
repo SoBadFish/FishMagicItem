@@ -10,6 +10,7 @@ import org.sobadfish.magicitem.windows.lib.ChestInventoryPanel;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -23,6 +24,8 @@ public class DisPlayerPanel implements InventoryHolder {
 
     public ChestInventoryPanel panel;
 
+    public static LinkedHashMap<Player,DisPlayerPanel> panelLib = new LinkedHashMap<>();
+
     private DisPlayerPanel(){
     }
 
@@ -30,7 +33,12 @@ public class DisPlayerPanel implements InventoryHolder {
 
     public static DisPlayerPanel getDisPlayPanel(Player player,String name,Class<? extends ChestInventoryPanel> tClass){
         try {
-            DisPlayerPanel panel = new DisPlayerPanel();
+            DisPlayerPanel panel;
+            if(!panelLib.containsKey(player)){
+                panelLib.put(player,new DisPlayerPanel());
+            }
+            panel = panelLib.get(player);
+
             Constructor<?> tConstructor = tClass.getConstructor(Player.class,InventoryHolder.class,String.class);
             panel.panel = (ChestInventoryPanel) tConstructor.newInstance(player,panel,name);
             return panel;

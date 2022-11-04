@@ -40,12 +40,13 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
     }
 
     public void init(LanguageController languageController){
+        long t1 = System.currentTimeMillis();
         loadRecipe(dataList);
         if(languageController.getConfig().getBoolean("import-craft",true)) {
             initDefault();
         }
         loadOutPutRecipe();
-        MagicController.sendLogger("&a加载完成 成功载入: "+loadRecipeMap.size()+" 个关联配方");
+        MagicController.sendLogger("&a加载完成 耗时: "+(System.currentTimeMillis() - t1)+" ms");
 
     }
 
@@ -84,9 +85,22 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
 
     public void loadOutPutRecipe(){
         //TODO 肯定是根据现有的加载
-//        for(List<Recipe> recipes: loadRecipeMap.values()){
-//
-//        }
+        List<Recipe> recipes1;
+        for(List<Recipe> recipes: loadRecipeMap.values()){
+            for(Recipe recipe: recipes){
+                for(String out: recipe.outputItem){
+                    Item i = tagController.getTagData().asItem(out);
+                    if(outPutRecipe.containsKey(i.getId())){
+                        recipes1 = outPutRecipe.get(i.getId());
+                        recipes1.add(recipe);
+                    }else{
+                        recipes1 = new ArrayList<>();
+                        recipes1.add(recipe);
+                        outPutRecipe.put(i.getId(),recipes);
+                    }
+                }
+            }
+        }
     }
 
     private void loadRecipe(ArrayList<Recipe> dataList){
