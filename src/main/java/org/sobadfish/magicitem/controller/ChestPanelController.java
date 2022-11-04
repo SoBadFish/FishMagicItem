@@ -3,7 +3,7 @@ package org.sobadfish.magicitem.controller;
 import cn.nukkit.Player;
 import cn.nukkit.item.Item;
 import org.sobadfish.magicitem.MagicItemMainClass;
-import org.sobadfish.magicitem.files.entity.Recipe;
+import org.sobadfish.magicitem.files.datas.RecipeData;
 import org.sobadfish.magicitem.windows.button.*;
 import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
 import org.sobadfish.magicitem.windows.panel.CraftItemPanel;
@@ -134,18 +134,29 @@ public class ChestPanelController {
     /**
      * 配方库界面
      * */
-    public static Map<Integer, BasePlayPanelItemInstance> recipeLib(ItemListPanel panel, Player player, List<Recipe> recipeList){
+    public static Map<Integer, BasePlayPanelItemInstance> recipeLib(ItemListPanel panel, Player player,Item item){
         Map<Integer,BasePlayPanelItemInstance> playPanelItemInstanceMap = new LinkedHashMap<>();
-        PlayerRecipePage playerRecipePage;
-        if(!recipePage.containsKey(player)){
-            playerRecipePage = new PlayerRecipePage();
-            playerRecipePage.recipes = recipeList;
-            recipePage.put(player,playerRecipePage);
+        RecipeController recipeController = MagicItemMainClass.mainClass.getMagicController().recipeController;
+        if(recipeController.getRecipeData().buildRecipe.containsKey(item)){
+            PlayerRecipePage playerRecipePage;
+            if(!recipePage.containsKey(player)){
+                playerRecipePage = new PlayerRecipePage();
+                playerRecipePage.recipe = recipeController.getRecipeData().buildRecipe.get(item);
+                recipePage.put(player,playerRecipePage);
+
+            }
+            playerRecipePage = recipePage.get(player);
+            LinkedHashMap<Integer,Item> itemLinkedHashMap = playerRecipePage.getRecipeByPage();
 
         }
-        playerRecipePage = recipePage.get(player);
-        Recipe recipe = playerRecipePage.getRecipeByPage();
+
+
+
         //TODO 绘制展示
+
+
+        List<Item> output = new ArrayList<>();
+
 
         return null;
     }
@@ -177,11 +188,11 @@ public class ChestPanelController {
         public int page = 0;
 
 
-        public List<Recipe> recipes = new ArrayList<>();
+        public RecipeData.BuildRecipeOutPutItem recipe;
 
-        public Recipe getRecipeByPage(){
-            if(recipes.size() > page){
-                return recipes.get(page);
+        public LinkedHashMap<Integer,Item> getRecipeByPage(){
+            if(recipe.build.size() > page){
+                return recipe.build.get(page);
             }
             return null;
         }

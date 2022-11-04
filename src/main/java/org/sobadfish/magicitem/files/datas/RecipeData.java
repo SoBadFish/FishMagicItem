@@ -31,6 +31,10 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
      * */
     public LinkedHashMap<Integer,List<Recipe>> outPutRecipe = new LinkedHashMap<>();
 
+    /**
+     * 将配方编译为摆放
+     * */
+    public LinkedHashMap<Item,BuildRecipeOutPutItem> buildRecipe = new LinkedHashMap<>();
 
     public List<Item> outPutItems = new ArrayList<>();
 
@@ -124,6 +128,47 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
 
     }
 
+    public void buildOutRecipe(){
+        for(Item item: outPutItems){
+            if(!buildRecipe.containsKey(item)){
+                buildRecipe.put(item,new BuildRecipeOutPutItem());
+            }
+            BuildRecipeOutPutItem bot = buildRecipe.get(item);
+            List< LinkedHashMap<Integer,Item>> lrecipe = bot.build;
+            List<Recipe> recipes = outPutRecipe.get(item.getId());
+            for(Recipe recipe: recipes){
+                LinkedHashMap<Integer,Item> craft = new LinkedHashMap<>();
+                int index = 0;
+                for(String str: recipe.recipeIndex){
+                    if(str.length() == 3){
+                        for(char a: str.toCharArray()){
+                            if(a != ' '){
+                                craft.put(index,tagController.getTagData().asItem(recipe.inputItem.get(a)));
+                            }
+                            index++;
+                        }
+                    }else if(str.length() == 2){
+                        for(char a: str.toCharArray()) {
+                            if (a != ' ') {
+                                craft.put(index, tagController.getTagData().asItem(recipe.inputItem.get(a)));
+                            }
+                            index++;
+                        }
+                    }else if(str.length() == 1){
+                        index++;
+                        craft.put(index, tagController.getTagData().asItem(recipe.inputItem.get(str.charAt(0))));
+                    }
+                }
+                lrecipe.add(craft);
+                List<Item> output = new ArrayList<>();
+                for(String ostr: recipe.outputItem){
+                    output.add(tagController.getTagData().asItem(ostr));
+                }
+                bot.outPut = output;
+            }
+        }
+    }
+
     public String[] asString(Item in){
        return new String[]{in.getId()+":"+in.getDamage()+":"+in.getCount()};
     }
@@ -137,5 +182,11 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
         }
         return stringMap;
 
+    }
+
+    public static class BuildRecipeOutPutItem{
+        public List<LinkedHashMap<Integer,Item>> build = new ArrayList<>();
+
+        public List<Item> outPut = new ArrayList<>();
     }
 }

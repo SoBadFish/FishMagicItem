@@ -32,11 +32,12 @@ public class RecipeController {
         controller.recipeData.setTagController(magicController.tagController);
         controller.recipeData.init(magicController.languageController);
         controller.recipeData.loadOutPutRecipe();
+        controller.recipeData.buildOutRecipe();
         MagicController.sendLogger("&a加载完成 耗时: "+(System.currentTimeMillis() - t1)+" ms");
         return controller;
     }
 
-    private RecipeData getRecipeData() {
+    public RecipeData getRecipeData() {
         return recipeData;
     }
 
