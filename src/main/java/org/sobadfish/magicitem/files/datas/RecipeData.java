@@ -5,7 +5,6 @@ import cn.nukkit.inventory.CraftingManager;
 import cn.nukkit.inventory.ShapedRecipe;
 import cn.nukkit.item.Item;
 import org.sobadfish.magicitem.controller.LanguageController;
-import org.sobadfish.magicitem.controller.MagicController;
 import org.sobadfish.magicitem.controller.TagController;
 import org.sobadfish.magicitem.files.BaseDataWriterGetter;
 import org.sobadfish.magicitem.files.entity.Recipe;
@@ -33,6 +32,7 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
     public LinkedHashMap<Integer,List<Recipe>> outPutRecipe = new LinkedHashMap<>();
 
 
+    public List<Item> outPutItems = new ArrayList<>();
 
     public RecipeData(ArrayList<Recipe> dataList, File file) {
         super(dataList, file);
@@ -40,14 +40,10 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
     }
 
     public void init(LanguageController languageController){
-        long t1 = System.currentTimeMillis();
         loadRecipe(dataList);
         if(languageController.getConfig().getBoolean("import-craft",true)) {
             initDefault();
         }
-        loadOutPutRecipe();
-        MagicController.sendLogger("&a加载完成 耗时: "+(System.currentTimeMillis() - t1)+" ms");
-
     }
 
     private void initDefault() {
@@ -86,10 +82,14 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
     public void loadOutPutRecipe(){
         //TODO 肯定是根据现有的加载
         List<Recipe> recipes1;
-        for(List<Recipe> recipes: loadRecipeMap.values()){
-            for(Recipe recipe: recipes){
+        for(List<Recipe> recipes: new ArrayList<>(loadRecipeMap.values())){
+            ArrayList<Recipe> recipeArrayList = new ArrayList<>(recipes);
+            for(Recipe recipe: recipeArrayList){
                 for(String out: recipe.outputItem){
                     Item i = tagController.getTagData().asItem(out);
+                    if(!outPutItems.contains(i)){
+                        outPutItems.add(i);
+                    }
                     if(outPutRecipe.containsKey(i.getId())){
                         recipes1 = outPutRecipe.get(i.getId());
                         recipes1.add(recipe);
@@ -101,6 +101,10 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
                 }
             }
         }
+    }
+
+    public List<Item> getOutPutItems() {
+        return outPutItems;
     }
 
     private void loadRecipe(ArrayList<Recipe> dataList){

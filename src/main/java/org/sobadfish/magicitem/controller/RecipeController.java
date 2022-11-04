@@ -26,10 +26,13 @@ public class RecipeController {
     }
 
     static RecipeController initRecipe(MagicController magicController){
+        long t1 = System.currentTimeMillis();
         RecipeController controller = new RecipeController();
         controller.recipeData = (RecipeData) BaseDataWriterGetter.asFile(new File(MagicController.getDataFolder()+"/recipe.json"),"recipe.json",Recipe[].class,RecipeData.class);
         controller.recipeData.setTagController(magicController.tagController);
         controller.recipeData.init(magicController.languageController);
+        controller.recipeData.loadOutPutRecipe();
+        MagicController.sendLogger("&a加载完成 耗时: "+(System.currentTimeMillis() - t1)+" ms");
         return controller;
     }
 
@@ -68,6 +71,11 @@ public class RecipeController {
             return recipeData.outPutRecipe.get(item.getId());
         }
         return new ArrayList<>();
+
+    }
+
+    public List<Item> getRecipesItems(){
+        return recipeData.getOutPutItems();
 
     }
 

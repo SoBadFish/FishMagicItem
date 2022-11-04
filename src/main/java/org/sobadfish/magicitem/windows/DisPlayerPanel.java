@@ -48,6 +48,9 @@ public class DisPlayerPanel implements InventoryHolder {
         return null;
     }
 
+    public void setPanel(ChestInventoryPanel panel) {
+        this.panel = panel;
+    }
 
     public void displayPlayer(Map<Integer, BasePlayPanelItemInstance> itemMap){
         panel.setPanel(itemMap);

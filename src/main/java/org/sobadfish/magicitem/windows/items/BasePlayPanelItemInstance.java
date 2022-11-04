@@ -76,6 +76,7 @@ public abstract class BasePlayPanelItemInstance {
         tag.putInt("index",index);
         tag.putBoolean("button",true);
         item.setNamedTag(tag);
+        item.setCount(getCount());
         return item;
     }
 }

@@ -12,6 +12,7 @@ import org.sobadfish.magicitem.controller.MagicController;
 import org.sobadfish.magicitem.files.entity.CustomTagItem;
 import org.sobadfish.magicitem.windows.DisPlayerPanel;
 import org.sobadfish.magicitem.windows.panel.CraftItemPanel;
+import org.sobadfish.magicitem.windows.panel.ItemListPanel;
 
 /**
  * @author Sobadfish
@@ -183,6 +184,20 @@ public class MagicCommand extends Command {
                         MagicController.sendMessageToObject("&c控制台无法执行此指令", commandSender);
                     }
 
+                    break;
+                case "cl":
+                    if(!commandSender.isOp()){
+                        return false;
+                    }
+                    if(commandSender instanceof Player){
+                        DisPlayerPanel panel = DisPlayerPanel.getDisPlayPanel((Player) commandSender,"配方列表", ItemListPanel.class);
+                        if(panel != null) {
+                            panel.displayPlayer(ChestPanelController.recipeListLib((Player) commandSender));
+                        }
+
+                    }else{
+                        MagicController.sendMessageToObject("&c控制台无法执行此指令", commandSender);
+                    }
                     break;
                 default:
                     MagicController.sendMessageToObject("/fmi help 查看帮助",commandSender);

@@ -1,13 +1,13 @@
 package org.sobadfish.magicitem.controller;
 
 import cn.nukkit.Player;
+import cn.nukkit.item.Item;
+import org.sobadfish.magicitem.MagicItemMainClass;
 import org.sobadfish.magicitem.files.entity.Recipe;
-import org.sobadfish.magicitem.windows.button.ButtonCraft;
-import org.sobadfish.magicitem.windows.button.ButtonWall1;
-import org.sobadfish.magicitem.windows.button.ButtonWall2;
+import org.sobadfish.magicitem.windows.button.*;
 import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
-import org.sobadfish.magicitem.windows.lib.ChestInventoryPanel;
 import org.sobadfish.magicitem.windows.panel.CraftItemPanel;
+import org.sobadfish.magicitem.windows.panel.ItemListPanel;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -23,9 +23,9 @@ import java.util.Map;
 public class ChestPanelController {
 
 
-    public LinkedHashMap<Player,PlayerRecipePage> recipePage = new LinkedHashMap<>();
+    public static LinkedHashMap<Player,PlayerRecipePage> recipePage = new LinkedHashMap<>();
 
-    public LinkedHashMap<Player,PlayerItemPage> itemPage = new LinkedHashMap<>();
+    public static LinkedHashMap<Player,PlayerItemPage> itemPage = new LinkedHashMap<>();
 
     /**
      * 主页面
@@ -95,17 +95,58 @@ public class ChestPanelController {
     /**
      * 配方库列表界面
      * */
-    public static Map<Integer, BasePlayPanelItemInstance> recipeListLib(ChestInventoryPanel panel,Player player){
+    public static Map<Integer, BasePlayPanelItemInstance> recipeListLib(Player player){
+        Map<Integer,BasePlayPanelItemInstance> playPanelItemInstanceMap = new LinkedHashMap<>();
         //TODO 绘制配方列表界面
+        PlayerItemPage playerItemPage;
+        if(!itemPage.containsKey(player)){
+            playerItemPage = new PlayerItemPage();
+            playerItemPage.page = 1;
+            RecipeController recipeController = MagicItemMainClass.mainClass.getMagicController().recipeController;
+            playerItemPage.items = asPanelItem(recipeController.getRecipesItems());
+            itemPage.put(player,playerItemPage);
+        }
+        playerItemPage = itemPage.get(player);
+        for(int index = 0;index < 9;index++){
+            playPanelItemInstanceMap.put(index,new ButtonWall3());
+        }
 
-        return null;
+        playPanelItemInstanceMap.put(4,new ButtonGoCraft());
+        int index = 9;
+        for(BasePlayPanelItemInstance bi: playerItemPage.getItemByPage()){
+            playPanelItemInstanceMap.put(index++,bi);
+        }
+        index = 45;
+        for(;index < 54;index++){
+            playPanelItemInstanceMap.put(index,new ButtonWall3());
+        }
+        playPanelItemInstanceMap.put(49,new ButtonPage(playerItemPage.page));
+        if(playerItemPage.getMaxPage() > playerItemPage.page){
+            playPanelItemInstanceMap.put(51,new ButtonPage(playerItemPage.page + 1));
+        }
+        if(playerItemPage.page > 1){
+            playPanelItemInstanceMap.put(47,new ButtonPage(playerItemPage.page - 1));
+        }
+
+        return playPanelItemInstanceMap;
     }
 
     /**
      * 配方库界面
      * */
-    public static Map<Integer, BasePlayPanelItemInstance> recipeLib(ChestInventoryPanel panel, Player player, List<Recipe> recipeList){
-        //TODO 绘制配方展示界面
+    public static Map<Integer, BasePlayPanelItemInstance> recipeLib(ItemListPanel panel, Player player, List<Recipe> recipeList){
+        Map<Integer,BasePlayPanelItemInstance> playPanelItemInstanceMap = new LinkedHashMap<>();
+        PlayerRecipePage playerRecipePage;
+        if(!recipePage.containsKey(player)){
+            playerRecipePage = new PlayerRecipePage();
+            playerRecipePage.recipes = recipeList;
+            recipePage.put(player,playerRecipePage);
+
+        }
+        playerRecipePage = recipePage.get(player);
+        Recipe recipe = playerRecipePage.getRecipeByPage();
+        //TODO 绘制展示
+
         return null;
     }
 
@@ -124,17 +165,52 @@ public class ChestPanelController {
         return playPanelItemInstanceMap;
     }
 
-    public static class PlayerRecipePage{
-        public int page;
-        public int maxPage;
+    private static List<BasePlayPanelItemInstance> asPanelItem(List<Item> items){
+        List<BasePlayPanelItemInstance> itemInstances = new ArrayList<>();
+        for(Item item: items){
+            itemInstances.add(new ButtonDisplayItem(item));
+        }
+        return itemInstances;
+    }
 
-        public List<Recipe> recipes;
+    public static class PlayerRecipePage{
+        public int page = 0;
+
+
+        public List<Recipe> recipes = new ArrayList<>();
+
+        public Recipe getRecipeByPage(){
+            if(recipes.size() > page){
+                return recipes.get(page);
+            }
+            return null;
+        }
     }
 
     public static class PlayerItemPage{
-        public int page;
-        public int maxPage;
+        public int page = 1;
 
-        public List<BasePlayPanelItemInstance> items;
+        public int count = 36;
+
+        public List<BasePlayPanelItemInstance> items = new ArrayList<>();
+
+        public List<BasePlayPanelItemInstance> getItemByPage(){
+            List<BasePlayPanelItemInstance> itemInstances = new ArrayList<>();
+            for(int i = (page - 1) * count; i < count + ((page - 1) * count);i++){
+                if(items.size() > i){
+                    itemInstances.add(items.get(i));
+                }
+            }
+            return itemInstances;
+
+        }
+
+        public int getMaxPage(){
+            if(items.size() == 0){
+                return 1;
+            }
+            return (int) Math.ceil(items.size() / (double)count);
+        }
+
     }
 }
