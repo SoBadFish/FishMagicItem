@@ -7,7 +7,6 @@ import org.sobadfish.magicitem.files.datas.RecipeData;
 import org.sobadfish.magicitem.windows.button.*;
 import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
 import org.sobadfish.magicitem.windows.panel.CraftItemPanel;
-import org.sobadfish.magicitem.windows.panel.ItemListPanel;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -134,8 +133,20 @@ public class ChestPanelController {
     /**
      * 配方库界面
      * */
-    public static Map<Integer, BasePlayPanelItemInstance> recipeLib(ItemListPanel panel, Player player,Item item){
+    public static Map<Integer, BasePlayPanelItemInstance> recipeLib(Player player,Item item){
         Map<Integer,BasePlayPanelItemInstance> playPanelItemInstanceMap = new LinkedHashMap<>();
+        int[] inputLocation = new int[]{
+                10,11,12,
+                19,20,21,
+                28,29,30
+        };
+        int[] outPutLocation = new int[]{
+                14,15,16,
+                23,24,25,
+                32,33,34
+        };
+
+
         RecipeController recipeController = MagicItemMainClass.mainClass.getMagicController().recipeController;
         if(recipeController.getRecipeData().buildRecipe.containsKey(item)){
             PlayerRecipePage playerRecipePage;
@@ -147,18 +158,20 @@ public class ChestPanelController {
             }
             playerRecipePage = recipePage.get(player);
             LinkedHashMap<Integer,Item> itemLinkedHashMap = playerRecipePage.getRecipeByPage();
+            //TODO 绘制展示
+            for(Map.Entry<Integer,Item> itemEntry: itemLinkedHashMap.entrySet()){
+                playPanelItemInstanceMap.put(inputLocation[itemEntry.getKey()],new ButtonDisplayItem(itemEntry.getValue()));
+            }
+            List<Item> output = playerRecipePage.recipe.outPut;
+
+            for(int i = 0;i < output.size();i++){
+                playPanelItemInstanceMap.put(outPutLocation[i],new ButtonDisplayItem(output.get(i)));
+            }
 
         }
 
 
-
-        //TODO 绘制展示
-
-
-        List<Item> output = new ArrayList<>();
-
-
-        return null;
+        return playPanelItemInstanceMap;
     }
 
     /**

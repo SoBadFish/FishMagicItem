@@ -128,6 +128,9 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
 
     }
 
+    /**
+     * 编译输出配方
+     * */
     public void buildOutRecipe(){
         for(Item item: outPutItems){
             if(!buildRecipe.containsKey(item)){
