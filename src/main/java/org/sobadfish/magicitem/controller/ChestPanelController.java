@@ -32,8 +32,9 @@ public class ChestPanelController {
     public static Map<Integer, BasePlayPanelItemInstance> createMenu(CraftItemPanel panel, Player player){
         Map<Integer,BasePlayPanelItemInstance> playPanelItemInstanceMap = new LinkedHashMap<>();
 
+        playPanelItemInstanceMap.put(0,new ButtonLib());
         panel.isCraft = false;
-        if (player.getLoginChainData().getDeviceOS() == 7){
+//        if (player.getLoginChainData().getDeviceOS() == 7){
             panel.canPlaceItem = new ArrayList<Integer>(){
                 {
                     add(10);add(11);add(12);
@@ -58,34 +59,34 @@ public class ChestPanelController {
                     playPanelItemInstanceMap.put(index, new ButtonWall2());
                 }
             }
-        }else{
-            panel.canPlaceItem = new ArrayList<Integer>(){
-                {
-                    add(7);add(8);add(9);
-                    add(13);add(14);add(15);
-                    add(19);add(20);add(21);
-                }
-            };
-            panel.outPutItem = new ArrayList<Integer>(){
-                {
-                    add(31);add(32);add(33);
-                    add(37);add(38);add(39);
-                    add(43);add(44);add(45);
-                }
-            };
-            //TODO 手机用户
-            for(int index = 0;index < panel.getInventory().getSize();index++){
-                if((index + 1) % 6 == 0){
-                    playPanelItemInstanceMap.put(index, new ButtonWall2());
-                }else{
-                    if(panel.outPutItem.contains(index) || panel.canPlaceItem.contains(index)){
-                        continue;
-                    }
-                    playPanelItemInstanceMap.put(index, new ButtonWall1());
-                }
-            }
-
-        }
+//        }else{
+//            panel.canPlaceItem = new ArrayList<Integer>(){
+//                {
+//                    add(7);add(8);add(9);
+//                    add(13);add(14);add(15);
+//                    add(19);add(20);add(21);
+//                }
+//            };
+//            panel.outPutItem = new ArrayList<Integer>(){
+//                {
+//                    add(31);add(32);add(33);
+//                    add(37);add(38);add(39);
+//                    add(43);add(44);add(45);
+//                }
+//            };
+//            //TODO 手机用户
+//            for(int index = 0;index < panel.getInventory().getSize();index++){
+//                if((index + 1) % 6 == 0){
+//                    playPanelItemInstanceMap.put(index, new ButtonWall2());
+//                }else{
+//                    if(panel.outPutItem.contains(index) || panel.canPlaceItem.contains(index)){
+//                        continue;
+//                    }
+//                    playPanelItemInstanceMap.put(index, new ButtonWall1());
+//                }
+//            }
+//
+//        }
 
         //TODO 绘制主页面
         return playPanelItemInstanceMap;
@@ -95,6 +96,8 @@ public class ChestPanelController {
      * 配方库列表界面
      * */
     public static Map<Integer, BasePlayPanelItemInstance> recipeListLib(Player player){
+        //TODO
+        recipePage.remove(player);
         Map<Integer,BasePlayPanelItemInstance> playPanelItemInstanceMap = new LinkedHashMap<>();
         //TODO 绘制配方列表界面
         PlayerItemPage playerItemPage;
@@ -146,12 +149,14 @@ public class ChestPanelController {
                 32,33,34
         };
 
+        playPanelItemInstanceMap.put(0,new ButtonBackLib());
 
         RecipeController recipeController = MagicItemMainClass.mainClass.getMagicController().recipeController;
         if(recipeController.getRecipeData().buildRecipe.containsKey(item)){
             PlayerRecipePage playerRecipePage;
             if(!recipePage.containsKey(player)){
                 playerRecipePage = new PlayerRecipePage();
+                playerRecipePage.item = item;
                 playerRecipePage.recipe = recipeController.getRecipeData().buildRecipe.get(item);
                 recipePage.put(player,playerRecipePage);
 
@@ -160,17 +165,26 @@ public class ChestPanelController {
             LinkedHashMap<Integer,Item> itemLinkedHashMap = playerRecipePage.getRecipeByPage();
             //TODO 绘制展示
             for(Map.Entry<Integer,Item> itemEntry: itemLinkedHashMap.entrySet()){
-                playPanelItemInstanceMap.put(inputLocation[itemEntry.getKey()],new ButtonDisplayItem(itemEntry.getValue()));
+                playPanelItemInstanceMap.put(inputLocation[itemEntry.getKey()],new ButtoRecipeButton(itemEntry.getValue()));
             }
             List<Item> output = playerRecipePage.recipe.outPut;
 
             for(int i = 0;i < output.size();i++){
-                playPanelItemInstanceMap.put(outPutLocation[i],new ButtonDisplayItem(output.get(i)));
+                playPanelItemInstanceMap.put(outPutLocation[i],new ButtoRecipeButton(output.get(i)));
+            }
+            int index = 45;
+            for(;index < 54;index++){
+                playPanelItemInstanceMap.put(index,new ButtonWall3());
+            }
+            playPanelItemInstanceMap.put(49,new ButtonPage2(playerRecipePage.page));
+            if(playerRecipePage.getMaxPage() > playerRecipePage.page){
+                playPanelItemInstanceMap.put(51,new ButtonPage2(playerRecipePage.page + 1));
+            }
+            if(playerRecipePage.page > 1){
+                playPanelItemInstanceMap.put(47,new ButtonPage2(playerRecipePage.page - 1));
             }
 
         }
-
-
         return playPanelItemInstanceMap;
     }
 
@@ -192,7 +206,7 @@ public class ChestPanelController {
     private static List<BasePlayPanelItemInstance> asPanelItem(List<Item> items){
         List<BasePlayPanelItemInstance> itemInstances = new ArrayList<>();
         for(Item item: items){
-            itemInstances.add(new ButtonDisplayItem(item));
+            itemInstances.add(new ButtoRecipeButton(item));
         }
         return itemInstances;
     }
@@ -200,6 +214,7 @@ public class ChestPanelController {
     public static class PlayerRecipePage{
         public int page = 0;
 
+        public Item item;
 
         public RecipeData.BuildRecipeOutPutItem recipe;
 
@@ -208,6 +223,19 @@ public class ChestPanelController {
                 return recipe.build.get(page);
             }
             return null;
+        }
+
+        public int getMaxPage(){
+            return recipe.build.size() - 1;
+        }
+
+        @Override
+        public String toString() {
+            return "PlayerRecipePage{" +
+                    "page=" + page +
+                    ", item=" + item +
+                    ", recipe=" + recipe +
+                    '}';
         }
     }
 

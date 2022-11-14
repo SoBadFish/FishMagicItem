@@ -199,6 +199,7 @@ public class MagicCommand extends Command {
                         MagicController.sendMessageToObject("&c控制台无法执行此指令", commandSender);
                     }
                     break;
+
                 default:
                     MagicController.sendMessageToObject("/fmi help 查看帮助",commandSender);
             }

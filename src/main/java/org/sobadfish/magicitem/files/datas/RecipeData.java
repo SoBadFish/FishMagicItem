@@ -58,7 +58,7 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
         for(cn.nukkit.inventory.Recipe recipe: craftingManager.recipes){
             if(recipe instanceof ShapedRecipe){
                 Recipe recipe1 = new Recipe();
-                recipe1.recipeIndex = ((ShapedRecipe) recipe).getShape();
+                recipe1.recipeIndex = asShape(((ShapedRecipe) recipe).getShape());
                 recipe1.inputItem = asChar(((ShapedRecipe) recipe).getIngredientsAggregate());
                 recipe1.outputItem = asString(recipe.getResult());
                 recipes.add(recipe1);
@@ -67,6 +67,20 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
 
         loadRecipe(recipes);
 
+    }
+
+    public String[] asShape(String[] shape){
+        String[] ns = new String[shape.length];
+        for(int index = 0;index < shape.length;index++){
+            if(shape[index].length() == 1){
+                ns[index] = " "+shape[index]+" ";
+            }else if(shape[index].length() == 2){
+                ns[index] = shape[index] + " ";
+            }else{
+                ns[index] = shape[index];
+            }
+        }
+        return ns;
     }
 
     /**
@@ -93,14 +107,16 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
                     Item i = tagController.getTagData().asItem(out);
                     if(!outPutItems.contains(i)){
                         outPutItems.add(i);
+
                     }
                     if(outPutRecipe.containsKey(i.getId())){
                         recipes1 = outPutRecipe.get(i.getId());
                         recipes1.add(recipe);
+                        outPutRecipe.put(i.getId(),recipes1);
                     }else{
                         recipes1 = new ArrayList<>();
                         recipes1.add(recipe);
-                        outPutRecipe.put(i.getId(),recipes);
+                        outPutRecipe.put(i.getId(),recipes1);
                     }
                 }
             }
@@ -137,7 +153,7 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
                 buildRecipe.put(item,new BuildRecipeOutPutItem());
             }
             BuildRecipeOutPutItem bot = buildRecipe.get(item);
-            List< LinkedHashMap<Integer,Item>> lrecipe = bot.build;
+            List<LinkedHashMap<Integer,Item>> lrecipe = bot.build;
             List<Recipe> recipes = outPutRecipe.get(item.getId());
             for(Recipe recipe: recipes){
                 LinkedHashMap<Integer,Item> craft = new LinkedHashMap<>();
@@ -191,5 +207,13 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
         public List<LinkedHashMap<Integer,Item>> build = new ArrayList<>();
 
         public List<Item> outPut = new ArrayList<>();
+
+        @Override
+        public String toString() {
+            return "BuildRecipeOutPutItem{" +
+                    "build=" + build +
+                    ", outPut=" + outPut +
+                    '}';
+        }
     }
 }

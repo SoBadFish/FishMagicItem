@@ -252,10 +252,7 @@ public class MagicController implements Listener {
 
     }
 
-    @EventHandler
-    public void onServerSetting(PlayerServerSettingsRequestEvent event){
-        System.out.println(event);
-    }
+
 
     private void checkServer(){
         boolean ver = false;
