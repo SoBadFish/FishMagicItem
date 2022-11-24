@@ -43,6 +43,7 @@ public class ButtoRecipeButton extends BasePlayPanelItemInstance {
         //TODO 没有就不跳转
         if(recipes.size() > 0){
             inventory.setPanel(ChestPanelController.recipeLib(player,getItem()));
+            ChestPanelController.recipePage.remove(player);
         }
         inventory.sendContents(player);
 
