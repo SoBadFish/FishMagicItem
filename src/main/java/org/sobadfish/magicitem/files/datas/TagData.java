@@ -33,6 +33,9 @@ public class TagData extends BaseDataWriterGetter<TagItem> {
         if(cacheItem.containsKey(tag)){
             return cacheItem.get(tag);
         }
+        if(tag == null){
+            return Item.get(0);
+        }
         Item item;
         if(dataList.contains(TagItem.asNameTag(tag))){
             item = dataList.get(dataList.indexOf(TagItem.asNameTag(tag))).asItem();
