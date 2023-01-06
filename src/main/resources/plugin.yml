@@ -1,6 +1,6 @@
 name: FishMagicItem
 main: org.sobadfish.magicitem.MagicItemMainClass
-version: 1.0.6
+version: 1.0.7
 api:
   - 1.0.11
   - 3.0.0

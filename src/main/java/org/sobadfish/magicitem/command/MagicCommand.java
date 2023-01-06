@@ -30,7 +30,7 @@ public class MagicCommand extends Command {
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
 
-        MagicController.sendMessageToObject("&e当前仅为测试版，不代表最终品质 版本: v1.0.1",commandSender);
+        MagicController.sendMessageToObject("&e当前仅为测试版，不代表最终品质 版本: v"+MagicItemMainClass.mainClass.getDescription().getVersion(),commandSender);
         if(strings.length > 0){
             switch (strings[0]){
                 case "help":
@@ -42,6 +42,11 @@ public class MagicCommand extends Command {
                     MagicController.sendMessageToObject("/fmi i save [name]  保存手持物品",commandSender);
                     MagicController.sendMessageToObject("/fmi c [name]  添加指令集",commandSender);
                     MagicController.sendMessageToObject("/fmi cx [name]  添加指令功能",commandSender);
+                    MagicController.sendMessageToObject("/fmi cr 合成台",commandSender);
+                    if(commandSender.isOp()) {
+                        MagicController.sendMessageToObject("/fmi ca 创建合成配方", commandSender);
+                        MagicController.sendMessageToObject("/fmi cl 配方列表", commandSender);
+                    }
                     break;
                 case "i":
                     if(!commandSender.isOp()){
