@@ -22,9 +22,9 @@ import java.util.Map;
 public class ChestPanelController {
 
 
-    public static LinkedHashMap<Player,PlayerRecipePage> recipePage = new LinkedHashMap<>();
+    public static LinkedHashMap<String,PlayerRecipePage> recipePage = new LinkedHashMap<>();
 
-    public static LinkedHashMap<Player,PlayerItemPage> itemPage = new LinkedHashMap<>();
+    public static LinkedHashMap<String,PlayerItemPage> itemPage = new LinkedHashMap<>();
 
     /**
      * 主页面
@@ -69,18 +69,18 @@ public class ChestPanelController {
      * */
     public static Map<Integer, BasePlayPanelItemInstance> recipeListLib(Player player){
         //TODO
-        recipePage.remove(player);
+        recipePage.remove(player.getName());
         Map<Integer,BasePlayPanelItemInstance> playPanelItemInstanceMap = new LinkedHashMap<>();
         //TODO 绘制配方列表界面
         PlayerItemPage playerItemPage;
-        if(!itemPage.containsKey(player)){
+        if(!itemPage.containsKey(player.getName())){
             playerItemPage = new PlayerItemPage();
             playerItemPage.page = 1;
             RecipeController recipeController = MagicItemMainClass.mainClass.getMagicController().recipeController;
             playerItemPage.items = asPanelItem(recipeController.getRecipesItems());
-            itemPage.put(player,playerItemPage);
+            itemPage.put(player.getName(),playerItemPage);
         }
-        playerItemPage = itemPage.get(player);
+        playerItemPage = itemPage.get(player.getName());
         for(int index = 0;index < 9;index++){
             playPanelItemInstanceMap.put(index,new ButtonWall3());
         }
@@ -126,14 +126,15 @@ public class ChestPanelController {
         RecipeController recipeController = MagicItemMainClass.mainClass.getMagicController().recipeController;
         if(recipeController.getRecipeData().buildRecipe.containsKey(item)){
             PlayerRecipePage playerRecipePage;
-            if(!recipePage.containsKey(player)){
+            if(!recipePage.containsKey(player.getName())){
                 playerRecipePage = new PlayerRecipePage();
                 playerRecipePage.item = item;
+                playerRecipePage.page = 1;
                 playerRecipePage.recipe = recipeController.getRecipeData().buildRecipe.get(item);
-                recipePage.put(player,playerRecipePage);
+                recipePage.put(player.getName(),playerRecipePage);
 
             }
-            playerRecipePage = recipePage.get(player);
+            playerRecipePage = recipePage.get(player.getName());
             LinkedHashMap<Integer,Item> itemLinkedHashMap = playerRecipePage.getRecipeByPage();
             //TODO 绘制展示
             for(Map.Entry<Integer,Item> itemEntry: itemLinkedHashMap.entrySet()){
@@ -191,8 +192,8 @@ public class ChestPanelController {
         public RecipeData.BuildRecipeOutPutItem recipe;
 
         public LinkedHashMap<Integer,Item> getRecipeByPage(){
-            if(recipe.build.size() > page){
-                return recipe.build.get(page);
+            if(recipe.build.size() > page - 1){
+                return recipe.build.get(page - 1);
             }
             return null;
         }

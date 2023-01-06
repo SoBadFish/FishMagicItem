@@ -34,8 +34,9 @@ public class ButtonPage2 extends BasePlayPanelItemInstance {
     @Override
     public void onClick(ChestInventoryPanel inventory, Player player) {
         inventory.clearAll();
-        if(ChestPanelController.recipePage.containsKey(player)){
-            ChestPanelController.PlayerRecipePage itemPage = ChestPanelController.recipePage.get(player);
+        if(ChestPanelController.recipePage.containsKey(player.getName())){
+
+            ChestPanelController.PlayerRecipePage itemPage = ChestPanelController.recipePage.get(player.getName());
             itemPage.page = this.count;
             inventory.setPanel(ChestPanelController.recipeLib(player,itemPage.item));
         }
