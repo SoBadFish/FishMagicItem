@@ -59,34 +59,6 @@ public class ChestPanelController {
                     playPanelItemInstanceMap.put(index, new ButtonWall2());
                 }
             }
-//        }else{
-//            panel.canPlaceItem = new ArrayList<Integer>(){
-//                {
-//                    add(7);add(8);add(9);
-//                    add(13);add(14);add(15);
-//                    add(19);add(20);add(21);
-//                }
-//            };
-//            panel.outPutItem = new ArrayList<Integer>(){
-//                {
-//                    add(31);add(32);add(33);
-//                    add(37);add(38);add(39);
-//                    add(43);add(44);add(45);
-//                }
-//            };
-//            //TODO 手机用户
-//            for(int index = 0;index < panel.getInventory().getSize();index++){
-//                if((index + 1) % 6 == 0){
-//                    playPanelItemInstanceMap.put(index, new ButtonWall2());
-//                }else{
-//                    if(panel.outPutItem.contains(index) || panel.canPlaceItem.contains(index)){
-//                        continue;
-//                    }
-//                    playPanelItemInstanceMap.put(index, new ButtonWall1());
-//                }
-//            }
-//
-//        }
 
         //TODO 绘制主页面
         return playPanelItemInstanceMap;
@@ -123,7 +95,7 @@ public class ChestPanelController {
             playPanelItemInstanceMap.put(index,new ButtonWall3());
         }
         playPanelItemInstanceMap.put(49,new ButtonPage(playerItemPage.page));
-        if(playerItemPage.getMaxPage() > playerItemPage.page){
+        if(playerItemPage.getMaxPage() > playerItemPage.page + 1){
             playPanelItemInstanceMap.put(51,new ButtonPage(playerItemPage.page + 1));
         }
         if(playerItemPage.page > 1){
@@ -177,7 +149,7 @@ public class ChestPanelController {
                 playPanelItemInstanceMap.put(index,new ButtonWall3());
             }
             playPanelItemInstanceMap.put(49,new ButtonPage2(playerRecipePage.page));
-            if(playerRecipePage.getMaxPage() > playerRecipePage.page){
+            if(playerRecipePage.getMaxPage() > playerRecipePage.page + 1){
                 playPanelItemInstanceMap.put(51,new ButtonPage2(playerRecipePage.page + 1));
             }
             if(playerRecipePage.page > 1){

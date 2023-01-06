@@ -20,7 +20,7 @@ public class ButtonWall1 extends BasePlayPanelItemInstance {
 
     @Override
     public Item getItem() {
-        return Item.get(95);
+        return Item.get(160,7);
     }
 
     @Override
