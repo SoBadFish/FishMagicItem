@@ -74,23 +74,25 @@ public abstract class AbstractFakeInventory extends ContainerInventory {
         super.onClose(who);
         OPEN.remove(who, this);
         List<BlockVector3> blocks = blockPositions.get(who);
-        for (int i = 0, size = blocks.size(); i < size; i++) {
-            final int index = i;
-            service.execute(() -> {
-                Vector3 blockPosition = blocks.get(index).asVector3();
-                UpdateBlockPacket updateBlock = new UpdateBlockPacket();
+        if (blocks != null) {
+            for (int i = 0, size = blocks.size(); i < size; i++) {
+                final int index = i;
+                service.execute(() -> {
+                    Vector3 blockPosition = blocks.get(index).asVector3();
+                    UpdateBlockPacket updateBlock = new UpdateBlockPacket();
 //                updateBlock.blockRuntimeId = who.getLevel().getBlock(blockPosition).getRuntimeId();
-                if(IS_PM1E){
-                    updateBlock.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(who.protocol,who.getLevel().getBlock(blockPosition).getFullId());
-                }else{
-                    updateBlock.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(who.getLevel().getBlock(blockPosition).getFullId());
-                }
-                updateBlock.flags = UpdateBlockPacket.FLAG_ALL_PRIORITY;
-                updateBlock.x = blockPosition.getFloorX();
-                updateBlock.y = blockPosition.getFloorY();
-                updateBlock.z = blockPosition.getFloorZ();
-                who.dataPacket(updateBlock);
-            });
+                    if(IS_PM1E){
+                        updateBlock.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(who.protocol,who.getLevel().getBlock(blockPosition).getFullId());
+                    }else{
+                        updateBlock.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(who.getLevel().getBlock(blockPosition).getFullId());
+                    }
+                    updateBlock.flags = UpdateBlockPacket.FLAG_ALL_PRIORITY;
+                    updateBlock.x = blockPosition.getFloorX();
+                    updateBlock.y = blockPosition.getFloorY();
+                    updateBlock.z = blockPosition.getFloorZ();
+                    who.dataPacket(updateBlock);
+                });
+            }
         }
     }
 

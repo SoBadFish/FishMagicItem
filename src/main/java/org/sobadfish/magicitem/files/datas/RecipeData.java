@@ -17,6 +17,7 @@ import java.util.Map;
 
 /**
  * 配方数据
+ *
  * @author Sobadfish
  * @date 2022/10/26
  */
@@ -28,13 +29,15 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
 
     /**
      * 产物的配方表
-     * */
-    public LinkedHashMap<Integer,List<Recipe>> outPutRecipe = new LinkedHashMap<>();
+     *
+     */
+    public LinkedHashMap<Integer, List<Recipe>> outPutRecipe = new LinkedHashMap<>();
 
     /**
      * 将配方编译为摆放
-     * */
-    public LinkedHashMap<Item,BuildRecipeOutPutItem> buildRecipe = new LinkedHashMap<>();
+     *
+     */
+    public LinkedHashMap<Item, BuildRecipeOutPutItem> buildRecipe = new LinkedHashMap<>();
 
     public List<Item> outPutItems = new ArrayList<>();
 
@@ -43,9 +46,9 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
 
     }
 
-    public void init(LanguageController languageController){
+    public void init(LanguageController languageController) {
         loadRecipe(dataList);
-        if(languageController.getConfig().getBoolean("import-craft",true)) {
+        if (languageController.getConfig().getBoolean("import-craft", true)) {
             initDefault();
         }
     }
@@ -55,8 +58,8 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
         ArrayList<Recipe> recipes = new ArrayList<>();
         CraftingManager craftingManager = Server.getInstance().getCraftingManager();
 
-        for(cn.nukkit.inventory.Recipe recipe: craftingManager.recipes){
-            if(recipe instanceof ShapedRecipe){
+        for (cn.nukkit.inventory.Recipe recipe : craftingManager.recipes) {
+            if (recipe instanceof ShapedRecipe) {
                 Recipe recipe1 = new Recipe();
                 recipe1.recipeIndex = asShape(((ShapedRecipe) recipe).getShape());
                 recipe1.inputItem = asChar(((ShapedRecipe) recipe).getIngredientsAggregate());
@@ -69,14 +72,14 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
 
     }
 
-    public String[] asShape(String[] shape){
+    public String[] asShape(String[] shape) {
         String[] ns = new String[shape.length];
-        for(int index = 0;index < shape.length;index++){
-            if(shape[index].length() == 1){
-                ns[index] = " "+shape[index]+" ";
-            }else if(shape[index].length() == 2){
+        for (int index = 0; index < shape.length; index++) {
+            if (shape[index].length() == 1) {
+                ns[index] = " " + shape[index] + " ";
+            } else if (shape[index].length() == 2) {
                 ns[index] = shape[index] + " ";
-            }else{
+            } else {
                 ns[index] = shape[index];
             }
         }
@@ -85,9 +88,10 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
 
     /**
      * 加快配方查找效率
-     * */
-    public List<Recipe> getRecipeByInput(Item input){
-        if(loadRecipeMap.containsKey(input.getId())){
+     *
+     */
+    public List<Recipe> getRecipeByInput(Item input) {
+        if (loadRecipeMap.containsKey(input.getId())) {
             return loadRecipeMap.get(input.getId());
         }
         return new ArrayList<>();
@@ -97,26 +101,26 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
         this.tagController = tagController;
     }
 
-    public void loadOutPutRecipe(){
+    public void loadOutPutRecipe() {
         //TODO 肯定是根据现有的加载
         List<Recipe> recipes1;
-        for(List<Recipe> recipes: new ArrayList<>(loadRecipeMap.values())){
+        for (List<Recipe> recipes : new ArrayList<>(loadRecipeMap.values())) {
             ArrayList<Recipe> recipeArrayList = new ArrayList<>(recipes);
-            for(Recipe recipe: recipeArrayList){
-                for(String out: recipe.outputItem){
+            for (Recipe recipe : recipeArrayList) {
+                for (String out : recipe.outputItem) {
                     Item i = tagController.getTagData().asItem(out);
-                    if(!outPutItems.contains(i)){
+                    if (!outPutItems.contains(i)) {
                         outPutItems.add(i);
 
                     }
-                    if(outPutRecipe.containsKey(i.getId())){
+                    if (outPutRecipe.containsKey(i.getId())) {
                         recipes1 = outPutRecipe.get(i.getId());
                         recipes1.add(recipe);
-                        outPutRecipe.put(i.getId(),recipes1);
-                    }else{
+                        outPutRecipe.put(i.getId(), recipes1);
+                    } else {
                         recipes1 = new ArrayList<>();
                         recipes1.add(recipe);
-                        outPutRecipe.put(i.getId(),recipes1);
+                        outPutRecipe.put(i.getId(), recipes1);
                     }
                 }
             }
@@ -127,13 +131,47 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
         return outPutItems;
     }
 
-    private void loadRecipe(ArrayList<Recipe> dataList){
-        for(Recipe recipe: dataList){
+    public void updateRecipeIndex(Recipe recipe) {
+        for (String istr : recipe.inputItem.values()) {
+            Item i = tagController.getTagData().asItem(istr);
+            if (!loadRecipeMap.containsKey(i.getId())) {
+                loadRecipeMap.put(i.getId(), new ArrayList<>());
+            }
+            List<Recipe> recipes = loadRecipeMap.get(i.getId());
+            if (!recipes.contains(recipe)) {
+                recipes.add(recipe);
+            }
+        }
+
+        // 更新输出列表和反向索引
+        for (String out : recipe.outputItem) {
+            Item i = tagController.getTagData().asItem(out);
+            if (!outPutItems.contains(i)) {
+                outPutItems.add(i);
+            }
+            List<Recipe> recipes1;
+            if (outPutRecipe.containsKey(i.getId())) {
+                recipes1 = outPutRecipe.get(i.getId());
+                if (!recipes1.contains(recipe)) {
+                    recipes1.add(recipe);
+                }
+            } else {
+                recipes1 = new ArrayList<>();
+                recipes1.add(recipe);
+                outPutRecipe.put(i.getId(), recipes1);
+            }
+        }
+        // 更新显示用的构建配方
+        buildOutRecipe();
+    }
+
+    private void loadRecipe(ArrayList<Recipe> dataList) {
+        for (Recipe recipe : dataList) {
             List<Recipe> recipes;
-            for(String istr: recipe.inputItem.values()){
+            for (String istr : recipe.inputItem.values()) {
                 Item i = tagController.getTagData().asItem(istr);
-                if(!loadRecipeMap.containsKey(i.getId())){
-                   loadRecipeMap.put(i.getId(),new ArrayList<>());
+                if (!loadRecipeMap.containsKey(i.getId())) {
+                    loadRecipeMap.put(i.getId(), new ArrayList<>());
                 }
                 recipes = loadRecipeMap.get(i.getId());
                 recipes.add(recipe);
@@ -141,46 +179,46 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
 
         }
 
-
     }
 
     /**
      * 编译输出配方
-     * */
-    public void buildOutRecipe(){
-        for(Item item: outPutItems){
-            if(!buildRecipe.containsKey(item)){
-                buildRecipe.put(item,new BuildRecipeOutPutItem());
+     *
+     */
+    public void buildOutRecipe() {
+        for (Item item : outPutItems) {
+            if (!buildRecipe.containsKey(item)) {
+                buildRecipe.put(item, new BuildRecipeOutPutItem());
             }
             BuildRecipeOutPutItem bot = buildRecipe.get(item);
-            List<LinkedHashMap<Integer,Item>> lrecipe = bot.build;
+            List<LinkedHashMap<Integer, Item>> lrecipe = bot.build;
             List<Recipe> recipes = outPutRecipe.get(item.getId());
-            for(Recipe recipe: recipes){
-                LinkedHashMap<Integer,Item> craft = new LinkedHashMap<>();
+            for (Recipe recipe : recipes) {
+                LinkedHashMap<Integer, Item> craft = new LinkedHashMap<>();
                 int index = 0;
-                for(String str: recipe.recipeIndex){
-                    if(str.length() == 3){
-                        for(char a: str.toCharArray()){
-                            if(a != ' '){
-                                craft.put(index,tagController.getTagData().asItem(recipe.inputItem.get(a)));
-                            }
-                            index++;
-                        }
-                    }else if(str.length() == 2){
-                        for(char a: str.toCharArray()) {
+                for (String str : recipe.recipeIndex) {
+                    if (str.length() == 3) {
+                        for (char a : str.toCharArray()) {
                             if (a != ' ') {
                                 craft.put(index, tagController.getTagData().asItem(recipe.inputItem.get(a)));
                             }
                             index++;
                         }
-                    }else if(str.length() == 1){
+                    } else if (str.length() == 2) {
+                        for (char a : str.toCharArray()) {
+                            if (a != ' ') {
+                                craft.put(index, tagController.getTagData().asItem(recipe.inputItem.get(a)));
+                            }
+                            index++;
+                        }
+                    } else if (str.length() == 1) {
                         index++;
                         craft.put(index, tagController.getTagData().asItem(recipe.inputItem.get(str.charAt(0))));
                     }
                 }
                 lrecipe.add(craft);
                 List<Item> output = new ArrayList<>();
-                for(String ostr: recipe.outputItem){
+                for (String ostr : recipe.outputItem) {
                     output.add(tagController.getTagData().asItem(ostr));
                 }
                 bot.outPut = output;
@@ -188,32 +226,33 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
         }
     }
 
-    public String[] asString(Item in){
-       return new String[]{in.getId()+":"+in.getDamage()+":"+in.getCount()};
+    public String[] asString(Item in) {
+        return new String[]{in.getId() + ":" + in.getDamage() + ":" + in.getCount()};
     }
 
-    public Map<Character,String> asChar(List<Item> in){
+    public Map<Character, String> asChar(List<Item> in) {
         char a = 'A';
         Map<Character, String> stringMap = new LinkedHashMap<>();
-        for(Item i: in){
-            stringMap.put(a,i.getId()+":"+i.getDamage()+":"+i.getCount());
+        for (Item i : in) {
+            stringMap.put(a, i.getId() + ":" + i.getDamage() + ":" + i.getCount());
             a++;
         }
         return stringMap;
 
     }
 
-    public static class BuildRecipeOutPutItem{
-        public List<LinkedHashMap<Integer,Item>> build = new ArrayList<>();
+    public static class BuildRecipeOutPutItem {
+
+        public List<LinkedHashMap<Integer, Item>> build = new ArrayList<>();
 
         public List<Item> outPut = new ArrayList<>();
 
         @Override
         public String toString() {
-            return "BuildRecipeOutPutItem{" +
-                    "build=" + build +
-                    ", outPut=" + outPut +
-                    '}';
+            return "BuildRecipeOutPutItem{"
+                    + "build=" + build
+                    + ", outPut=" + outPut
+                    + '}';
         }
     }
 }

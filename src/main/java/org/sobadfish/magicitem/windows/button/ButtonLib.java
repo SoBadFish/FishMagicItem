@@ -8,6 +8,7 @@ import org.sobadfish.magicitem.controller.ChestPanelController;
 import org.sobadfish.magicitem.windows.WindowFrom;
 import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
 import org.sobadfish.magicitem.windows.lib.ChestInventoryPanel;
+import org.sobadfish.magicitem.windows.panel.CraftItemPanel;
 
 /**
  * @author Sobadfish
@@ -27,6 +28,15 @@ public class ButtonLib extends BasePlayPanelItemInstance {
 
     @Override
     public void onClick(ChestInventoryPanel inventory, Player player) {
+        // 先移除旧的缓存，强制刷新
+        ChestPanelController.itemPage.remove(player.getName());
+        if (inventory instanceof CraftItemPanel craftPanel) {
+            // 关键修复：在切换到配方列表前，先退还玩家可能放在合成栏里的物品
+            craftPanel.backPlayer();
+
+            // 然后清除合成栏定义，防止在配方列表界面误触导致退还列表里的展示物品
+            ChestPanelController.clearCraftPanelData(craftPanel);
+        }
         inventory.setPanel(ChestPanelController.recipeListLib(player));
         inventory.sendContents(player);
     }

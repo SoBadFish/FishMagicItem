@@ -30,76 +30,81 @@ public class Recipe {
     public String[] recipeIndex;
 
 
+    // 新增：预编译的配方网格缓存
+    private transient Item[] cachedInputGrid;
+
+    // 新增：编译方法，将字符串配方转换为物品数组
+    public void compile(TagController controller) {
+        cachedInputGrid = new Item[9];
+        StringBuilder str = new StringBuilder();
+        // 还原配方字符串逻辑只执行一次
+        for(String ss: recipeIndex){
+            String sp = ss.split("(?<=\\G.{3})")[0];
+            if(sp.length() < 3) sp = (sp + "   ").substring(0,3);
+            str.append(sp);
+        }
+        String pattern = str.toString();
+        // 补齐或截断到9位
+        if (pattern.length() > 9) pattern = pattern.substring(0, 9);
+        while (pattern.length() < 9) pattern += " ";
+
+        char[] chars = pattern.toCharArray();
+        for (int i = 0; i < 9; i++) {
+            char c = chars[i];
+            if (c != ' ') {
+                String tagStr = inputItem.get(c);
+                if (tagStr != null) {
+                    cachedInputGrid[i] = controller.getTagData().asItem(tagStr);
+                }
+            }
+        }
+    }
+
     /**
      * 校验是否符合当前合成配方
      * */
-    public Item[] math(Map<Integer, Item> integerStringMap, TagController controller){
-       //TODO 固定只保留3个
-        Item[] i9 = new Item[9];
-        if(recipeIndex.length > 0){
-            StringBuilder str = new StringBuilder();
-            for(String ss: recipeIndex){
-                String sp = ss.split("(?<=\\G.{3})")[0];
-                if(sp.length() < 3){
-                    sp = (sp + "   ").substring(0,3);
-                }
-                str.append(sp);
-            }
-            str = new StringBuilder(str.toString().split("(?<=\\G.{9})")[0]);
-            int size = 0;
-            int rsize = 0;
-            //TODO 根据配方来
-            int saveIndex = 0;
-            for(char c: str.toString().toCharArray()) {
-                if (c == ' ') {
-                    if (!integerStringMap.containsKey(saveIndex)) {
-                        size++;
-                    }
-                } else {
-                    TagItem tagItem = controller.getTagData().getTagItemByName(inputItem.get(c));
-                    if (tagItem != null) {
-                        if (integerStringMap.containsKey(saveIndex)) {
-                            if (integerStringMap.get(saveIndex).equals(controller.getTagData().asItem(tagItem.name), true, true)) {
-                                size++;
-                                rsize++;
-
-                            }
-                        }
-                    }else{
-                        if (integerStringMap.containsKey(saveIndex)) {
-                            String[] t2 = inputItem.get(c).split(":");
-
-                            Item item = Item.get(Integer.parseInt(t2[0]),Integer.parseInt(t2[1]),Integer.parseInt(t2[2]));
-                            if (integerStringMap.get(saveIndex).equals(item, true, true)) {
-                                size++;
-                                rsize++;
-
-                            }
-                        }
-                    }
-                }
-                saveIndex++;
-
-            }
-            if(size == str.length() && rsize == integerStringMap.size()){
-                for(int i = 0;i < outputItem.length;i++){
-                    if(i >= 9){
-                        break;
-                    }
-                    i9[i] = controller.getTagData().asItem(outputItem[i]);
-                }
-                ArrayList<Item> ii9 = new ArrayList<>();
-                for(Item i: i9){
-                    if(i != null){
-                        ii9.add(i);
-                    }
-                }
-                return ii9.toArray(new Item[0]);
-
-            }
-
+    public Item[] math(Map<Integer, Item> input, TagController controller){
+        if (cachedInputGrid == null) {
+            compile(controller);
         }
-        return new Item[0];
+
+        int matches = 0;
+        int inputCount = 0;
+        // 统计实际输入的物品数量
+        for(Item it : input.values()) {
+            if(it != null && it.getId() != 0) inputCount++;
+        }
+
+        for (int i = 0; i < 9; i++) {
+            Item expected = cachedInputGrid[i];
+            Item actual = input.get(i);
+            
+            boolean expectedEmpty = (expected == null || expected.getId() == 0);
+            boolean actualEmpty = (actual == null || actual.getId() == 0);
+
+            if (expectedEmpty) {
+                if (!actualEmpty) return new Item[0]; // 期望空但实际有物品 -> 失败
+            } else {
+                if (actualEmpty) return new Item[0]; // 期望有物品但实际空 -> 失败
+                
+                // 比较逻辑：如果是自定义物品(有NBT)，严格匹配；否则宽松匹配
+                boolean checkTag = expected.hasCompoundTag();
+                if (!expected.equals(actual, true, checkTag)) {
+                     return new Item[0];
+                }
+                matches++;
+            }
+        }
+        
+        // 确保没有多余的物品（例如在 3x3 之外的物品，虽然通常不会有）
+        if (matches != inputCount) return new Item[0];
+
+        // 构建输出 (注意：必须 clone 以防止修改缓存)
+        ArrayList<Item> output = new ArrayList<>();
+        for (String outStr : outputItem) {
+            output.add(controller.getTagData().asItem(outStr).clone());
+        }
+        return output.toArray(new Item[0]);
     }
 
     public boolean hasOutItem(Item item,TagController controller){

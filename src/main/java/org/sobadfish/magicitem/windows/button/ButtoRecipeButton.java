@@ -10,6 +10,7 @@ import org.sobadfish.magicitem.files.entity.Recipe;
 import org.sobadfish.magicitem.windows.WindowFrom;
 import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
 import org.sobadfish.magicitem.windows.lib.ChestInventoryPanel;
+import org.sobadfish.magicitem.windows.panel.CraftItemPanel;
 
 import java.util.List;
 
@@ -39,15 +40,15 @@ public class ButtoRecipeButton extends BasePlayPanelItemInstance {
         inventory.clearAll();
         MagicController controller = MagicItemMainClass.mainClass.getMagicController();
         List<Recipe> recipes = controller.recipeController.getRecipesByItem(item);
-        //TODO 跳转配方界面
-        //TODO 没有就不跳转
         if(recipes.size() > 0){
             ChestPanelController.recipePage.remove(player.getName());
+            if (inventory instanceof CraftItemPanel) {
+                // 确保在进入详情页前也清除合成面板定义
+                ChestPanelController.clearCraftPanelData((CraftItemPanel) inventory);
+            }
             inventory.setPanel(ChestPanelController.recipeLib(player,getItem()));
             inventory.sendContents(player);
         }
-
-
     }
 
     @Override
