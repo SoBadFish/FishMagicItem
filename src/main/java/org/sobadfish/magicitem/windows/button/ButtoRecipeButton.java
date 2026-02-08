@@ -44,8 +44,9 @@ public class ButtoRecipeButton extends BasePlayPanelItemInstance {
         if(recipes.size() > 0){
             ChestPanelController.recipePage.remove(player.getName());
             inventory.setPanel(ChestPanelController.recipeLib(player,getItem()));
+            inventory.sendContents(player);
         }
-        inventory.sendContents(player);
+
 
     }
 

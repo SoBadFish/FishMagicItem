@@ -33,6 +33,7 @@ public class ChestInventoryPanel extends DoubleChestFakeInventory implements Inv
     }
 
     public void setPanel(Map<Integer, BasePlayPanelItemInstance> panel){
+        clearAll();
         Map<Integer, BasePlayPanelItemInstance> m = new LinkedHashMap<>();
         for(Map.Entry<Integer,BasePlayPanelItemInstance> entry : panel.entrySet()){
             Item value = entry.getValue().getPanelItem(getPlayer(),entry.getKey()).clone();

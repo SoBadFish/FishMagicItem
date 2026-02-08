@@ -27,6 +27,7 @@ public class ButtonBackLib extends BasePlayPanelItemInstance {
 
     @Override
     public void onClick(ChestInventoryPanel inventory, Player player) {
+//        inventory.setPanel();
         inventory.setPanel(ChestPanelController.recipeListLib(player));
         inventory.sendContents(player);
     }

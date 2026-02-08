@@ -1,9 +1,12 @@
 package org.sobadfish.magicitem.windows;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.InventoryHolder;
+import cn.nukkit.scheduler.PluginTask;
+import org.sobadfish.magicitem.MagicItemMainClass;
 import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
 import org.sobadfish.magicitem.windows.lib.AbstractFakeInventory;
 import org.sobadfish.magicitem.windows.lib.ChestInventoryPanel;
@@ -56,7 +59,13 @@ public class DisPlayerPanel implements InventoryHolder {
         panel.setPanel(itemMap);
         panel.id = ++Entity.entityCount;
         inventory = panel;
-        panel.getPlayer().addWindow(panel);
+        Server.getInstance().getScheduler().scheduleDelayedTask(MagicItemMainClass.mainClass, new PluginTask<>(MagicItemMainClass.mainClass) {
+            @Override
+            public void onRun(int i) {
+                panel.getPlayer().addWindow(panel);
+            }
+        },5);
+
 
     }
 

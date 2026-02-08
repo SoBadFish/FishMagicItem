@@ -1,7 +1,8 @@
 # 插件的前缀标题，提示都会在这里展示
 plugin-title: "&7[ &6FISH-MAGIC &7]"
 # 是否引用原版合成配方
-import-craft: true
+# 不建议开启 不然会在配方列表看到一堆
+import-craft: false
 
 ########################
 #
