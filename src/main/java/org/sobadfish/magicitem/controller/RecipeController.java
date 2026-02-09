@@ -124,15 +124,12 @@ public class RecipeController {
             // 检查 Map 中是否包含该 key，且 value 不为 null，且物品 ID 不为 0
             // 过滤掉 ButtonWall (玻璃板)
             Item currentItem = input.get(slotIndex);
-            boolean isWall = false;
-            if (currentItem != null && currentItem.hasCompoundTag() && currentItem.getNamedTag().contains("button")) {
-                // 如果是按钮，进一步检查是否是 Wall
-                // 通常 ButtonWall 的 id 是 160 (Stained Glass Pane)
-                // 或者我们可以检查 Item 名称或 ID。
-                // 简单起见，如果它是一个 Button，我们就认为它不是有效配方材料。
-                // 除非... 配方真的需要一个按钮？但这里的 Button 是 UI 组件。
-                isWall = true;
-            }
+            boolean isWall = currentItem != null && currentItem.hasCompoundTag() && currentItem.getNamedTag().contains("button");
+            // 如果是按钮，进一步检查是否是 Wall
+            // 通常 ButtonWall 的 id 是 160 (Stained Glass Pane)
+            // 或者我们可以检查 Item 名称或 ID。
+            // 简单起见，如果它是一个 Button，我们就认为它不是有效配方材料。
+            // 除非... 配方真的需要一个按钮？但这里的 Button 是 UI 组件。
 
             if (input.containsKey(slotIndex) && currentItem != null && currentItem.getId() != 0 && !isWall) {
                 boolean has = false;
@@ -149,10 +146,11 @@ public class RecipeController {
                     charItem.put(a, currentItem);
                     a++;
                 }
-            } else {
-                // Always append space for empty slots to maintain 3x3 structure
-                str.append(" ");
             }
+//            else {
+//                // Always append space for empty slots to maintain 3x3 structure
+//                str.append(" ");
+//            }
         }
 
         LinkedHashMap<Character, String> charItemSa = new LinkedHashMap<>();
