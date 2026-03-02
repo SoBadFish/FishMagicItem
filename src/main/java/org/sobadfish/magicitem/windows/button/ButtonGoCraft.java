@@ -29,7 +29,7 @@ public class ButtonGoCraft extends BasePlayPanelItemInstance {
 
     @Override
     public void onClick(ChestInventoryPanel inventory, Player player) {
-        // 切换到合成台界面
+        // 切换到创建配方界面
         if (inventory instanceof CraftItemPanel craftPanel) {
             craftPanel.setPanel(ChestPanelController.createMenu(craftPanel, player));
             craftPanel.sendContents(player);

@@ -25,6 +25,13 @@ public class ChestPanelController {
 
     public static LinkedHashMap<String, PlayerItemPage> itemPage = new LinkedHashMap<>();
 
+    // 判断是否为移动端设备 (Android, iOS, FireOS)
+    public static boolean isMobile(Player player) {
+        int os = player.getLoginChainData().getDeviceOS();
+        // 7 = Windows 10, 8 = Windows 32/Edu
+        return os != 7 && os != 8;
+    }
+
     /**
      * 主页面
      *
@@ -36,46 +43,50 @@ public class ChestPanelController {
         // playPanelItemInstanceMap.put(0, new ButtonLib());
         panel.isCraft = false;
 
-        // 如果不是 Windows (7)，则默认为移动端
-        boolean isMobile = player.getLoginChainData().getDeviceOS() != 7;
+        boolean isMobile = isMobile(player);
 
         // 强制调试：当前设备类型
         MagicController.sendLogger("调试: createMenu 为玩家 " + player.getName() + " 创建菜单. 设备OS: " + player.getLoginChainData().getDeviceOS() + " (isMobile=" + isMobile + ")");
 
         panel.canPlaceItem = new ArrayList<Integer>();
-
-        int[] mobileInputs = {7, 8, 9, 13, 14, 15, 19, 20, 21};
-        for (int i : mobileInputs) {
-            if (!panel.canPlaceItem.contains(i)) {
-                panel.canPlaceItem.add(i);
-            }
-        }
-
-        // PC Inputs (10, 11, 12...)
-        int[] pcInputs = {10, 11, 12, 19, 20, 21, 28, 29, 30};
-        for (int i : pcInputs) {
-            if (!panel.canPlaceItem.contains(i)) {
-                panel.canPlaceItem.add(i);
-            }
-        }
-
-        // Output 同理，合并两套
+        panel.inputItem = new ArrayList<Integer>();
         panel.outPutItem = new ArrayList<Integer>();
 
-        // Mobile Outputs (根据用户反馈的输入推断，或者是之前的定义)
-        // 之前的定义：31,32,33, 37,38,39, 43,44,45
-        int[] mobileOutputs = {31, 32, 33, 37, 38, 39, 43, 44, 45};
-        for (int i : mobileOutputs) {
-            if (!panel.outPutItem.contains(i)) {
-                panel.outPutItem.add(i);
+        if (isMobile) {
+            int[] mobileInputs = {7, 8, 9, 13, 14, 15, 19, 20, 21};
+            for (int i : mobileInputs) {
+                if (!panel.canPlaceItem.contains(i)) {
+                    panel.canPlaceItem.add(i);
+                }
+                if (!panel.inputItem.contains(i)) {
+                    panel.inputItem.add(i);
+                }
             }
-        }
 
-        // PC Outputs
-        int[] pcOutputs = {14, 15, 16, 23, 24, 25, 32, 33, 34};
-        for (int i : pcOutputs) {
-            if (!panel.outPutItem.contains(i)) {
-                panel.outPutItem.add(i);
+            int[] mobileOutputs = {31, 32, 33, 37, 38, 39, 43, 44, 45};
+            for (int i : mobileOutputs) {
+                if (!panel.outPutItem.contains(i)) {
+                    panel.outPutItem.add(i);
+                }
+            }
+        } else {
+            // PC Inputs (10, 11, 12...)
+            int[] pcInputs = {10, 11, 12, 19, 20, 21, 28, 29, 30};
+            for (int i : pcInputs) {
+                if (!panel.canPlaceItem.contains(i)) {
+                    panel.canPlaceItem.add(i);
+                }
+                if (!panel.inputItem.contains(i)) {
+                    panel.inputItem.add(i);
+                }
+            }
+
+            // PC Outputs
+            int[] pcOutputs = {14, 15, 16, 23, 24, 25, 32, 33, 34};
+            for (int i : pcOutputs) {
+                if (!panel.outPutItem.contains(i)) {
+                    panel.outPutItem.add(i);
+                }
             }
         }
 
@@ -150,8 +161,7 @@ public class ChestPanelController {
         Map<Integer, BasePlayPanelItemInstance> playPanelItemInstanceMap = new LinkedHashMap<>();
         //TODO 绘制配方列表界面
         PlayerItemPage playerItemPage;
-        // 如果不是 Windows (7)，则默认为移动端
-        boolean isMobile = player.getLoginChainData().getDeviceOS() != 7;
+        boolean isMobile = isMobile(player);
 
         if (!itemPage.containsKey(player.getName())) {
             playerItemPage = new PlayerItemPage();
@@ -225,30 +235,33 @@ public class ChestPanelController {
      */
     public static Map<Integer, BasePlayPanelItemInstance> recipeLib(Player player, Item item) {
         Map<Integer, BasePlayPanelItemInstance> playPanelItemInstanceMap = new LinkedHashMap<>();
-        // 如果不是 Windows (7)，则默认为移动端
-        boolean isMobile = player.getLoginChainData().getDeviceOS() != 7;
+        boolean isMobile = isMobile(player);
         int[] inputLocation;
         int[] outPutLocation;
 
         if (isMobile) {
             // Mobile: 6 cols x 9 rows
+            // Input: Top Center 3x3
             inputLocation = new int[]{
-                6, 7, 8,
-                12, 13, 14,
-                18, 19, 20
+                7, 8, 9,
+                13, 14, 15,
+                19, 20, 21
             };
+            // Output: Bottom Center 3x3
             outPutLocation = new int[]{
-                9, 10, 11,
-                15, 16, 17,
-                21, 22, 23
+                31, 32, 33,
+                37, 38, 39,
+                43, 44, 45
             };
         } else {
             // Windows: 9 cols x 6 rows
+            // Input: Left 3x3
             inputLocation = new int[]{
                 10, 11, 12,
                 19, 20, 21,
                 28, 29, 30
             };
+            // Output: Right 3x3
             outPutLocation = new int[]{
                 14, 15, 16,
                 23, 24, 25,
@@ -258,6 +271,44 @@ public class ChestPanelController {
 
         playPanelItemInstanceMap.put(0, new ButtonBackLib());
 
+        // Always fill the background first
+        int footerStart = 45;
+        if (isMobile) {
+            footerStart = 54;
+        }
+        
+        // Calculate inventory size based on platform
+        int inventorySize = 54; // Actually DoubleChestFakeInventory is always 54 slots (double chest)
+
+        for (int index = 0; index < inventorySize; index++) {
+            boolean skip = false;
+            // Don't overwrite the back button
+            if (index == 0) {
+                continue;
+            }
+            
+            // Check if slot is an input or output slot
+            boolean isInput = false;
+            for(int i : inputLocation) {
+                if(i == index) { isInput = true; break; }
+            }
+            
+            boolean isOutput = false;
+            for(int i : outPutLocation) {
+                if(i == index) { isOutput = true; break; }
+            }
+            
+            if (isInput || isOutput) {
+                continue;
+            }
+
+            if (index < footerStart) {
+                playPanelItemInstanceMap.put(index, new ButtonWall1());
+            } else {
+                playPanelItemInstanceMap.put(index, new ButtonWall2());
+            }
+        }
+        
         RecipeController recipeController = MagicItemMainClass.mainClass.getMagicController().recipeController;
         if (recipeController.getRecipeData().buildRecipe.containsKey(item)) {
             PlayerRecipePage playerRecipePage;
@@ -278,7 +329,9 @@ public class ChestPanelController {
             List<Item> output = playerRecipePage.recipe.outPut;
 
             for (int i = 0; i < output.size(); i++) {
-                playPanelItemInstanceMap.put(outPutLocation[i], new ButtoRecipeButton(output.get(i)));
+                if (i < outPutLocation.length) {
+                    playPanelItemInstanceMap.put(outPutLocation[i], new ButtoRecipeButton(output.get(i)));
+                }
             }
 
             int btnStart = 45;
@@ -286,19 +339,45 @@ public class ChestPanelController {
             int pageBtn = 49;
             int nextBtn = 51;
             int prevBtn = 47;
+            int fillBtn = 22; // Default for PC (Center arrow position)
 
             if (isMobile) {
                 btnStart = 36;
                 btnEnd = 45;
-                pageBtn = 40;
-                nextBtn = 42;
-                prevBtn = 38;
+                pageBtn = 40; // Row 6 (36-41). 40 is col 4.
+                nextBtn = 42; // Row 7 (42-47). 42 is col 0.
+                prevBtn = 38; // Row 6 (36-41). 38 is col 2. (Wait, 37,38,39 are Output). 
+                // Fix Mobile Button Positions to avoid overlap with Output (31-33, 37-39, 43-45)
+                
+                // Output is in center columns (1,2,3 of 6-col grid).
+                // Left col (0) and Right cols (4,5) are free.
+                // Row 5 (30-35): 30(L), 34,35(R) free.
+                // Row 6 (36-41): 36(L), 40,41(R) free.
+                // Row 7 (42-47): 42(L), 46,47(R) free.
+                
+                // Let's put Page controls on the Right side?
+                pageBtn = 40; // Row 6 Right
+                nextBtn = 46; // Row 7 Right
+                prevBtn = 34; // Row 5 Right? Or 41 (Row 6 Right+1)?
+                
+                // Let's use Row 4 (24-29) - The gap row - for controls!
+                // 24, 25, 26, 27, 28, 29.
+                // Center is 26, 27.
+                fillBtn = 26; 
+                
+                // Paging buttons can go to Row 8 (48-53) - Bottom row.
+                pageBtn = 50;
+                prevBtn = 49;
+                nextBtn = 51;
+            } else {
+                 // PC
+                 fillBtn = 22; // Center
+                 // Paging at bottom
             }
 
-            int index = btnStart;
-            for (; index < btnEnd; index++) {
-                playPanelItemInstanceMap.put(index, new ButtonWall3());
-            }
+            // Place Fill Button
+            playPanelItemInstanceMap.put(fillBtn, new ButtonFillCraft());
+
             playPanelItemInstanceMap.put(pageBtn, new ButtonPage2(playerRecipePage.page));
             if (playerRecipePage.getMaxPage() > playerRecipePage.page + 1) {
                 playPanelItemInstanceMap.put(nextBtn, new ButtonPage2(playerRecipePage.page + 1));
@@ -319,9 +398,16 @@ public class ChestPanelController {
         //TODO 绘制创建配方界面
         Map<Integer, BasePlayPanelItemInstance> playPanelItemInstanceMap = createMenu(panel, player);
         panel.isCraft = true;
+        
+        // 在创建模式下，将输出槽位添加到 canPlaceItem 列表中，允许玩家放置物品
+        for (Integer slot : panel.outPutItem) {
+            if (!panel.canPlaceItem.contains(slot)) {
+                panel.canPlaceItem.add(slot);
+            }
+        }
+        
         // 修复按钮位置，移动端放在第4行中间(40)，PC端放在第5行中间(49)
-        // 之前的 6 * 5 - 1 = 29 是错误的，因为29是输入槽位
-        if (player.getLoginChainData().getDeviceOS() != 7) {
+        if (isMobile(player)) {
             playPanelItemInstanceMap.put(40, new ButtonCraft());
         } else {
             playPanelItemInstanceMap.put(49, new ButtonCraft());

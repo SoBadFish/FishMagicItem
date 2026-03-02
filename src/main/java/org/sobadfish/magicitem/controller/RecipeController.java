@@ -41,7 +41,7 @@ public class RecipeController {
         return recipeData;
     }
 
-    public Item[] craftItem(Map<Integer, Item> input, MagicController controller) {
+    public org.sobadfish.magicitem.files.entity.CraftingResult craftItemResult(Map<Integer, Item> input, MagicController controller) {
         if (input.size() > 0) {
 
             Item i = null;
@@ -51,17 +51,25 @@ public class RecipeController {
                 }
             }
             if (i == null) {
-                return new Item[0];
+                return org.sobadfish.magicitem.files.entity.CraftingResult.failure();
             }
 
             for (Recipe recipe : recipeData.getRecipeByInput(i)) {
-                Item[] is = recipe.math(input, controller.tagController);
-                if (is.length > 0 && is[0] != null) {
-                    return is;
+                org.sobadfish.magicitem.files.entity.CraftingResult result = recipe.match(input, controller.tagController);
+                if (result.success) {
+                    return result;
                 }
             }
         }
 
+        return org.sobadfish.magicitem.files.entity.CraftingResult.failure();
+    }
+
+    public Item[] craftItem(Map<Integer, Item> input, MagicController controller) {
+        org.sobadfish.magicitem.files.entity.CraftingResult result = craftItemResult(input, controller);
+        if (result.success) {
+            return result.output;
+        }
         return new Item[0];
     }
 
@@ -78,35 +86,21 @@ public class RecipeController {
 
     }
 
-    public void addCraft(Map<Integer, Item> input, Item[] output, TagController controller) {
+    public void addCraft(Map<Integer, Item> input, Item[] output, TagController controller, boolean isMobile) {
         StringBuilder str = new StringBuilder();
         LinkedHashMap<Character, Item> charItem = new LinkedHashMap<>();
         char a = 'A';
         int[] mobileSlots = new int[]{7, 8, 9, 13, 14, 15, 19, 20, 21};
         int[] pcSlots = new int[]{10, 11, 12, 19, 20, 21, 28, 29, 30};
 
-        int mobileMatch = 0;
-        int pcMatch = 0;
-
-        for (int slot : mobileSlots) {
-            if (input.containsKey(slot) && input.get(slot) != null && input.get(slot).getId() != 0) {
-                mobileMatch++;
-            }
-        }
-        for (int slot : pcSlots) {
-            if (input.containsKey(slot) && input.get(slot) != null && input.get(slot).getId() != 0) {
-                pcMatch++;
-            }
-        }
-
         int[] inputSlots;
-        // 智能选择：谁匹配的多用谁，如果都没匹配（空配方），默认 Mobile (为了响应用户需求)
-        if (mobileMatch >= pcMatch) {
+        // Use the layout based on the player's device
+        if (isMobile) {
             inputSlots = mobileSlots;
-            MagicController.sendLogger("调试: 检测到 Mobile 布局输入 (匹配数: " + mobileMatch + ")");
+            MagicController.sendLogger("调试: 使用 Mobile 布局输入");
         } else {
             inputSlots = pcSlots;
-            MagicController.sendLogger("调试: 检测到 PC 布局输入 (匹配数: " + pcMatch + ")");
+            MagicController.sendLogger("调试: 使用 PC 布局输入");
         }
 
         // 2. 遍历 3x3 网格
@@ -126,11 +120,6 @@ public class RecipeController {
             Item currentItem = input.get(slotIndex);
             boolean isWall = false;
             if (currentItem != null && currentItem.hasCompoundTag() && currentItem.getNamedTag().contains("button")) {
-                // 如果是按钮，进一步检查是否是 Wall
-                // 通常 ButtonWall 的 id 是 160 (Stained Glass Pane)
-                // 或者我们可以检查 Item 名称或 ID。
-                // 简单起见，如果它是一个 Button，我们就认为它不是有效配方材料。
-                // 除非... 配方真的需要一个按钮？但这里的 Button 是 UI 组件。
                 isWall = true;
             }
 
@@ -154,6 +143,7 @@ public class RecipeController {
                 str.append(" ");
             }
         }
+
 
         LinkedHashMap<Character, String> charItemSa = new LinkedHashMap<>();
         for (Map.Entry<Character, Item> cE : charItem.entrySet()) {

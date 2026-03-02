@@ -43,10 +43,11 @@ public class ButtoRecipeButton extends BasePlayPanelItemInstance {
         if(recipes.size() > 0){
             ChestPanelController.recipePage.remove(player.getName());
             if (inventory instanceof CraftItemPanel) {
-                // 确保在进入详情页前也清除合成面板定义
                 ChestPanelController.clearCraftPanelData((CraftItemPanel) inventory);
             }
             inventory.setPanel(ChestPanelController.recipeLib(player,getItem()));
+            inventory.sendContents(player);
+        } else {
             inventory.sendContents(player);
         }
     }

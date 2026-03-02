@@ -132,8 +132,7 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
     }
 
     public void updateRecipeIndex(Recipe recipe) {
-        for (String istr : recipe.inputItem.values()) {
-            Item i = tagController.getTagData().asItem(istr);
+        for (Item i : recipe.getIngredientItems(tagController)) {
             if (!loadRecipeMap.containsKey(i.getId())) {
                 loadRecipeMap.put(i.getId(), new ArrayList<>());
             }
@@ -168,8 +167,7 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
     private void loadRecipe(ArrayList<Recipe> dataList) {
         for (Recipe recipe : dataList) {
             List<Recipe> recipes;
-            for (String istr : recipe.inputItem.values()) {
-                Item i = tagController.getTagData().asItem(istr);
+            for (Item i : recipe.getIngredientItems(tagController)) {
                 if (!loadRecipeMap.containsKey(i.getId())) {
                     loadRecipeMap.put(i.getId(), new ArrayList<>());
                 }

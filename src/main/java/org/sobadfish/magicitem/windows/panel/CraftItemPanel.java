@@ -23,11 +23,16 @@ public class CraftItemPanel extends ChestInventoryPanel {
 
     public List<Integer> canPlaceItem = new ArrayList<>();
 
+    public List<Integer> inputItem = new ArrayList<>();
+
     public List<Integer> outPutItem = new ArrayList<>();
 
     public boolean cacheOutPut = false;
 
     public boolean isInit = false;
+
+    // Stores the consumption map (Index 0-8 -> Count) for the current valid output
+    public Map<Integer, Integer> lastConsumption = new java.util.HashMap<>();
 
     public CraftItemPanel(Player player, InventoryHolder holder, String name) {
         super(player, holder, name);
@@ -56,7 +61,7 @@ public class CraftItemPanel extends ChestInventoryPanel {
         Map<Integer, Item> itemMap = new LinkedHashMap<>();
         for (int i = 0; i < outPutItem.size(); i++) {
             Item it = this.getItem(outPutItem.get(i));
-            if (it.getId() != 0) {
+            if (it.getId() != 0 && (!it.hasCompoundTag() || !it.getNamedTag().contains("button"))) {
                 itemMap.put(i, this.getItem(outPutItem.get(i)));
             }
         }
@@ -76,27 +81,50 @@ public class CraftItemPanel extends ChestInventoryPanel {
             System.out.println("当前可以获取的: slot: "+i+": "+getItem(i).getName());
         }
         Map<Integer, Item> itemMap = new LinkedHashMap<>();
-        for (Integer slotId : canPlaceItem) {
+        for (Integer slotId : inputItem) {
             Item it = this.getItem(slotId);
             if (it != null && it.getId() != 0) {
-                itemMap.put(slotId, it);
+                // 跳过系统生成的边框物品（有button标签的物品）
+                if (!it.hasCompoundTag() || !it.getNamedTag().contains("button")) {
+                    itemMap.put(slotId, it);
+                }
             }
         }
         return itemMap;
     }
 
     public void backPlayer(){
-        // 改为直接遍历 canPlaceItem 列表获取真实槽位的物品
-        for (Integer slot : canPlaceItem) {
+        // 遍历 inputItem 列表获取输入槽位的物品
+        for (Integer slot : inputItem) {
             Item item = this.getItem(slot);
             if (item != null && item.getId() != 0) {
-                if (player.getInventory().canAddItem(item)) {
-                    player.getInventory().addItem(item);
-                } else {
-                    player.getLevel().dropItem(player, item);
+                // 跳过系统生成的边框物品（有button标签的物品）
+                if (!item.hasCompoundTag() || !item.getNamedTag().contains("button")) {
+                    if (player.getInventory().canAddItem(item)) {
+                        player.getInventory().addItem(item);
+                    } else {
+                        player.getLevel().dropItem(player, item);
+                    }
+                    // 清空槽位防止重复返还（虽然后面有关闭清理，但保险起见）
+                    this.slots.remove(slot);
                 }
-                // 清空槽位防止重复返还（虽然后面有关闭清理，但保险起见）
-                this.slots.remove(slot);
+            }
+        }
+        
+        // 遍历 outPutItem 列表获取输出槽位的物品
+        for (Integer slot : outPutItem) {
+            Item item = this.getItem(slot);
+            if (item != null && item.getId() != 0) {
+                // 跳过系统生成的边框物品（有button标签的物品）
+                if (!item.hasCompoundTag() || !item.getNamedTag().contains("button")) {
+                    if (player.getInventory().canAddItem(item)) {
+                        player.getInventory().addItem(item);
+                    } else {
+                        player.getLevel().dropItem(player, item);
+                    }
+                    // 清空槽位防止重复返还（虽然后面有关闭清理，但保险起见）
+                    this.slots.remove(slot);
+                }
             }
         }
     }
@@ -166,8 +194,14 @@ public class CraftItemPanel extends ChestInventoryPanel {
 
         private void updateOutput() {
             Map<Integer, Item> itemMap = panel.getInItem();
-            Item[] out = MagicItemMainClass.mainClass.getMagicController().recipeController.craftItem(itemMap, MagicItemMainClass.mainClass.getMagicController());
-            resetOut(out);
+            org.sobadfish.magicitem.files.entity.CraftingResult result = MagicItemMainClass.mainClass.getMagicController().recipeController.craftItemResult(itemMap, MagicItemMainClass.mainClass.getMagicController());
+            if (result.success) {
+                panel.lastConsumption = result.consumption;
+                resetOut(result.output);
+            } else {
+                panel.lastConsumption.clear();
+                resetOut(new Item[0]);
+            }
         }
 
         private void consumeInput() {
@@ -175,18 +209,31 @@ public class CraftItemPanel extends ChestInventoryPanel {
         }
 
         private void putInput() {
-            for (Integer integer : panel.canPlaceItem) {
-                Item ii = panel.getItem(integer);
-                if (ii != null && ii.getId() > 0) {
-                    if (ii.getCount() > 1) {
-                        ii.setCount(ii.getCount() - 1);
-                        panel.slots.put(integer, ii);
-                    } else {
-                        panel.slots.remove(integer);
+            if (panel.lastConsumption == null || panel.lastConsumption.isEmpty()) {
+                return;
+            }
+            for (Map.Entry<Integer, Integer> entry : panel.lastConsumption.entrySet()) {
+                int index = entry.getKey();
+                int countToConsume = entry.getValue();
+
+                if (index >= 0 && index < panel.canPlaceItem.size()) {
+                    int slotId = panel.canPlaceItem.get(index);
+                    Item item = panel.getItem(slotId);
+
+                    if (item != null && item.getId() != 0) {
+                        if (item.getCount() > countToConsume) {
+                            item.setCount(item.getCount() - countToConsume);
+                            panel.slots.put(slotId, item);
+                        } else {
+                            panel.slots.remove(slotId);
+                        }
                     }
                 }
             }
-            // 不需要 sendContents，因为是在 run() 最后统一发，或者 resetOut 里发
+            // Clear consumption after use to prevent double consumption if logic flaws exist
+            // But wait, updateOutput will be called immediately after, which will repopulate it if recipe is still valid.
+            // So clearing it here is safe.
+            // panel.lastConsumption.clear(); 
         }
 
         private void resetOut(Item[] out) {

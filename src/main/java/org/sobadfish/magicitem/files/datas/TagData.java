@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -57,7 +58,11 @@ public class TagData extends BaseDataWriterGetter<TagItem> {
         }else {
             try {
                 String[] t2 = tag.split(":");
-                item = Item.get(Integer.parseInt(t2[0]), Integer.parseInt(t2[1]), Integer.parseInt(t2[2]));
+                int count = 1;
+                if(t2.length > 2){
+                    count = Integer.parseInt(t2[2]);
+                }
+                item = Item.get(Integer.parseInt(t2[0]), Integer.parseInt(t2[1]), count);
             } catch (Exception e) {
                 item = Item.get(0);
             }
@@ -75,14 +80,12 @@ public class TagData extends BaseDataWriterGetter<TagItem> {
 
     public String itemToStr(Item item){
         if(item != null && item.getId() != 0){
-            if(item.hasCompoundTag()) {
-                try {
-
-                    return new String(NBTIO.write(NBTIO.putItemHelper(item)), StandardCharsets.UTF_8);
-                } catch (IOException e) {
-                    MagicController.sendLogger("保存物品出现问题: " + e.getMessage());
-                }
+            try {
+                return Base64.getEncoder().encodeToString(NBTIO.write(NBTIO.putItemHelper(item)));
+            } catch (IOException e) {
+                MagicController.sendLogger("保存物品出现问题: " + e.getMessage());
             }
+
         }
         if(item != null) {
             return item.getId() + ":" + item.getDamage() + ":" + item.getCount();

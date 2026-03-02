@@ -7,6 +7,7 @@ import org.sobadfish.magicitem.controller.MagicController;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 /**
  * tag物品
@@ -41,7 +42,7 @@ public class TagItem {
     public Item asItem(){
         if(itemStr != null){
             try {
-                CompoundTag tag = NBTIO.read(itemStr.getBytes(StandardCharsets.UTF_8));
+                CompoundTag tag = NBTIO.read(Base64.getDecoder().decode(itemStr));
                 return NBTIO.getItemHelper(tag);
             } catch (IOException e) {
                 MagicController.sendLogger("编译物品出现问题: "+e.getMessage());
