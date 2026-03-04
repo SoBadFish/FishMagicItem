@@ -33,7 +33,7 @@ public class ButtonRecipeBookSave extends BasePlayPanelItemInstance {
             Map<Integer, Item> input = ((CraftItemPanel) inventory).getRawInItem();
             Item[] out = ((CraftItemPanel) inventory).getOutItem().values().toArray(new Item[0]);
             boolean isMobile = ChestPanelController.isMobile(player);
-            MagicItemMainClass.mainClass.getMagicController().recipeController.addCraft(input, out, MagicItemMainClass.mainClass.getMagicController().tagController, isMobile);
+            MagicItemMainClass.mainClass.getMagicController().recipeController.addCraft(input, out, MagicItemMainClass.mainClass.getMagicController().tagController);
             player.level.addSound(player, Sound.RANDOM_ORB);
             ((CraftItemPanel) inventory).backPlayer();
             inventory.update();

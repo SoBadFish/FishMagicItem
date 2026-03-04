@@ -52,9 +52,7 @@ public class BaseDataWriterGetter<T>{
 
         } catch (IOException  e) {
             MagicController.sendLogger("&c无法读取 "+file.getName()+" 配置文件");
-            e.printStackTrace();
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            e.printStackTrace();
         } finally {
             if(reader !=null){
                 try {
@@ -88,7 +86,6 @@ public class BaseDataWriterGetter<T>{
             writer.write(json,0,json.length());
             writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
         }
 
     }

@@ -89,9 +89,6 @@ public class CraftItemPanel extends ChestInventoryPanel {
      * 用于配方创建，需要知道真实的槽位分布来生成 3x3 矩阵
      */
     public Map<Integer, Item> getRawInItem() {
-        for (int i: getContents().keySet()){
-            System.out.println("当前可以获取的: slot: "+i+": "+getItem(i).getName());
-        }
         Map<Integer, Item> itemMap = new LinkedHashMap<>();
         for (Integer slotId : inputItem) {
             Item it = this.getItem(slotId);
@@ -193,15 +190,12 @@ public class CraftItemPanel extends ChestInventoryPanel {
      */
     public void checkRecipe() {
         Map<Integer, Item> itemMap = getInItem();
-        Server.getInstance().getLogger().info("调试: checkRecipe 输入物品数量: " + itemMap.size());
         CraftingResult result = MagicItemMainClass.mainClass.getMagicController().recipeController.craftItemResult(itemMap, MagicItemMainClass.mainClass.getMagicController());
         if (result.success) {
             this.lastConsumption = result.consumption;
-            Server.getInstance().getLogger().info("调试: 配方匹配成功! 消耗槽位数: " + lastConsumption.size() + " 输出: " + (result.output.length > 0 ? result.output[0].getName() : "无"));
             this.outputConsumed = false;
             updateOutputItems(result.output);
         } else {
-            Server.getInstance().getLogger().info("调试: 配方匹配失败");
             this.lastConsumption.clear();
             this.outputConsumed = false;
             updateOutputItems(new Item[0]);
@@ -214,8 +208,6 @@ public class CraftItemPanel extends ChestInventoryPanel {
         for (int oi = 0; oi < outPutItem.size(); oi++) {
             if (out.length > oi) {
                 Item it = out[oi].clone();
-                // 强制清洗逻辑：日志显示合成产物带有 button 和 index 标签，必须移除才能被玩家取出
-                Server.getInstance().getLogger().info("调试: 更新输出槽位 " + outPutItem.get(oi) + " -> " + it.getName() + " ID:" + it.getId() + ":" + it.getDamage() + " Count:" + it.getCount() + " Tag:" + (it.hasCompoundTag()?it.getNamedTag().toString():"null"));
                 this.setItem(outPutItem.get(oi), it);
             } else {
                 this.setItem(outPutItem.get(oi), Item.get(0));
@@ -226,19 +218,15 @@ public class CraftItemPanel extends ChestInventoryPanel {
     public void consumeInput() {
         // 安全网：如果消耗清单为空，尝试现场重新计算
         if (lastConsumption == null || lastConsumption.isEmpty()) {
-            Server.getInstance().getLogger().info("调试: consumeInput 安全网触发 - lastConsumption为空，尝试重新计算...");
             Map<Integer, Item> itemMap = getInItem();
             org.sobadfish.magicitem.files.entity.CraftingResult result = MagicItemMainClass.mainClass.getMagicController().recipeController.craftItemResult(itemMap, MagicItemMainClass.mainClass.getMagicController());
             if (result.success) {
                 this.lastConsumption = result.consumption;
-                Server.getInstance().getLogger().info("调试: consumeInput 安全网成功 - 重新获取消耗清单");
             } else {
-                Server.getInstance().getLogger().info("调试: consumeInput 安全网失败 - 无法匹配配方");
                 return;
             }
         }
         
-        Server.getInstance().getLogger().info("调试: 开始消耗材料... 清单大小:" + lastConsumption.size());
         for (Map.Entry<Integer, Integer> entry : lastConsumption.entrySet()) {
             int index = entry.getKey();
             int countToConsume = entry.getValue();

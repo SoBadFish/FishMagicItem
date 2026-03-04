@@ -46,7 +46,6 @@ public class DisPlayerPanel implements InventoryHolder {
             panel.panel = (ChestInventoryPanel) tConstructor.newInstance(player,panel,name);
             return panel;
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
         }
         return null;
     }

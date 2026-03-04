@@ -82,9 +82,7 @@ public class ButtonFillCraft extends BasePlayPanelItemInstance {
         }
 
         Map<String, Integer> totalAvailable = new HashMap<>();
-        Server.getInstance().getLogger().info("调试: 开始检查背包物品...");
         for (Item item : playerInv.getContents().values()) {
-            Server.getInstance().getLogger().info("调试: 背包物品: " + getItemKey(item) + " Count: " + item.getCount());
             for (String key : prototypeItems.keySet()) {
                 Item prototype = prototypeItems.get(key);
                 boolean checkTag = prototype.hasCompoundTag();
@@ -92,7 +90,6 @@ public class ButtonFillCraft extends BasePlayPanelItemInstance {
 
                 if (prototype.equals(item, true, checkTag)) {
                     totalAvailable.put(key, totalAvailable.getOrDefault(key, 0) + item.getCount());
-                    Server.getInstance().getLogger().info("调试: 匹配成功! Key: " + key + " Total: " + totalAvailable.get(key));
                     break;
                 }
             }
@@ -102,7 +99,6 @@ public class ButtonFillCraft extends BasePlayPanelItemInstance {
         for (String key : totalNeeded.keySet()) {
             int needed = totalNeeded.get(key);
             int available = totalAvailable.getOrDefault(key, 0);
-            Server.getInstance().getLogger().info("调试: 需求检查. Key: " + key + " Need: " + needed + " Have: " + available);
             if (available < needed) {
                 hasAll = false;
             }
@@ -154,7 +150,6 @@ public class ButtonFillCraft extends BasePlayPanelItemInstance {
             
             // 不需要再做任何 Tag 清理，因为从 originRecipes 获取的物品本身就是干净的
             // 且已经在 RecipeData 中通过 .clone() 隔离了缓存
-            Server.getInstance().getLogger().info("调试: 填充物品 " + itemToPlace.getName() + " Tag: " + (itemToPlace.hasCompoundTag() ? itemToPlace.getNamedTag().toString() : "null"));
             
             int needed = itemToPlace.getCount();
             Inventory inv = player.getInventory();

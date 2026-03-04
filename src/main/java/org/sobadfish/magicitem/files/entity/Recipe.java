@@ -496,14 +496,10 @@ public class Recipe {
 
             if (tag1 == null && tag2 == null) return true;
             if (tag1 == null || tag2 == null) {
-                Server.getInstance().getLogger().info("调试: Recipe NBT不匹配! Exp:" + (tag1==null?"null":tag1.toString()) + " Act:" + (tag2==null?"null":tag2.toString()));
                 return false;
             }
             
             boolean equals = tag1.equals(tag2);
-            if (!equals) {
-                Server.getInstance().getLogger().info("调试: Recipe NBT内容不匹配! Exp:" + tag1.toString() + " Act:" + tag2.toString());
-            }
             return equals;
         }
         return true;

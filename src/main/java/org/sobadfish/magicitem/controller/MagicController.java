@@ -248,13 +248,6 @@ public class MagicController implements Listener {
                                 return;
                             }
                         } else {
-                            // 在创建模式(isCraft=true)下，我们需要确保玩家放进输入格的物品能被正确记录到 Inventory
-                            // 问题可能出在事务被错误地取消了，或者没有正确触发 panel 的更新
-
-                            // 调试：打印玩家操作的槽位
-                            MagicController.sendLogger("调试: 玩家操作槽位: " + slotAction.getSlot()
-                                    + " 源物品: " + slotAction.getSourceItem()
-                                    + " 目标物品: " + slotAction.getTargetItem());
                         }
                     } else if (currentChest instanceof CraftItemPanel == false) {
                         // 如果不是 CraftItemPanel，但是点击了非按钮区域（比如普通背包），允许操作

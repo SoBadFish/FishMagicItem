@@ -3,6 +3,7 @@ package org.sobadfish.magicitem.controller;
 import cn.nukkit.item.Item;
 import org.sobadfish.magicitem.files.BaseDataWriterGetter;
 import org.sobadfish.magicitem.files.datas.RecipeData;
+import org.sobadfish.magicitem.files.entity.CraftingResult;
 import org.sobadfish.magicitem.files.entity.Recipe;
 
 import java.io.File;
@@ -42,7 +43,7 @@ public class RecipeController {
     }
 
     public Item[] craftItem(Map<Integer, Item> input, MagicController controller) {
-        if (input.size() > 0) {
+        if (!input.isEmpty()) {
 
             Item i = null;
             for (Item it : input.values()) {
@@ -63,6 +64,38 @@ public class RecipeController {
         }
 
         return new Item[0];
+    }
+
+    public CraftingResult craftItemResult(Map<Integer, Item> input, MagicController controller) {
+        if (input == null || input.isEmpty()) {
+            return CraftingResult.failure();
+        }
+
+        LinkedHashMap<Integer, Item> normalized = new LinkedHashMap<>();
+        for (int idx = 0; idx < 9; idx++) {
+            Item it = input.get(idx);
+            normalized.put(idx, it == null ? Item.get(0) : it);
+        }
+
+        Item seed = null;
+        for (Item it : normalized.values()) {
+            if (it != null && it.getId() != 0) {
+                seed = it;
+                break;
+            }
+        }
+        if (seed == null) {
+            return CraftingResult.failure();
+        }
+
+        for (Recipe recipe : recipeData.getRecipeByInput(seed)) {
+            CraftingResult result = recipe.match(normalized, controller.tagController);
+            if (result != null && result.success) {
+                return result;
+            }
+        }
+
+        return CraftingResult.failure();
     }
 
     public List<Recipe> getRecipesByItem(Item item) {
@@ -103,23 +136,13 @@ public class RecipeController {
         // 智能选择：谁匹配的多用谁，如果都没匹配（空配方），默认 Mobile (为了响应用户需求)
         if (mobileMatch >= pcMatch) {
             inputSlots = mobileSlots;
-            MagicController.sendLogger("调试: 检测到 Mobile 布局输入 (匹配数: " + mobileMatch + ")");
         } else {
             inputSlots = pcSlots;
-            MagicController.sendLogger("调试: 检测到 PC 布局输入 (匹配数: " + pcMatch + ")");
         }
 
         // 2. 遍历 3x3 网格
-        MagicController.sendLogger("调试: 创建配方中. 输入物品的槽位Key集合: " + input.keySet());
         for (int i = 0; i < 9; i++) {
             int slotIndex = inputSlots[i];
-
-            // 调试输出
-            if (input.containsKey(slotIndex)) {
-                MagicController.sendLogger("调试: 槽位 " + slotIndex + " 包含物品: " + input.get(slotIndex));
-            } else {
-                MagicController.sendLogger("调试: 槽位 " + slotIndex + " 为空");
-            }
 
             // 检查 Map 中是否包含该 key，且 value 不为 null，且物品 ID 不为 0
             // 过滤掉 ButtonWall (玻璃板)

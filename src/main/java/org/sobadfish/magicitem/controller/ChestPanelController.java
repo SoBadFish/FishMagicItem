@@ -84,9 +84,6 @@ public class ChestPanelController {
 
         boolean isMobile = isMobile(player);
 
-        // 强制调试：当前设备类型
-        MagicController.sendLogger("调试: createMenu 为玩家 " + player.getName() + " 创建菜单. 设备OS: " + player.getLoginChainData().getDeviceOS() + " (isMobile=" + isMobile + ")");
-
         panel.canPlaceItem = new ArrayList<Integer>();
         panel.inputItem = new ArrayList<Integer>();
         panel.outPutItem = new ArrayList<Integer>();
