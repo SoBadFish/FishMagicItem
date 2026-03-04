@@ -16,6 +16,7 @@ import cn.nukkit.inventory.transaction.InventoryTransaction;
 import cn.nukkit.inventory.transaction.action.InventoryAction;
 import cn.nukkit.inventory.transaction.action.SlotChangeAction;
 import cn.nukkit.item.Item;
+import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.TextFormat;
 import org.sobadfish.magicitem.MagicItemMainClass;
@@ -159,14 +160,92 @@ public class MagicController implements Listener {
                     // 1. Output Slot Protection (Prevent placing items into output)
                     if (currentChest instanceof CraftItemPanel) {
                         CraftItemPanel panel = (CraftItemPanel) currentChest;
+                        if (!panel.isCraft && panel.lockInput && panel.inputItem.contains(slotAction.getSlot())) {
+                            event.setCancelled();
+                            panel.sendContents(panel.getPlayer());
+                            return;
+                        }
                         // Only block output slot interaction if we are NOT in creation mode
                         if (!panel.isCraft) {
                             int slot = slotAction.getSlot();
                             if (panel.outPutItem.contains(slot)) {
-                                if (slotAction.getTargetItem().getId() != 0) {
-                                    event.setCancelled();
-                                    return;
-                                }
+                                event.setCancelled();
+                                MagicItemMainClass.mainClass.getServer().getScheduler().scheduleTask(MagicItemMainClass.mainClass, () -> {
+                                    Player player = panel.getPlayer();
+                                    Item now = panel.getItem(slot);
+                                    if (now == null || now.getId() == 0) {
+                                        panel.sendContents(player);
+                                        return;
+                                    }
+
+                                    Item give = now.clone();
+                                    if (give.hasCompoundTag()) {
+                                        CompoundTag tag = give.getNamedTag();
+                                        if (tag != null) {
+                                            tag.remove("button");
+                                            tag.remove("index");
+                                            give.setNamedTag(tag);
+                                        }
+                                    }
+
+                                    cn.nukkit.inventory.PlayerCursorInventory cursorInv = player.getCursorInventory();
+                                    Item cursor = cursorInv.getItem(0);
+                                    if (cursor == null) cursor = Item.get(0);
+                                    boolean moved = false;
+                                    if (cursor.getId() == 0) {
+                                        cursorInv.setItem(0, give);
+                                        cursorInv.sendContents(player);
+                                        moved = true;
+                                    } else if (cursor.equals(give, true, true)) {
+                                        int max = cursor.getMaxStackSize();
+                                        if (cursor.getCount() + give.getCount() <= max) {
+                                            cursor.setCount(cursor.getCount() + give.getCount());
+                                            cursorInv.setItem(0, cursor);
+                                            cursorInv.sendContents(player);
+                                            moved = true;
+                                        }
+                                    }
+                                    if (!moved) {
+                                        if (player.getInventory().canAddItem(give)) {
+                                            player.getInventory().addItem(give);
+                                            moved = true;
+                                        } else {
+                                            player.getLevel().dropItem(player, give);
+                                            moved = true;
+                                        }
+                                    }
+                                    if (!moved) {
+                                        panel.sendContents(player);
+                                        return;
+                                    }
+
+                                    panel.setItem(slot, Item.get(0));
+                                    panel.hasTakenOutput = true;
+                                    panel.lockInput = true;
+
+                                    if (!panel.outputConsumed) {
+                                        panel.outputConsumed = true;
+                                        panel.consumeInput();
+                                    }
+
+                                    boolean anyOut = false;
+                                    for (Integer s : panel.outPutItem) {
+                                        Item it = panel.getItem(s);
+                                        if (it != null && it.getId() != 0) {
+                                            anyOut = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!anyOut) {
+                                        panel.lockInput = false;
+                                        panel.outputConsumed = false;
+                                        panel.hasTakenOutput = false;
+                                        panel.checkRecipe();
+                                    }
+
+                                    panel.sendContents(player);
+                                });
+                                return;
                             }
                         } else {
                             // 在创建模式(isCraft=true)下，我们需要确保玩家放进输入格的物品能被正确记录到 Inventory
@@ -189,6 +268,7 @@ public class MagicController implements Listener {
                     // 如果玩家点击一个按钮（source 有 button tag），则被拦截。
                     if (source.hasCompoundTag() && source.getNamedTag().contains("index") && source.getNamedTag().contains("button")) {
                         event.setCancelled();
+                        currentChest.sendContents(currentChest.getPlayer());
 
                         // Handle Click
                         int index = source.getNamedTag().getInt("index");

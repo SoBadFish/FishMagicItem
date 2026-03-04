@@ -2,10 +2,13 @@ package org.sobadfish.magicitem.controller;
 
 import cn.nukkit.Player;
 import cn.nukkit.item.Item;
+import cn.nukkit.nbt.tag.CompoundTag;
 import org.sobadfish.magicitem.MagicItemMainClass;
 import org.sobadfish.magicitem.files.datas.RecipeData;
+import org.sobadfish.magicitem.files.entity.Recipe;
 import org.sobadfish.magicitem.windows.button.*;
 import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
+import org.sobadfish.magicitem.windows.items.RecipeDisplayItem;
 import org.sobadfish.magicitem.windows.panel.CraftItemPanel;
 
 import java.util.ArrayList;
@@ -42,6 +45,42 @@ public class ChestPanelController {
         // Move ButtonLib placement to AFTER the loop to avoid overwriting
         // playPanelItemInstanceMap.put(0, new ButtonLib());
         panel.isCraft = false;
+
+        // Special handling for Magic Crafting Table (Custom UI)
+        if ("魔法合成台".equals(panel.getName()) || "魔法合成台工作站".equals(panel.getName()) || "魔法工作台合成站".equals(panel.getName())) {
+            panel.canPlaceItem = new ArrayList<>();
+            panel.inputItem = new ArrayList<>();
+            panel.outPutItem = new ArrayList<>();
+
+            // Slots 0-26 are Crafting Area
+            // Use 9x3 Grid logic
+            // Input: 0,1,2 (Row 1), 9,10,11 (Row 2), 18,19,20 (Row 3)
+            int[] inputs = {0, 1, 2, 9, 10, 11, 18, 19, 20};
+            for (int i : inputs) {
+                panel.canPlaceItem.add(i);
+                panel.inputItem.add(i);
+            }
+
+            // Output: 4,5,6 (Row 1), 13,14,15 (Row 2), 22,23,24 (Row 3)
+            // Gap: 3, 12, 21
+            // Unused: 7,8, 16,17, 25,26
+            int[] outputs = {4, 5, 6, 13, 14, 15, 22, 23, 24};
+            for (int i : outputs) {
+                panel.outPutItem.add(i);
+            }
+            
+             boolean[] used = new boolean[54];
+             for (int i : inputs) used[i] = true;
+             for (int i : outputs) used[i] = true;
+ 
+             for (int slot = 0; slot < 54; slot++) {
+                 if (!used[slot]) {
+                     playPanelItemInstanceMap.put(slot, new ButtonWall1());
+                 }
+             }
+            
+            return playPanelItemInstanceMap;
+        }
 
         boolean isMobile = isMobile(player);
 
@@ -321,16 +360,30 @@ public class ChestPanelController {
 
             }
             playerRecipePage = recipePage.get(player.getName());
-            LinkedHashMap<Integer, Item> itemLinkedHashMap = playerRecipePage.getRecipeByPage();
-            //TODO 绘制展示
-            for (Map.Entry<Integer, Item> itemEntry : itemLinkedHashMap.entrySet()) {
-                playPanelItemInstanceMap.put(inputLocation[itemEntry.getKey()], new ButtoRecipeButton(itemEntry.getValue()));
-            }
-            List<Item> output = playerRecipePage.recipe.outPut;
+            int pageIndex = Math.max(0, playerRecipePage.page - 1);
+            if (playerRecipePage.recipe.originRecipes.size() > pageIndex) {
+                Recipe origin = playerRecipePage.recipe.originRecipes.get(pageIndex);
+                Map<Integer, Item> grid = origin.getPreviewInputGrid(MagicItemMainClass.mainClass.getMagicController().tagController);
+                for (int i = 0; i < 9 && i < inputLocation.length; i++) {
+                    Item in = grid.get(i);
+                    if (in != null && in.getId() != 0) {
+                        playPanelItemInstanceMap.put(inputLocation[i], new ButtoRecipeButton(in));
+                    }
+                }
 
-            for (int i = 0; i < output.size(); i++) {
-                if (i < outPutLocation.length) {
-                    playPanelItemInstanceMap.put(outPutLocation[i], new ButtoRecipeButton(output.get(i)));
+                Item[] outs = origin.getOutputItems(MagicItemMainClass.mainClass.getMagicController().tagController);
+                for (int i = 0; i < outs.length && i < outPutLocation.length; i++) {
+                    Item out = outs[i];
+                    if (out != null && out.getId() != 0) {
+                        playPanelItemInstanceMap.put(outPutLocation[i], new ButtoRecipeButton(out));
+                    }
+                }
+            } else {
+                Item displayOutput = item.clone();
+                if (outPutLocation.length > 4) {
+                    playPanelItemInstanceMap.put(outPutLocation[4], new ButtoRecipeButton(displayOutput));
+                } else if (outPutLocation.length > 0) {
+                    playPanelItemInstanceMap.put(outPutLocation[0], new ButtoRecipeButton(displayOutput));
                 }
             }
 
@@ -405,12 +458,15 @@ public class ChestPanelController {
                 panel.canPlaceItem.add(slot);
             }
         }
-        
-        // 修复按钮位置，移动端放在第4行中间(40)，PC端放在第5行中间(49)
-        if (isMobile(player)) {
-            playPanelItemInstanceMap.put(40, new ButtonCraft());
+
+        if ("魔法合成台工作站".equals(panel.getName()) || "魔法工作台合成站".equals(panel.getName())) {
+            playPanelItemInstanceMap.put(8, new ButtonRecipeBookSave());
         } else {
-            playPanelItemInstanceMap.put(49, new ButtonCraft());
+            if (isMobile(player)) {
+                playPanelItemInstanceMap.put(40, new ButtonCraft());
+            } else {
+                playPanelItemInstanceMap.put(49, new ButtonCraft());
+            }
         }
         return playPanelItemInstanceMap;
     }
@@ -425,7 +481,7 @@ public class ChestPanelController {
 
     public static class PlayerRecipePage {
 
-        public int page = 0;
+        public int page = 1;
 
         public Item item;
 
@@ -439,7 +495,7 @@ public class ChestPanelController {
         }
 
         public int getMaxPage() {
-            return recipe.build.size() - 1;
+            return recipe.build.size();
         }
 
         @Override

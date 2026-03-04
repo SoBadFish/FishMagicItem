@@ -1,9 +1,12 @@
 package org.sobadfish.magicitem.windows.panel;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.item.Item;
+import cn.nukkit.nbt.tag.CompoundTag;
 import org.sobadfish.magicitem.MagicItemMainClass;
+import org.sobadfish.magicitem.files.entity.CraftingResult;
 import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
 import org.sobadfish.magicitem.windows.lib.ChestInventoryPanel;
 
@@ -31,6 +34,12 @@ public class CraftItemPanel extends ChestInventoryPanel {
 
     public boolean isInit = false;
 
+    public boolean lockInput = false;
+
+    public boolean hasTakenOutput = false;
+
+    public boolean outputConsumed = false;
+
     // Stores the consumption map (Index 0-8 -> Count) for the current valid output
     public Map<Integer, Integer> lastConsumption = new java.util.HashMap<>();
 
@@ -50,6 +59,9 @@ public class CraftItemPanel extends ChestInventoryPanel {
         }
         clearAll();
         isInit = true;
+        lockInput = false;
+        hasTakenOutput = false;
+        outputConsumed = false;
         super.setPanel(panel);
     }
 
@@ -129,18 +141,123 @@ public class CraftItemPanel extends ChestInventoryPanel {
         }
     }
 
+    private void giveSlotsToPlayer(List<Integer> slots) {
+        for (Integer slot : slots) {
+            Item item = this.getItem(slot);
+            if (item != null && item.getId() != 0) {
+                if (!item.hasCompoundTag() || !item.getNamedTag().contains("button")) {
+                    if (player.getInventory().canAddItem(item)) {
+                        player.getInventory().addItem(item);
+                    } else {
+                        player.getLevel().dropItem(player, item);
+                    }
+                }
+            }
+            this.setItem(slot, Item.get(0));
+            this.slots.remove(slot);
+        }
+    }
+
+    private void clearSlots(List<Integer> slots) {
+        for (Integer slot : slots) {
+            this.setItem(slot, Item.get(0));
+            this.slots.remove(slot);
+        }
+    }
+
     @Override
     public void onSlotChange(int index, Item before, boolean send) {
         super.onSlotChange(index, before, send);
         MagicItemMainClass.mainClass.getServer().getScheduler().scheduleTask(MagicItemMainClass.mainClass, 
                 new PanelRunnable(this, index, before));
-
     }
 
     @Override
     public void onClose(Player who) {
-        backPlayer();
+        if (isCraft) {
+            backPlayer();
+        } else {
+            if (lockInput) {
+                giveSlotsToPlayer(outPutItem);
+                clearSlots(inputItem);
+            } else {
+                giveSlotsToPlayer(inputItem);
+                clearSlots(outPutItem);
+            }
+        }
         super.onClose(who);
+    }
+
+    /**
+     * Check Recipe
+     */
+    public void checkRecipe() {
+        Map<Integer, Item> itemMap = getInItem();
+        Server.getInstance().getLogger().info("调试: checkRecipe 输入物品数量: " + itemMap.size());
+        CraftingResult result = MagicItemMainClass.mainClass.getMagicController().recipeController.craftItemResult(itemMap, MagicItemMainClass.mainClass.getMagicController());
+        if (result.success) {
+            this.lastConsumption = result.consumption;
+            Server.getInstance().getLogger().info("调试: 配方匹配成功! 消耗槽位数: " + lastConsumption.size() + " 输出: " + (result.output.length > 0 ? result.output[0].getName() : "无"));
+            this.outputConsumed = false;
+            updateOutputItems(result.output);
+        } else {
+            Server.getInstance().getLogger().info("调试: 配方匹配失败");
+            this.lastConsumption.clear();
+            this.outputConsumed = false;
+            updateOutputItems(new Item[0]);
+        }
+    }
+
+
+
+    public void updateOutputItems(Item[] out) {
+        for (int oi = 0; oi < outPutItem.size(); oi++) {
+            if (out.length > oi) {
+                Item it = out[oi].clone();
+                // 强制清洗逻辑：日志显示合成产物带有 button 和 index 标签，必须移除才能被玩家取出
+                Server.getInstance().getLogger().info("调试: 更新输出槽位 " + outPutItem.get(oi) + " -> " + it.getName() + " ID:" + it.getId() + ":" + it.getDamage() + " Count:" + it.getCount() + " Tag:" + (it.hasCompoundTag()?it.getNamedTag().toString():"null"));
+                this.setItem(outPutItem.get(oi), it);
+            } else {
+                this.setItem(outPutItem.get(oi), Item.get(0));
+            }
+        }
+    }
+
+    public void consumeInput() {
+        // 安全网：如果消耗清单为空，尝试现场重新计算
+        if (lastConsumption == null || lastConsumption.isEmpty()) {
+            Server.getInstance().getLogger().info("调试: consumeInput 安全网触发 - lastConsumption为空，尝试重新计算...");
+            Map<Integer, Item> itemMap = getInItem();
+            org.sobadfish.magicitem.files.entity.CraftingResult result = MagicItemMainClass.mainClass.getMagicController().recipeController.craftItemResult(itemMap, MagicItemMainClass.mainClass.getMagicController());
+            if (result.success) {
+                this.lastConsumption = result.consumption;
+                Server.getInstance().getLogger().info("调试: consumeInput 安全网成功 - 重新获取消耗清单");
+            } else {
+                Server.getInstance().getLogger().info("调试: consumeInput 安全网失败 - 无法匹配配方");
+                return;
+            }
+        }
+        
+        Server.getInstance().getLogger().info("调试: 开始消耗材料... 清单大小:" + lastConsumption.size());
+        for (Map.Entry<Integer, Integer> entry : lastConsumption.entrySet()) {
+            int index = entry.getKey();
+            int countToConsume = entry.getValue();
+
+            if (index >= 0 && index < canPlaceItem.size()) {
+                int slotId = canPlaceItem.get(index);
+                Item item = getItem(slotId);
+
+                if (item != null && item.getId() != 0) {
+                    if (item.getCount() > countToConsume) {
+                        item.setCount(item.getCount() - countToConsume);
+                        this.setItem(slotId, item);
+                    } else {
+                        this.setItem(slotId, Item.get(0));
+                    }
+                }
+            }
+        }
+        // lastConsumption.clear(); // Safe to keep or clear
     }
 
     public static class PanelRunnable implements Runnable {
@@ -163,85 +280,12 @@ public class CraftItemPanel extends ChestInventoryPanel {
                     if (panel.canPlaceItem.size() > 0) {
                         // 输入发生变化，更新输出
                         if (panel.canPlaceItem.contains(index)) {
-                            updateOutput();
-                        }
-                        // 输出发生变化（只能是取走物品，因为放入已被拦截）
-                        if (panel.outPutItem.contains(index)) {
-                            // 如果当前槽位为空，或者数量减少，说明被取走了
-                            // 注意：before是变化前的物品，panel.getItem(index)是变化后的
-                            Item current = panel.getItem(index);
-                            boolean isTaken = false;
-                            if (before != null && before.getId() != 0) {
-                                if (current == null || current.getId() == 0 || current.getCount() < before.getCount()) {
-                                    isTaken = true;
-                                }
-                            }
-
-                            if (isTaken) {
-                                consumeInput();
-                                updateOutput();
-                            } else {
-                                // 如果不是取走（例如只是点击了一下，或者被系统重置），我们需要确保输出显示正确
-                                // 这里可以强制刷新一下输出，防止显示错误
-                                updateOutput();
+                            if (!panel.lockInput) {
+                                panel.checkRecipe();
                             }
                         }
                     }
                     panel.sendContents(panel.player);
-                }
-            }
-        }
-
-        private void updateOutput() {
-            Map<Integer, Item> itemMap = panel.getInItem();
-            org.sobadfish.magicitem.files.entity.CraftingResult result = MagicItemMainClass.mainClass.getMagicController().recipeController.craftItemResult(itemMap, MagicItemMainClass.mainClass.getMagicController());
-            if (result.success) {
-                panel.lastConsumption = result.consumption;
-                resetOut(result.output);
-            } else {
-                panel.lastConsumption.clear();
-                resetOut(new Item[0]);
-            }
-        }
-
-        private void consumeInput() {
-            putInput();
-        }
-
-        private void putInput() {
-            if (panel.lastConsumption == null || panel.lastConsumption.isEmpty()) {
-                return;
-            }
-            for (Map.Entry<Integer, Integer> entry : panel.lastConsumption.entrySet()) {
-                int index = entry.getKey();
-                int countToConsume = entry.getValue();
-
-                if (index >= 0 && index < panel.canPlaceItem.size()) {
-                    int slotId = panel.canPlaceItem.get(index);
-                    Item item = panel.getItem(slotId);
-
-                    if (item != null && item.getId() != 0) {
-                        if (item.getCount() > countToConsume) {
-                            item.setCount(item.getCount() - countToConsume);
-                            panel.slots.put(slotId, item);
-                        } else {
-                            panel.slots.remove(slotId);
-                        }
-                    }
-                }
-            }
-            // Clear consumption after use to prevent double consumption if logic flaws exist
-            // But wait, updateOutput will be called immediately after, which will repopulate it if recipe is still valid.
-            // So clearing it here is safe.
-            // panel.lastConsumption.clear(); 
-        }
-
-        private void resetOut(Item[] out) {
-            for (int oi = 0; oi < panel.outPutItem.size(); oi++) {
-                if (out.length > oi) {
-                    panel.slots.put(panel.outPutItem.get(oi), out[oi]);
-                } else {
-                    panel.slots.put(panel.outPutItem.get(oi), Item.get(0));
                 }
             }
         }

@@ -40,7 +40,7 @@ public class ButtoRecipeButton extends BasePlayPanelItemInstance {
         inventory.clearAll();
         MagicController controller = MagicItemMainClass.mainClass.getMagicController();
         List<Recipe> recipes = controller.recipeController.getRecipesByItem(item);
-        if(recipes.size() > 0){
+        if(!recipes.isEmpty()){
             ChestPanelController.recipePage.remove(player.getName());
             if (inventory instanceof CraftItemPanel) {
                 ChestPanelController.clearCraftPanelData((CraftItemPanel) inventory);
@@ -59,8 +59,9 @@ public class ButtoRecipeButton extends BasePlayPanelItemInstance {
 
     @Override
     public Item getPanelItem(Player info, int index) {
-        item.setCount(1);
-        return defaultButtonTagItem(item,index);
+        Item copy = item.clone();
+        copy.setCount(1);
+        return defaultButtonTagItem(copy,index);
     }
 
     @Override

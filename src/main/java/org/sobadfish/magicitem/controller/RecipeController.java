@@ -3,6 +3,7 @@ package org.sobadfish.magicitem.controller;
 import cn.nukkit.item.Item;
 import org.sobadfish.magicitem.files.BaseDataWriterGetter;
 import org.sobadfish.magicitem.files.datas.RecipeData;
+import org.sobadfish.magicitem.files.entity.CraftingResult;
 import org.sobadfish.magicitem.files.entity.Recipe;
 
 import java.io.File;
@@ -42,7 +43,7 @@ public class RecipeController {
     }
 
     public org.sobadfish.magicitem.files.entity.CraftingResult craftItemResult(Map<Integer, Item> input, MagicController controller) {
-        if (input.size() > 0) {
+        if (!input.isEmpty()) {
 
             Item i = null;
             for (Item it : input.values()) {
@@ -51,11 +52,11 @@ public class RecipeController {
                 }
             }
             if (i == null) {
-                return org.sobadfish.magicitem.files.entity.CraftingResult.failure();
+                return CraftingResult.failure();
             }
 
             for (Recipe recipe : recipeData.getRecipeByInput(i)) {
-                org.sobadfish.magicitem.files.entity.CraftingResult result = recipe.match(input, controller.tagController);
+                CraftingResult result = recipe.match(input, controller.tagController);
                 if (result.success) {
                     return result;
                 }
@@ -90,12 +91,17 @@ public class RecipeController {
         StringBuilder str = new StringBuilder();
         LinkedHashMap<Character, Item> charItem = new LinkedHashMap<>();
         char a = 'A';
+        int[] customUiSlots = new int[]{0, 1, 2, 9, 10, 11, 18, 19, 20};
         int[] mobileSlots = new int[]{7, 8, 9, 13, 14, 15, 19, 20, 21};
         int[] pcSlots = new int[]{10, 11, 12, 19, 20, 21, 28, 29, 30};
 
         int[] inputSlots;
+        boolean useCustomUi = input.containsKey(0) || input.containsKey(1) || input.containsKey(2) || input.containsKey(18);
         // Use the layout based on the player's device
-        if (isMobile) {
+        if (useCustomUi) {
+            inputSlots = customUiSlots;
+            MagicController.sendLogger("调试: 使用 CustomUI 布局输入");
+        } else if (isMobile) {
             inputSlots = mobileSlots;
             MagicController.sendLogger("调试: 使用 Mobile 布局输入");
         } else {

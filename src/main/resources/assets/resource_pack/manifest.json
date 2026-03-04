@@ -1,0 +1,18 @@
+{
+  "format_version": 2,
+  "header": {
+    "description": "Magic Item Crafting UI",
+    "name": "Magic Crafting UI",
+    "uuid": "66c6e9a8-3093-462a-9c36-dbb052165822",
+    "version": [1, 0, 44],
+    "min_engine_version": [1, 16, 0]
+  },
+  "modules": [
+    {
+      "description": "Magic Crafting UI",
+      "type": "resources",
+      "uuid": "743f6949-53be-44b6-b326-3980037920eb",
+      "version": [1, 0, 44]
+    }
+  ]
+}

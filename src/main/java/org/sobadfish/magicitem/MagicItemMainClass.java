@@ -1,8 +1,12 @@
 package org.sobadfish.magicitem;
 
+import cn.nukkit.Player;
 import cn.nukkit.plugin.PluginBase;
 import org.sobadfish.magicitem.command.MagicCommand;
 import org.sobadfish.magicitem.controller.MagicController;
+import org.sobadfish.magicitem.windows.DisPlayerPanel;
+
+import java.util.Map;
 
 /**
  * @author Sobadfish
@@ -16,6 +20,7 @@ public class MagicItemMainClass extends PluginBase {
     @Override
     public void onEnable() {
         mainClass = this;
+       
         MagicController.sendLogger("正在加载鱼魔法物品!");
         magicController = new MagicController(this);
         this.getServer().getPluginManager().registerEvents(magicController,this);
@@ -31,6 +36,9 @@ public class MagicItemMainClass extends PluginBase {
 
     @Override
     public void onDisable() {
+        for(Map.Entry<Player, DisPlayerPanel> disPlayerPanelEntry: DisPlayerPanel.panelLib.entrySet()){
+            disPlayerPanelEntry.getValue().panel.close(disPlayerPanelEntry.getKey());
+        }
         if(magicController != null){
             magicController.save();
         }

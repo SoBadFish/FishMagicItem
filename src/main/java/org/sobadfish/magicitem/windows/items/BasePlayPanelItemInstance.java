@@ -68,16 +68,16 @@ public abstract class BasePlayPanelItemInstance {
      * 生成默认物品
      * */
     public Item defaultButtonTagItem(Item item,int index){
-
-        CompoundTag tag = item.getNamedTag();
+        Item copy = item == null ? Item.get(Item.AIR) : item.clone();
+        CompoundTag tag = copy.getNamedTag();
         if(tag == null){
             tag = new CompoundTag();
         }
         tag.putInt("index",index);
         tag.putBoolean("button",true);
-        item.setNamedTag(tag);
-        item.setCount(getCount());
-        return item;
+        copy.setNamedTag(tag);
+        copy.setCount(getCount());
+        return copy;
     }
 
 

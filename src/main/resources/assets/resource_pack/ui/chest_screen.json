@@ -1,0 +1,538 @@
+{
+  "namespace": "chest",
+  "chest_label": {
+    "$new_container_title|default": "$container_title",
+    "text": "$container_title"
+  },
+  "chest_grid_item@common.container_item": {
+    "$item_collection_name": "container_items"
+  },
+  "magic_crafting_label": {
+    "type": "label",
+    "offset": [7, 7],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "text": "$container_title",
+    "color": "$title_text_color",
+    "layer": 4
+  },
+  "magic_bg": {
+    "type": "image",
+    "texture": "textures/gui/cooking_pot_background_images",
+    "size": [176, 166],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "layer": 0
+  },
+  "magic_grid_item": {
+    "type": "input_panel",
+    "size": [18, 18],
+    "layer": 1,
+    "$cell_image_size|default": [18, 18],
+    "$item_renderer_panel_size|default": [18, 18],
+    "$item_renderer_size|default": [16, 16],
+    "$item_renderer_offset|default": [0, 0],
+    "controls": [
+      {
+        "item_cell": {
+          "type": "panel",
+          "size": "$cell_image_size",
+          "layer": 0,
+          "controls": [
+            {
+              "item": {
+                "type": "panel",
+                "size": "$item_renderer_panel_size",
+                "layer": 0,
+                "controls": [
+                  {
+                    "stack_count_label@common.stack_count_label": {
+                      "layer": 9
+                    }
+                  },
+                  {
+                    "item_renderer": {
+                      "type": "custom",
+                      "renderer": "inventory_item_renderer",
+                      "size": "$item_renderer_size",
+                      "offset": "$item_renderer_offset",
+                      "anchor_to": "center",
+                      "anchor_from": "center",
+                      "layer": 7,
+                      "bindings": [
+                        {
+                          "binding_type": "view",
+                          "source_property_name": "(#item_id_aux * 1)",
+                          "target_property_name": "#item_id_aux"
+                        },
+                        {
+                          "binding_type": "view",
+                          "source_property_name": "(#item_custom_color * 1)",
+                          "target_property_name": "#item_custom_color"
+                        },
+                        {
+                          "binding_type": "view",
+                          "source_property_name": "#item_hover_text",
+                          "target_property_name": "#item_hover_text"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "durability_bar@common.durability_bar": {
+                "layer": 8
+              }
+            }
+          ]
+        }
+      },
+      {
+        "item_selected_image@common.slot_selected": {
+          "layer": 4
+        }
+      },
+      {
+        "item_button_ref@common.container_slot_button_prototype": {
+          "tts_ignore_count": true,
+          "tts_skip_message": true,
+          "tts_inherit_siblings": true,
+          "layer": 5
+        }
+      }
+    ]
+  },
+  "recipe_grid_item": {
+    "type": "button",
+    "size": [75, 38],
+    "layer": 1,
+    "default_control": "default",
+    "hover_control": "hover",
+    "pressed_control": "pressed",
+    "controls": [
+      {
+        "default": {
+          "type": "panel",
+          "size": [75, 38],
+          "controls": [
+            {
+              "bg": {
+                "type": "image",
+                "texture": "textures/gui/recipe/cooking_recipe",
+                "size": [75, 38],
+                "layer": 1
+              }
+            },
+            {
+              "item_renderer": {
+                "type": "custom",
+                "renderer": "inventory_item_renderer",
+                "size": [16, 16],
+                "offset": [24, -3],
+                "anchor_from": "center",
+                "anchor_to": "center",
+                "layer": 6,
+                "bindings": [
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(#item_id_aux * 1)",
+                    "target_property_name": "#item_id_aux"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(#item_custom_color * 1)",
+                    "target_property_name": "#item_custom_color"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "#item_hover_text",
+                    "target_property_name": "#item_hover_text"
+                  }
+                ]
+              }
+            },
+            {
+              "stack_count_label": {
+                "type": "label",
+                "offset": [2, 2],
+                "anchor_from": "bottom_right",
+                "anchor_to": "bottom_right",
+                "layer": 7,
+                "text": "#item_stack_count",
+                "color": "$item_stack_count_color",
+                "bindings": [
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "#item_stack_count",
+                    "target_property_name": "#item_stack_count"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "hover": {
+          "type": "panel",
+          "size": [75, 38],
+          "controls": [
+            {
+              "hover_highlight": {
+                "type": "image",
+                "texture": "textures/ui/highlight_slot",
+                "size": [75, 38],
+                "layer": 8,
+                "alpha": 0.5
+              }
+            },
+            { "default@chest.recipe_grid_item_renderer": {} }
+          ]
+        }
+      },
+      {
+        "pressed": {
+          "type": "panel",
+          "size": [75, 38],
+          "controls": [
+            { "default@chest.recipe_grid_item_renderer": {} }
+          ]
+        }
+      }
+    ]
+  },
+  "recipe_grid_item_renderer": {
+    "type": "panel",
+    "size": [75, 38],
+    "controls": [
+      {
+        "bg": {
+          "type": "image",
+          "texture": "textures/gui/recipe/cooking_recipe",
+          "size": [75, 38],
+          "layer": 1
+        }
+      },
+      {
+        "item_renderer": {
+          "type": "custom",
+          "renderer": "inventory_item_renderer",
+          "size": [16, 16],
+          "offset": [24, -3],
+          "anchor_from": "center",
+          "anchor_to": "center",
+          "layer": 6,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_property_name": "(#item_id_aux * 1)",
+              "target_property_name": "#item_id_aux"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#item_custom_color * 1)",
+              "target_property_name": "#item_custom_color"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "#item_hover_text",
+              "target_property_name": "#item_hover_text"
+            }
+          ]
+        }
+      },
+      {
+        "stack_count_label": {
+          "type": "label",
+          "offset": [2, 2],
+          "anchor_from": "bottom_right",
+          "anchor_to": "bottom_right",
+          "layer": 7,
+          "text": "#item_stack_count",
+          "color": "$item_stack_count_color",
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_property_name": "#item_stack_count",
+              "target_property_name": "#item_stack_count"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "recipe_scrolling_panel@common.scrolling_panel": {
+    "size": [162, 230],
+    "offset": [0, 0],
+    "$scrolling_content": "chest.recipe_grid_content",
+    "$show_background": false
+  },
+  "recipe_grid_content": {
+    "type": "grid",
+    "grid_dimensions": [2, 14],
+    "grid_item_template": "chest.recipe_grid_item",
+    "collection_name": "container_items",
+    "size": [150, 532],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "layer": 2
+  },
+  "magic_grid_item_renderer": {
+    "type": "panel",
+    "size": [18, 18],
+    "controls": [
+      {
+        "item_renderer": {
+          "type": "custom",
+          "renderer": "inventory_item_renderer",
+          "size": [16, 16],
+          "anchor_from": "center",
+          "anchor_to": "center",
+          "layer": 6,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_property_name": "(#item_id_aux * 1)",
+              "target_property_name": "#item_id_aux"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#item_custom_color * 1)",
+              "target_property_name": "#item_custom_color"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "#item_hover_text",
+              "target_property_name": "#item_hover_text"
+            }
+          ]
+        }
+      },
+      {
+        "stack_count_label": {
+          "type": "label",
+          "offset": [1, 1],
+          "anchor_from": "bottom_right",
+          "anchor_to": "bottom_right",
+          "layer": 7,
+          "text": "#item_stack_count",
+          "color": "$item_stack_count_color",
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_property_name": "#item_stack_count",
+              "target_property_name": "#item_stack_count"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "full_grid_template": {
+    "type": "grid",
+    "grid_dimensions": [9, 6],
+    "grid_item_template": "chest.magic_grid_item",
+    "collection_name": "container_items",
+    "size": [162, 80],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "layer": 2
+  },
+  "crafting_grid_template": {
+    "type": "grid",
+    "grid_dimensions": [9, 3],
+    "grid_item_template": "chest.chest_grid_item",
+    "collection_name": "container_items",
+    "size": [162, 54],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "layer": 2
+  },
+  "magic_crafting_grid": {
+    "type": "grid",
+    "size": [162, 54],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "grid_dimensions": [9, 3],
+    "grid_item_template": "chest.chest_grid_item",
+    "collection_name": "container_items"
+  },
+  "magic_crafting_panel_top_half": {
+    "type": "panel",
+    "size": ["100%", "50%"],
+    "offset": [0, 0],
+    "anchor_to": "top_left",
+    "anchor_from": "top_left",
+    "controls": [
+      { "chest_label@chest.magic_crafting_label": {} },
+      {
+        "input_view": {
+          "type": "panel",
+          "size": [54, 54],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [7, 18],
+          "clips_children": true,
+          "layer": 2,
+          "controls": [
+            { "grid@chest.magic_crafting_grid": {} }
+          ]
+        }
+      },
+      {
+        "output_view": {
+          "type": "panel",
+          "size": [54, 54],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [115, 18],
+          "clips_children": true,
+          "layer": 2,
+          "controls": [
+            { "grid@chest.magic_crafting_grid": { "offset": [-72, 0] } }
+          ]
+        }
+      },
+      {
+        "arrow": {
+          "type": "image",
+          "texture": "textures/ui/arrow_active",
+          "size": [22, 16],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [77, 37],
+          "layer": 3
+        }
+      }
+    ]
+  },
+  "magic_crafting_panel": {
+    "type": "panel",
+    "controls": [
+      { "container_gamepad_helpers@common.container_gamepad_helpers": {} },
+      {
+        "flying_item_renderer@common.flying_item_renderer": {
+          "layer": 14
+        }
+      },
+      { "selected_item_details_factory@common.selected_item_details_factory": {} },
+      { "item_lock_notification_factory@common.item_lock_notification_factory": {} },
+      {
+        "root_panel@common.root_panel": {
+          "layer": 1,
+          "controls": [
+            { "common_panel@common.common_panel": {} },
+            {
+              "chest_panel": {
+                "type": "panel",
+                "layer": 5,
+                "controls": [
+                  { "magic_crafting_panel_top_half@chest.magic_crafting_panel_top_half": {} },
+                  { "inventory_panel_bottom_half_with_label@common.inventory_panel_bottom_half_with_label": {} },
+                  { "hotbar_grid@common.hotbar_grid_template": {} },
+                  { "inventory_take_progress_icon_button@common.inventory_take_progress_icon_button": {} }
+                ]
+              }
+            },
+            { "inventory_selected_icon_button@common.inventory_selected_icon_button": {} },
+            { "gamepad_cursor@common.gamepad_cursor_button": {} }
+          ]
+        }
+      }
+    ]
+  },
+  "magic_crafting_workstation_panel_top_half@chest.magic_crafting_panel_top_half": {
+    "controls": [
+      { "chest_label@chest.magic_crafting_label": {} },
+      {
+        "save_slot_view": {
+          "type": "panel",
+          "size": [18, 18],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [151, 10],
+          "clips_children": true,
+          "layer": 3,
+          "controls": [
+            { "grid@chest.magic_crafting_grid": { "offset": [-144, 0] } }
+          ]
+        }
+      }
+    ]
+  },
+  "magic_crafting_workstation_panel@chest.magic_crafting_panel": {
+    "controls": [
+      { "container_gamepad_helpers@common.container_gamepad_helpers": {} },
+      {
+        "flying_item_renderer@common.flying_item_renderer": {
+          "layer": 14
+        }
+      },
+      { "selected_item_details_factory@common.selected_item_details_factory": {} },
+      { "item_lock_notification_factory@common.item_lock_notification_factory": {} },
+      {
+        "root_panel@common.root_panel": {
+          "layer": 1,
+          "controls": [
+            { "common_panel@common.common_panel": {} },
+            {
+              "chest_panel": {
+                "type": "panel",
+                "layer": 5,
+                "controls": [
+                  { "magic_crafting_workstation_panel_top_half@chest.magic_crafting_workstation_panel_top_half": {} },
+                  { "inventory_panel_bottom_half_with_label@common.inventory_panel_bottom_half_with_label": {} },
+                  { "hotbar_grid@common.hotbar_grid_template": {} },
+                  { "inventory_take_progress_icon_button@common.inventory_take_progress_icon_button": {} }
+                ]
+              }
+            },
+            { "inventory_selected_icon_button@common.inventory_selected_icon_button": {} },
+            { "gamepad_cursor@common.gamepad_cursor_button": {} }
+          ]
+        }
+      }
+    ]
+  },
+  "large_chest_screen@common.inventory_screen_common": {
+    "$root_panel": "chest.large_root_panel",
+    "$new_container_title|default": "$container_title",
+    "modifications": [
+      {
+        "array_name": "variables",
+        "operation": "insert_back",
+        "value": {
+          "requires": "($new_container_title = '魔法合成台')",
+          "$root_panel": "chest.magic_crafting_panel",
+          "$screen_content": "chest.magic_crafting_panel"
+        }
+      },
+      {
+        "array_name": "variables",
+        "operation": "insert_back",
+        "value": {
+          "requires": "($new_container_title = '魔法合成台工作站')",
+          "$root_panel": "chest.magic_workbench_crafting_workstation_panel",
+          "$screen_content": "chest.magic_workbench_crafting_workstation_panel"
+        }
+      },
+      {
+        "array_name": "variables",
+        "operation": "insert_back",
+        "value": {
+          "requires": "($new_container_title = '魔法工作台合成站')",
+          "$root_panel": "chest.magic_workbench_crafting_workstation_panel",
+          "$screen_content": "chest.magic_workbench_crafting_workstation_panel"
+        }
+      }
+    ]
+  },
+  "small_chest_screen@common.inventory_screen_common": {
+    "$close_on_player_hurt|default": true,
+    "close_on_player_hurt": "$close_on_player_hurt",
+    "$root_panel|default": "chest.small_root_panel",
+    "$new_container_title|default": "$container_title"
+  }
+}

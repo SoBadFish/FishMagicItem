@@ -115,7 +115,9 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
                     }
                     if (outPutRecipe.containsKey(i.getId())) {
                         recipes1 = outPutRecipe.get(i.getId());
-                        recipes1.add(recipe);
+                        if (!recipes1.contains(recipe)) {
+                            recipes1.add(recipe);
+                        }
                         outPutRecipe.put(i.getId(), recipes1);
                     } else {
                         recipes1 = new ArrayList<>();
@@ -189,37 +191,76 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
                 buildRecipe.put(item, new BuildRecipeOutPutItem());
             }
             BuildRecipeOutPutItem bot = buildRecipe.get(item);
+            // 关键修复：清理旧数据，防止重复叠加
+            bot.build.clear();
+            bot.outPut.clear();
+            bot.originRecipes.clear();
+            
             List<LinkedHashMap<Integer, Item>> lrecipe = bot.build;
+            List<Recipe> oRecipes = bot.originRecipes;
             List<Recipe> recipes = outPutRecipe.get(item.getId());
+            
+            if (recipes == null) continue;
+            
             for (Recipe recipe : recipes) {
-                LinkedHashMap<Integer, Item> craft = new LinkedHashMap<>();
-                int index = 0;
-                for (String str : recipe.recipeIndex) {
-                    if (str.length() == 3) {
-                        for (char a : str.toCharArray()) {
-                            if (a != ' ') {
-                                craft.put(index, tagController.getTagData().asItem(recipe.inputItem.get(a)));
-                            }
-                            index++;
-                        }
-                    } else if (str.length() == 2) {
-                        for (char a : str.toCharArray()) {
-                            if (a != ' ') {
-                                craft.put(index, tagController.getTagData().asItem(recipe.inputItem.get(a)));
-                            }
-                            index++;
-                        }
-                    } else if (str.length() == 1) {
-                        index++;
-                        craft.put(index, tagController.getTagData().asItem(recipe.inputItem.get(str.charAt(0))));
+                // 关键修复：严格匹配物品（包括 NBT/Damage），防止 ID 相同但物品不同的配方混在一起
+                boolean matches = false;
+                for (String outStr : recipe.outputItem) {
+                    Item outItem = tagController.getTagData().asItem(outStr);
+                    if (outItem.equals(item, true, true)) {
+                        matches = true;
+                        break;
                     }
                 }
-                lrecipe.add(craft);
-                List<Item> output = new ArrayList<>();
-                for (String ostr : recipe.outputItem) {
-                    output.add(tagController.getTagData().asItem(ostr));
+                if (!matches) continue;
+
+                LinkedHashMap<Integer, Item> craft = new LinkedHashMap<>();
+                int index = 0;
+                
+                // 优先尝试获取缓存的 Grid (支持新格式)
+                Map<Integer, Item> inputGrid = recipe.getInputGrid(tagController);
+                if (inputGrid != null && !inputGrid.isEmpty()) {
+                     for(Map.Entry<Integer, Item> entry : inputGrid.entrySet()) {
+                         craft.put(entry.getKey(), entry.getValue());
+                     }
+                } else if (recipe.recipeIndex != null) {
+                    // 旧格式兼容：强制归一到 3x3 索引 (0-8)，保证预览摆放与真实配方一致
+                    for (int r = 0; r < recipe.recipeIndex.length && r < 3; r++) {
+                        String row = recipe.recipeIndex[r] == null ? "" : recipe.recipeIndex[r];
+                        if (row.length() == 1) {
+                            row = " " + row + " ";
+                        } else if (row.length() == 2) {
+                            row = row + " ";
+                        } else if (row.length() > 3) {
+                            row = row.substring(0, 3);
+                        }
+                        for (int c = 0; c < 3; c++) {
+                            char ch = row.length() > c ? row.charAt(c) : ' ';
+                            if (ch != ' ') {
+                                String inStr = recipe.inputItem == null ? null : recipe.inputItem.get(ch);
+                                if (inStr != null) {
+                                    craft.put(r * 3 + c, tagController.getTagData().asItem(inStr).clone());
+                                }
+                            }
+                        }
+                    }
                 }
-                bot.outPut = output;
+                
+                if (!craft.isEmpty()) {
+                    lrecipe.add(craft);
+                    oRecipes.add(recipe);
+                    List<Item> output = new ArrayList<>();
+                    for (String ostr : recipe.outputItem) {
+                        Item out = tagController.getTagData().asItem(ostr);
+                        if (out != null && out.getId() != 0) {
+                            output.add(out);
+                        }
+                    }
+                    // Only update output if we found valid items, preventing overwrite with empty/null
+                    if (!output.isEmpty()) {
+                        bot.outPut = output;
+                    }
+                }
             }
         }
     }
@@ -244,6 +285,9 @@ public class RecipeData extends BaseDataWriterGetter<Recipe> {
         public List<LinkedHashMap<Integer, Item>> build = new ArrayList<>();
 
         public List<Item> outPut = new ArrayList<>();
+        
+        // 新增：存储原始配方引用，确保 ButtonFillCraft 可以获取到干净的源数据
+        public List<Recipe> originRecipes = new ArrayList<>();
 
         @Override
         public String toString() {

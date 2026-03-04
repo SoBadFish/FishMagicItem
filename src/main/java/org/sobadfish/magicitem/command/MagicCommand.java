@@ -166,7 +166,8 @@ public class MagicCommand extends Command {
                     break;
                 case "cr":
                     if(commandSender instanceof Player){
-                        DisPlayerPanel panel = DisPlayerPanel.getDisPlayPanel((Player) commandSender,"合成台",CraftItemPanel.class);
+                        // 修改标题以触发 resource_pack2 的自定义UI (Magic Crafting Table)
+                        DisPlayerPanel panel = DisPlayerPanel.getDisPlayPanel((Player) commandSender,"魔法合成台",CraftItemPanel.class);
                         if(panel == null){
                             return false;
                         }
@@ -181,7 +182,7 @@ public class MagicCommand extends Command {
                         return false;
                     }
                     if(commandSender instanceof Player){
-                        DisPlayerPanel panel = DisPlayerPanel.getDisPlayPanel((Player) commandSender,"创建配方",CraftItemPanel.class);
+                        DisPlayerPanel panel = DisPlayerPanel.getDisPlayPanel((Player) commandSender,"魔法工作台合成站",CraftItemPanel.class);
                         if(panel != null) {
                             panel.displayPlayer(ChestPanelController.createRecipeLib((CraftItemPanel) panel.panel, (Player) commandSender));
                         }

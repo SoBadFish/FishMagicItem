@@ -1,6 +1,8 @@
 package org.sobadfish.magicitem.files.entity;
 
+import cn.nukkit.Server;
 import cn.nukkit.item.Item;
+import cn.nukkit.nbt.tag.CompoundTag;
 import com.google.gson.annotations.SerializedName;
 import org.sobadfish.magicitem.controller.TagController;
 
@@ -104,7 +106,7 @@ public class Recipe {
                     if (tagObj == null) tagObj = inputMap.get(c); // Try char just in case?
                     
                     if (tagObj instanceof String) {
-                        cachedInputGrid[i] = controller.getTagData().asItem((String) tagObj);
+                        cachedInputGrid[i] = controller.getTagData().asItem((String) tagObj).clone();
                     }
                 }
             }
@@ -133,7 +135,7 @@ public class Recipe {
             if (c != ' ') {
                 String tagStr = inputItem.get(c);
                 if (tagStr != null) {
-                    cachedInputGrid[i] = controller.getTagData().asItem(tagStr);
+                    cachedInputGrid[i] = controller.getTagData().asItem(tagStr).clone();
                 }
             }
         }
@@ -149,16 +151,81 @@ public class Recipe {
         } else if (cachedInputGrid != null) {
             for (Item item : cachedInputGrid) {
                 if (item != null && item.getId() != 0) {
-                    ingredients.add(item);
+                    ingredients.add(item.clone());
                 }
             }
         } else if (inputItem != null) {
             // Fallback for legacy if compile failed or didn't run properly?
             for (String s : inputItem.values()) {
-                 ingredients.add(controller.getTagData().asItem(s));
+                 ingredients.add(controller.getTagData().asItem(s).clone());
             }
         }
         return ingredients;
+    }
+
+    public Map<Integer, Item> getInputGrid(TagController controller) {
+        if (cachedInputGrid == null && shapelessIngredients == null) {
+            compile(controller);
+        }
+        Map<Integer, Item> grid = new java.util.HashMap<>();
+        if (type == 0 && shapelessIngredients != null) {
+            for (int i = 0; i < shapelessIngredients.size(); i++) {
+                grid.put(i, shapelessIngredients.get(i).clone());
+            }
+        } else if (cachedInputGrid != null) {
+            for (int i = 0; i < cachedInputGrid.length; i++) {
+                if (cachedInputGrid[i] != null && cachedInputGrid[i].getId() != 0) {
+                    grid.put(i, cachedInputGrid[i].clone());
+                }
+            }
+        }
+        return grid;
+    }
+
+    public Map<Integer, Item> getPreviewInputGrid(TagController controller) {
+        if (cachedInputGrid == null && shapelessIngredients == null) {
+            compile(controller);
+        }
+        Map<Integer, Item> grid = new java.util.HashMap<>();
+        if (type == 0 && shapelessIngredients != null) {
+            for (int i = 0; i < shapelessIngredients.size() && i < 9; i++) {
+                Item it = shapelessIngredients.get(i);
+                if (it != null && it.getId() != 0) {
+                    grid.put(i, it.clone());
+                }
+            }
+            return grid;
+        }
+        if (cachedInputGrid == null) {
+            return grid;
+        }
+
+        int minR = 3, maxR = -1, minC = 3, maxC = -1;
+        for (int i = 0; i < 9; i++) {
+            Item it = cachedInputGrid[i];
+            if (it != null && it.getId() != 0) {
+                int r = i / 3;
+                int c = i % 3;
+                if (r < minR) minR = r;
+                if (r > maxR) maxR = r;
+                if (c < minC) minC = c;
+                if (c > maxC) maxC = c;
+            }
+        }
+        if (maxR == -1) {
+            return grid;
+        }
+        for (int r = minR; r <= maxR; r++) {
+            for (int c = minC; c <= maxC; c++) {
+                int from = r * 3 + c;
+                Item it = cachedInputGrid[from];
+                if (it != null && it.getId() != 0) {
+                    int to = (r - minR) * 3 + (c - minC);
+                    grid.put(to, it.clone());
+                }
+            }
+        }
+        return grid;
     }
 
     /**
@@ -212,9 +279,22 @@ public class Recipe {
     private Item[] createOutput(TagController controller) {
         ArrayList<Item> output = new ArrayList<>();
         for (String outStr : outputItem) {
-            output.add(controller.getTagData().asItem(outStr).clone());
+            Item out = controller.getTagData().asItem(outStr).clone();
+            if (out.hasCompoundTag()) {
+                CompoundTag tag = out.getNamedTag();
+                if (tag != null && (tag.contains("button") || tag.contains("index"))) {
+                    tag.remove("button");
+                    tag.remove("index");
+                    out.setNamedTag(tag);
+                }
+            }
+            output.add(out);
         }
         return output.toArray(new Item[0]);
+    }
+
+    public Item[] getOutputItems(TagController controller) {
+        return createOutput(controller);
     }
 
     private Map<Integer, Integer> matchShaped(Map<Integer, Item> input) {
@@ -280,7 +360,7 @@ public class Recipe {
                 
                 if (!expectedEmpty) {
                     boolean checkTag = expected.hasCompoundTag();
-                    if (!expected.equals(actual, true, checkTag)) {
+                    if (!isItemEqual(expected, actual, true, checkTag)) {
                         return null;
                     }
                     if (actual.getCount() < expected.getCount()) {
@@ -320,7 +400,7 @@ public class Recipe {
                 // boolean damageMatch = required.getDamage() == -1 || required.getDamage() == available.getDamage();
                 // But Item.equals usually handles this if checkDamage is true.
                 
-                if (required.equals(available, true, checkTag)) {
+                if (isItemEqual(required, available, true, checkTag)) {
                     if (available.getCount() >= required.getCount()) {
                         consumption.put(slot, required.getCount());
                         availableItems.remove(slot);
@@ -398,6 +478,36 @@ public class Recipe {
         return consumption;
     }
 
+
+    private boolean isItemEqual(Item item1, Item item2, boolean checkDamage, boolean checkCompoundTag) {
+        if (item1.getId() != item2.getId()) {
+            return false;
+        }
+        if (checkDamage && item1.getDamage() != item2.getDamage() && item1.getDamage() != -1) {
+            return false;
+        }
+        if (checkCompoundTag) {
+            CompoundTag tag1 = item1.hasCompoundTag() ? item1.getNamedTag() : null;
+            CompoundTag tag2 = item2.hasCompoundTag() ? item2.getNamedTag() : null;
+            
+            // Treat empty tag as null
+            if (tag1 != null && tag1.isEmpty()) tag1 = null;
+            if (tag2 != null && tag2.isEmpty()) tag2 = null;
+
+            if (tag1 == null && tag2 == null) return true;
+            if (tag1 == null || tag2 == null) {
+                Server.getInstance().getLogger().info("调试: Recipe NBT不匹配! Exp:" + (tag1==null?"null":tag1.toString()) + " Act:" + (tag2==null?"null":tag2.toString()));
+                return false;
+            }
+            
+            boolean equals = tag1.equals(tag2);
+            if (!equals) {
+                Server.getInstance().getLogger().info("调试: Recipe NBT内容不匹配! Exp:" + tag1.toString() + " Act:" + tag2.toString());
+            }
+            return equals;
+        }
+        return true;
+    }
 
     public boolean hasOutItem(Item item,TagController controller){
         for(String s: outputItem){
