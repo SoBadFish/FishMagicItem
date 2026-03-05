@@ -50,9 +50,9 @@ public class CraftItemPanel extends ChestInventoryPanel {
     @Override
     public void setPanel(Map<Integer, BasePlayPanelItemInstance> panel) {
         //如果是合成配方大于0
-        if (canPlaceItem.size() > 0) {
+        if (!canPlaceItem.isEmpty()) {
             //TODO 扔地上
-            if (getInItem().size() > 0) {
+            if (!getInItem().isEmpty()) {
                 backPlayer();
             }
 
@@ -92,12 +92,11 @@ public class CraftItemPanel extends ChestInventoryPanel {
         Map<Integer, Item> itemMap = new LinkedHashMap<>();
         for (Integer slotId : inputItem) {
             Item it = this.getItem(slotId);
-            if (it != null && it.getId() != 0) {
-                // 跳过系统生成的边框物品（有button标签的物品）
-                if (!it.hasCompoundTag() || !it.getNamedTag().contains("button")) {
-                    itemMap.put(slotId, it);
-                }
+            if (it == null) it = Item.get(0);
+            if (it.getId() != 0 && it.hasCompoundTag() && it.getNamedTag().contains("button")) {
+                it = Item.get(0);
             }
+            itemMap.put(slotId, it);
         }
         return itemMap;
     }
@@ -265,7 +264,7 @@ public class CraftItemPanel extends ChestInventoryPanel {
             if (!panel.isCraft) {
                 //TODO 合成配方
                 if (panel.isInit) {
-                    if (panel.canPlaceItem.size() > 0) {
+                    if (!panel.canPlaceItem.isEmpty()) {
                         // 输入发生变化，更新输出
                         if (panel.canPlaceItem.contains(index)) {
                             if (!panel.lockInput) {

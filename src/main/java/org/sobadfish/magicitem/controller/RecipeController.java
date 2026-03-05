@@ -115,12 +115,19 @@ public class RecipeController {
         StringBuilder str = new StringBuilder();
         LinkedHashMap<Character, Item> charItem = new LinkedHashMap<>();
         char a = 'A';
+        int[] magicSlots = new int[]{0, 1, 2, 9, 10, 11, 18, 19, 20};
         int[] mobileSlots = new int[]{7, 8, 9, 13, 14, 15, 19, 20, 21};
         int[] pcSlots = new int[]{10, 11, 12, 19, 20, 21, 28, 29, 30};
 
+        int magicMatch = 0;
         int mobileMatch = 0;
         int pcMatch = 0;
 
+        for (int slot : magicSlots) {
+            if (input.containsKey(slot) && input.get(slot) != null && input.get(slot).getId() != 0) {
+                magicMatch++;
+            }
+        }
         for (int slot : mobileSlots) {
             if (input.containsKey(slot) && input.get(slot) != null && input.get(slot).getId() != 0) {
                 mobileMatch++;
@@ -134,7 +141,9 @@ public class RecipeController {
 
         int[] inputSlots;
         // 智能选择：谁匹配的多用谁，如果都没匹配（空配方），默认 Mobile (为了响应用户需求)
-        if (mobileMatch >= pcMatch) {
+        if (input.containsKey(0)) {
+            inputSlots = magicSlots;
+        } else if (mobileMatch >= pcMatch) {
             inputSlots = mobileSlots;
         } else {
             inputSlots = pcSlots;
@@ -192,6 +201,7 @@ public class RecipeController {
         recipe.recipeIndex = str.toString().split("(?<=\\G.{3})");
         recipe.inputItem = charItemSa;
         recipe.outputItem = s1;
+        recipe.type = 1;
         if (!getRecipeData().dataList.contains(recipe)) {
             getRecipeData().dataList.add(recipe);
             // 立即更新内存中的索引，确保无需重启即可使用

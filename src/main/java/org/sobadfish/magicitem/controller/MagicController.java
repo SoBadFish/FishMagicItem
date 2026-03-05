@@ -26,6 +26,7 @@ import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
 import org.sobadfish.magicitem.windows.lib.AbstractFakeInventory;
 import org.sobadfish.magicitem.windows.lib.ChestInventoryPanel;
 import org.sobadfish.magicitem.windows.panel.CraftItemPanel;
+import org.sobadfish.magicitem.windows.panel.ItemListPanel;
 
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -150,8 +151,7 @@ public class MagicController implements Listener {
         }
 
         for (InventoryAction action : transaction.getActions()) {
-            if (action instanceof SlotChangeAction) {
-                SlotChangeAction slotAction = (SlotChangeAction) action;
+            if (action instanceof SlotChangeAction slotAction) {
 
                 // Only apply logic if the action is ON the chest inventory
                 if (slotAction.getInventory() instanceof ChestInventoryPanel) {
@@ -214,10 +214,6 @@ public class MagicController implements Listener {
                                             moved = true;
                                         }
                                     }
-                                    if (!moved) {
-                                        panel.sendContents(player);
-                                        return;
-                                    }
 
                                     panel.setItem(slot, Item.get(0));
                                     panel.hasTakenOutput = true;
@@ -247,11 +243,7 @@ public class MagicController implements Listener {
                                 });
                                 return;
                             }
-                        } else {
                         }
-                    } else if (currentChest instanceof CraftItemPanel == false) {
-                        // 如果不是 CraftItemPanel，但是点击了非按钮区域（比如普通背包），允许操作
-                        // 这里不需要额外处理，因为按钮保护在下面
                     }
 
                     // 2. Button Protection (Prevent taking buttons & Handle Clicks)
@@ -268,49 +260,21 @@ public class MagicController implements Listener {
                         BasePlayPanelItemInstance item = currentChest.getPanel().getOrDefault(index, null);
                         if (item != null) {
                             currentChest.clickSolt = index;
-                            // Use the player associated with the chest
-                            // 在点击按钮时，先把合成栏物品退还给玩家，防止被吞
-                            if (currentChest instanceof CraftItemPanel) {
-                                // 关键修复：不要在这里调用 backPlayer()!
-                                // backPlayer() 会清空输入格并将物品返还给玩家。
-                                // 如果玩家点击的是“保存配方”按钮，我们需要先保存，再清理。
-                                // 如果在这里直接 backPlayer()，那么当 ButtonCraft.onClick 执行时，合成栏已经是空的了！
-                                // 这就是为什么配方保存为空的原因！
-
-                                // 我们应该只在点击“返回”或“切换页面”等离开当前界面的按钮时才 backPlayer。
-                                // 或者，让具体的 Button 实现自己决定是否调用 backPlayer。
-                                // 暂时移除这里的全局 backPlayer 调用。
-                                // ((CraftItemPanel) currentChest).backPlayer();
-                            }
                             item.onClick(currentChest, currentChest.getPlayer());
                         }
-                        // Explicitly return to ensure no further processing happens
                         return;
                     }
 
-                    // 3. Raw Material Handling (Fix: Allow taking items back from Input slots)
-                    // The previous logic didn't explicitly block taking items from input slots, 
-                    // but we need to ensure nothing else interferes.
-                    // Actually, the issue described "cannot take out, change position, decrease count" 
-                    // implies that some other logic might be cancelling it or the UI isn't updating.
-                    // Since we removed the "catch-all" cancellation in the previous step, 
-                    // taking items from non-button, non-output slots (i.e., input slots) should now work.
-                    // We just need to ensure `PanelRunnable` in CraftItemPanel updates the recipe correctly (which it does).
-                    // 额外保护：如果不是按钮，但属于配方展示界面（非合成界面），也应该禁止拿取
                     if (!(currentChest instanceof CraftItemPanel)) {
-                        // 如果是在查看配方列表，除了按钮外，其他物品（如果有的话）也不应该能拿
-                        // 但实际上配方列表里所有东西都是按钮（包括展示的物品）
-                        // 所以上面的 Button Protection 应该已经拦截了。
-                        // 如果玩家能拿到，说明那个物品没有 button tag？
-                        // 检查 ButtoRecipeButton.getPanelItem -> defaultButtonTagItem 确实加了 tag。
-
-                        // 可能是客户端预测导致的“假拿取”？
-                        // 或者 InventoryTransactionEvent 中有多个 Action，其中一个没被拦截？
-                        // 强制刷新：无论如何，如果是查看配方，点击后刷新一下背包
                         if (event.isCancelled()) {
                             currentChest.sendContents(currentChest.getPlayer());
                         }
                     }
+                }
+                if(slotAction.getInventory() instanceof ItemListPanel){
+                    //TODO 防止玩家往里面拖动物品
+                    event.setCancelled();
+                    return;
                 }
             }
 

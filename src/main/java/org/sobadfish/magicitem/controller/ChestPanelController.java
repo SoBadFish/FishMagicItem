@@ -82,108 +82,108 @@ public class ChestPanelController {
             return playPanelItemInstanceMap;
         }
 
-        boolean isMobile = isMobile(player);
+//        boolean isMobile = isMobile(player);
+//
+//        panel.canPlaceItem = new ArrayList<Integer>();
+//        panel.inputItem = new ArrayList<Integer>();
+//        panel.outPutItem = new ArrayList<Integer>();
+//
+//        if (isMobile) {
+//            int[] mobileInputs = {7, 8, 9, 13, 14, 15, 19, 20, 21};
+//            for (int i : mobileInputs) {
+//                if (!panel.canPlaceItem.contains(i)) {
+//                    panel.canPlaceItem.add(i);
+//                }
+//                if (!panel.inputItem.contains(i)) {
+//                    panel.inputItem.add(i);
+//                }
+//            }
+//
+//            int[] mobileOutputs = {31, 32, 33, 37, 38, 39, 43, 44, 45};
+//            for (int i : mobileOutputs) {
+//                if (!panel.outPutItem.contains(i)) {
+//                    panel.outPutItem.add(i);
+//                }
+//            }
+//        } else {
+//            // PC Inputs (10, 11, 12...)
+//            int[] pcInputs = {10, 11, 12, 19, 20, 21, 28, 29, 30};
+//            for (int i : pcInputs) {
+//                if (!panel.canPlaceItem.contains(i)) {
+//                    panel.canPlaceItem.add(i);
+//                }
+//                if (!panel.inputItem.contains(i)) {
+//                    panel.inputItem.add(i);
+//                }
+//            }
+//
+//            // PC Outputs
+//            int[] pcOutputs = {14, 15, 16, 23, 24, 25, 32, 33, 34};
+//            for (int i : pcOutputs) {
+//                if (!panel.outPutItem.contains(i)) {
+//                    panel.outPutItem.add(i);
+//                }
+//            }
+//        }
 
-        panel.canPlaceItem = new ArrayList<Integer>();
-        panel.inputItem = new ArrayList<Integer>();
-        panel.outPutItem = new ArrayList<Integer>();
-
-        if (isMobile) {
-            int[] mobileInputs = {7, 8, 9, 13, 14, 15, 19, 20, 21};
-            for (int i : mobileInputs) {
-                if (!panel.canPlaceItem.contains(i)) {
-                    panel.canPlaceItem.add(i);
-                }
-                if (!panel.inputItem.contains(i)) {
-                    panel.inputItem.add(i);
-                }
-            }
-
-            int[] mobileOutputs = {31, 32, 33, 37, 38, 39, 43, 44, 45};
-            for (int i : mobileOutputs) {
-                if (!panel.outPutItem.contains(i)) {
-                    panel.outPutItem.add(i);
-                }
-            }
-        } else {
-            // PC Inputs (10, 11, 12...)
-            int[] pcInputs = {10, 11, 12, 19, 20, 21, 28, 29, 30};
-            for (int i : pcInputs) {
-                if (!panel.canPlaceItem.contains(i)) {
-                    panel.canPlaceItem.add(i);
-                }
-                if (!panel.inputItem.contains(i)) {
-                    panel.inputItem.add(i);
-                }
-            }
-
-            // PC Outputs
-            int[] pcOutputs = {14, 15, 16, 23, 24, 25, 32, 33, 34};
-            for (int i : pcOutputs) {
-                if (!panel.outPutItem.contains(i)) {
-                    panel.outPutItem.add(i);
-                }
-            }
-        }
-
-        int footerStart = 45;
-        if (isMobile) {
-            // For mobile, we fill everything that isn't input/output with glass/walls
-            // The loop below handles "if not input/output, put wall"
-            // So we just need to ensure the right wall type is used
-            footerStart = 54; // Use ButtonWall1 for everything basically
-        }
-
-        for (int index = 0; index < panel.getInventory().getSize(); index++) {
-        
-            boolean skip = false;
-            if (isMobile) {
-                // Mobile Mode: Only skip Mobile slots
-                // Mobile Inputs: 7, 8, 9, 13, 14, 15, 19, 20, 21
-                // Mobile Outputs: 31, 32, 33, 37, 38, 39, 43, 44, 45
-                int[] mobileSlots = {7, 8, 9, 13, 14, 15, 19, 20, 21, 31, 32, 33, 37, 38, 39, 43, 44, 45};
-                for (int i : mobileSlots) {
-                    if (index == i) {
-                        skip = true;
-                        break;
-                    }
-                }
-            } else {
-                // PC Mode: Only skip PC slots
-                // PC Inputs: 10, 11, 12, 19, 20, 21, 28, 29, 30
-                // PC Outputs: 14, 15, 16, 23, 24, 25, 32, 33, 34
-                int[] pcSlots = {10, 11, 12, 19, 20, 21, 28, 29, 30, 14, 15, 16, 23, 24, 25, 32, 33, 34};
-                for (int i : pcSlots) {
-                    if (index == i) {
-                        skip = true;
-                        break;
-                    }
-                }
-            }
-
-            if (skip) {
-                continue;
-            }
-
-            if (index < footerStart) {
-                playPanelItemInstanceMap.put(index, new ButtonWall1());
-            } else {
-                playPanelItemInstanceMap.put(index, new ButtonWall2());
-            }
-        }
-
-        // Special button placements
-        if (isMobile) {
-            // Recipe Book at top right (Row 0, Col 5 -> Index 5)
-            playPanelItemInstanceMap.put(5, new ButtonLib());
-            // Ensure Slot 0 is a wall (it was ButtonLib in Windows layout)
-            playPanelItemInstanceMap.put(0, new ButtonWall1());
-        } else {
-            // Windows: ButtonLib at 0
-            playPanelItemInstanceMap.put(0, new ButtonLib());
-        }
-
-        //TODO 绘制主页面
+//        int footerStart = 45;
+//        if (isMobile) {
+//            // For mobile, we fill everything that isn't input/output with glass/walls
+//            // The loop below handles "if not input/output, put wall"
+//            // So we just need to ensure the right wall type is used
+//            footerStart = 54; // Use ButtonWall1 for everything basically
+//        }
+//
+//        for (int index = 0; index < panel.getInventory().getSize(); index++) {
+//
+//            boolean skip = false;
+//            if (isMobile) {
+//                // Mobile Mode: Only skip Mobile slots
+//                // Mobile Inputs: 7, 8, 9, 13, 14, 15, 19, 20, 21
+//                // Mobile Outputs: 31, 32, 33, 37, 38, 39, 43, 44, 45
+//                int[] mobileSlots = {7, 8, 9, 13, 14, 15, 19, 20, 21, 31, 32, 33, 37, 38, 39, 43, 44, 45};
+//                for (int i : mobileSlots) {
+//                    if (index == i) {
+//                        skip = true;
+//                        break;
+//                    }
+//                }
+//            } else {
+//                // PC Mode: Only skip PC slots
+//                // PC Inputs: 10, 11, 12, 19, 20, 21, 28, 29, 30
+//                // PC Outputs: 14, 15, 16, 23, 24, 25, 32, 33, 34
+//                int[] pcSlots = {10, 11, 12, 19, 20, 21, 28, 29, 30, 14, 15, 16, 23, 24, 25, 32, 33, 34};
+//                for (int i : pcSlots) {
+//                    if (index == i) {
+//                        skip = true;
+//                        break;
+//                    }
+//                }
+//            }
+//
+//            if (skip) {
+//                continue;
+//            }
+//
+//            if (index < footerStart) {
+//                playPanelItemInstanceMap.put(index, new ButtonWall1());
+//            } else {
+//                playPanelItemInstanceMap.put(index, new ButtonWall2());
+//            }
+//        }
+//
+//        // Special button placements
+//        if (isMobile) {
+//            // Recipe Book at top right (Row 0, Col 5 -> Index 5)
+//            playPanelItemInstanceMap.put(5, new ButtonLib());
+//            // Ensure Slot 0 is a wall (it was ButtonLib in Windows layout)
+//            playPanelItemInstanceMap.put(0, new ButtonWall1());
+//        } else {
+//            // Windows: ButtonLib at 0
+//            playPanelItemInstanceMap.put(0, new ButtonLib());
+//        }
+//
+//        //TODO 绘制主页面
         return playPanelItemInstanceMap;
     }
 
@@ -426,7 +426,7 @@ public class ChestPanelController {
             }
 
             // Place Fill Button
-            playPanelItemInstanceMap.put(fillBtn, new ButtonFillCraft());
+//            playPanelItemInstanceMap.put(fillBtn, new ButtonFillCraft());
 
             playPanelItemInstanceMap.put(pageBtn, new ButtonPage2(playerRecipePage.page));
             if (playerRecipePage.getMaxPage() > playerRecipePage.page + 1) {

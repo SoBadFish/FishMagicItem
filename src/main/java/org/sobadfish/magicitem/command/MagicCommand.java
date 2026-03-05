@@ -37,15 +37,16 @@ public class MagicCommand extends Command {
                     if(!commandSender.isOp()){
                         return false;
                     }
-                    MagicController.sendMessageToObject("/fmi i add [name] [itemid:damage/hand] 添加自定义物品",commandSender);
-                    MagicController.sendMessageToObject("/fmi i give [name] [playerName] 给予玩家自定义物品",commandSender);
-                    MagicController.sendMessageToObject("/fmi i save [name]  保存手持物品",commandSender);
-                    MagicController.sendMessageToObject("/fmi c [name]  添加指令集",commandSender);
-                    MagicController.sendMessageToObject("/fmi cx [name]  添加指令功能",commandSender);
                     MagicController.sendMessageToObject("/fmi cr 合成台",commandSender);
+                    MagicController.sendMessageToObject("/fmi cl 配方列表", commandSender);
                     if(commandSender.isOp()) {
                         MagicController.sendMessageToObject("/fmi ca 创建合成配方", commandSender);
-                        MagicController.sendMessageToObject("/fmi cl 配方列表", commandSender);
+
+                        MagicController.sendMessageToObject("/fmi i add [name] [itemid:damage/hand] 添加自定义物品",commandSender);
+                        MagicController.sendMessageToObject("/fmi i give [name] [playerName] 给予玩家自定义物品",commandSender);
+                        MagicController.sendMessageToObject("/fmi i save [name]  保存手持物品",commandSender);
+                        MagicController.sendMessageToObject("/fmi c [name]  添加指令集",commandSender);
+                        MagicController.sendMessageToObject("/fmi cx [name]  添加指令功能",commandSender);
                     }
                     break;
                 case "i":
@@ -192,9 +193,6 @@ public class MagicCommand extends Command {
 
                     break;
                 case "cl":
-                    if(!commandSender.isOp()){
-                        return false;
-                    }
                     if(commandSender instanceof Player){
                         DisPlayerPanel panel = DisPlayerPanel.getDisPlayPanel((Player) commandSender,"配方列表", ItemListPanel.class);
                         if(panel != null) {
