@@ -10,6 +10,7 @@ import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.inventory.InventoryTransactionEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
+import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.PlayerInventory;
 import cn.nukkit.inventory.transaction.InventoryTransaction;
@@ -22,6 +23,7 @@ import cn.nukkit.utils.TextFormat;
 import org.sobadfish.magicitem.MagicItemMainClass;
 import org.sobadfish.magicitem.files.datas.CustomTagData;
 import org.sobadfish.magicitem.files.entity.CommandCollect;
+import org.sobadfish.magicitem.windows.DisPlayerPanel;
 import org.sobadfish.magicitem.windows.items.BasePlayPanelItemInstance;
 import org.sobadfish.magicitem.windows.lib.AbstractFakeInventory;
 import org.sobadfish.magicitem.windows.lib.ChestInventoryPanel;
@@ -370,6 +372,15 @@ public class MagicController implements Listener {
 
         }
 
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event){
+        Player player = event.getPlayer();
+        if(DisPlayerPanel.panelLib.containsKey(player)){
+            DisPlayerPanel disPlayerPanel = DisPlayerPanel.panelLib.get(player);
+            disPlayerPanel.panel.close(player);
+        }
     }
 
     private void checkServer() {

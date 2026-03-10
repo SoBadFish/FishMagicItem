@@ -75,7 +75,8 @@
                           "source_property_name": "#item_hover_text",
                           "target_property_name": "#item_hover_text"
                         }
-                      ]
+                      ],
+                      "anims": []
                     }
                   }
                 ]
@@ -358,6 +359,52 @@
     "grid_dimensions": [9, 3],
     "grid_item_template": "chest.chest_grid_item",
     "collection_name": "container_items"
+  },
+  "magic_crafting_input_slots": {
+    "type": "collection_panel",
+    "size": [54, 54],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "collection_name": "container_items",
+    "controls": [
+      { "slot_0@chest.magic_grid_item": { "collection_index": 0, "offset": [0, 0], "anchor_from": "top_left", "anchor_to": "top_left" } },
+      { "slot_1@chest.magic_grid_item": { "collection_index": 1, "offset": [18, 0], "anchor_from": "top_left", "anchor_to": "top_left" } },
+      { "slot_2@chest.magic_grid_item": { "collection_index": 2, "offset": [36, 0], "anchor_from": "top_left", "anchor_to": "top_left" } },
+      { "slot_9@chest.magic_grid_item": { "collection_index": 9, "offset": [0, 18], "anchor_from": "top_left", "anchor_to": "top_left" } },
+      { "slot_10@chest.magic_grid_item": { "collection_index": 10, "offset": [18, 18], "anchor_from": "top_left", "anchor_to": "top_left" } },
+      { "slot_11@chest.magic_grid_item": { "collection_index": 11, "offset": [36, 18], "anchor_from": "top_left", "anchor_to": "top_left" } },
+      { "slot_18@chest.magic_grid_item": { "collection_index": 18, "offset": [0, 36], "anchor_from": "top_left", "anchor_to": "top_left" } },
+      { "slot_19@chest.magic_grid_item": { "collection_index": 19, "offset": [18, 36], "anchor_from": "top_left", "anchor_to": "top_left" } },
+      { "slot_20@chest.magic_grid_item": { "collection_index": 20, "offset": [36, 36], "anchor_from": "top_left", "anchor_to": "top_left" } }
+    ]
+  },
+  "magic_crafting_output_slots": {
+    "type": "collection_panel",
+    "size": [54, 54],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "collection_name": "container_items",
+    "controls": [
+      { "slot_4@chest.magic_grid_item": { "collection_index": 4, "offset": [0, 0], "anchor_from": "top_left", "anchor_to": "top_left" } },
+      { "slot_5@chest.magic_grid_item": { "collection_index": 5, "offset": [18, 0], "anchor_from": "top_left", "anchor_to": "top_left" } },
+      { "slot_6@chest.magic_grid_item": { "collection_index": 6, "offset": [36, 0], "anchor_from": "top_left", "anchor_to": "top_left" } },
+      { "slot_13@chest.magic_grid_item": { "collection_index": 13, "offset": [0, 18], "anchor_from": "top_left", "anchor_to": "top_left" } },
+      { "slot_14@chest.magic_grid_item": { "collection_index": 14, "offset": [18, 18], "anchor_from": "top_left", "anchor_to": "top_left" } },
+      { "slot_15@chest.magic_grid_item": { "collection_index": 15, "offset": [36, 18], "anchor_from": "top_left", "anchor_to": "top_left" } },
+      { "slot_22@chest.magic_grid_item": { "collection_index": 22, "offset": [0, 36], "anchor_from": "top_left", "anchor_to": "top_left" } },
+      { "slot_23@chest.magic_grid_item": { "collection_index": 23, "offset": [18, 36], "anchor_from": "top_left", "anchor_to": "top_left" } },
+      { "slot_24@chest.magic_grid_item": { "collection_index": 24, "offset": [36, 36], "anchor_from": "top_left", "anchor_to": "top_left" } }
+    ]
+  },
+  "magic_crafting_save_slot": {
+    "type": "collection_panel",
+    "size": [18, 18],
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "collection_name": "container_items",
+    "controls": [
+      { "slot_8@chest.magic_grid_item": { "collection_index": 8 } }
+    ]
   },
   "magic_crafting_panel_top_half": {
     "type": "panel",

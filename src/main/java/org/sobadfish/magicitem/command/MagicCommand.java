@@ -29,8 +29,6 @@ public class MagicCommand extends Command {
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
-
-        MagicController.sendMessageToObject("&e当前仅为测试版，不代表最终品质 版本: v"+MagicItemMainClass.mainClass.getDescription().getVersion(),commandSender);
         if(strings.length > 0){
             switch (strings[0]){
                 case "help":
