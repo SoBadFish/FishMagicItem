@@ -15,10 +15,9 @@
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [7, 18],
-          "clips_children": true,
           "layer": 2,
           "controls": [
-            { "grid@chest.magic_crafting_grid": {} }
+            { "slots@chest.magic_crafting_input_slots": {} }
           ]
         }
       },
@@ -29,10 +28,9 @@
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [115, 18],
-          "clips_children": true,
           "layer": 2,
           "controls": [
-            { "grid@chest.magic_crafting_grid": { "offset": [-72, 0] } }
+            { "slots@chest.magic_crafting_output_slots": {} }
           ]
         }
       },
@@ -54,7 +52,6 @@
           "anchor_from": "bottom_left",
           "anchor_to": "bottom_left",
           "offset": [79, -6],
-          "clips_children": true,
           "layer": 3,
           "controls": [
             {
@@ -68,7 +65,7 @@
                 "layer": 1
               }
             },
-            { "grid@chest.magic_crafting_grid": { "offset": [-144, 0] } }
+            { "slot@chest.magic_crafting_save_slot": {} }
           ]
         }
       }
@@ -78,11 +75,6 @@
     "type": "panel",
     "controls": [
       { "container_gamepad_helpers@common.container_gamepad_helpers": {} },
-      {
-        "flying_item_renderer@common.flying_item_renderer": {
-          "layer": 14
-        }
-      },
       { "selected_item_details_factory@common.selected_item_details_factory": {} },
       { "item_lock_notification_factory@common.item_lock_notification_factory": {} },
       {
@@ -103,7 +95,12 @@
               }
             },
             { "inventory_selected_icon_button@common.inventory_selected_icon_button": {} },
-            { "gamepad_cursor@common.gamepad_cursor_button": {} }
+            { "gamepad_cursor@common.gamepad_cursor_button": {} },
+            {
+              "flying_item_renderer@common.flying_item_renderer": {
+                "layer": 20
+              }
+            }
           ]
         }
       }
